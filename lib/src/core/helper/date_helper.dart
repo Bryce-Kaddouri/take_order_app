@@ -24,6 +24,8 @@ class DateHelper {
     return dayOfYear;
   }
 
+
+
   static int getNbDaysInYear(int year) {
     return year % 4 == 0 ? 366 : 365;
   }

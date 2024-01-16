@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async
+{
+  await Supabase.initialize(
+    url: 'https://qlhzemdpzbonyqdecfxn.supabase.co',
+    anonKey:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsaHplbWRwemJvbnlxZGVjZnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQ4ODY4MDYsImV4cCI6MjAyMDQ2MjgwNn0.lcUJMI3dvMDT7LaO7MiudIkdxAZOZwF_hNtkQtF3OC8',
+  );
   runApp(const MyApp());
 }
 
@@ -12,7 +19,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.

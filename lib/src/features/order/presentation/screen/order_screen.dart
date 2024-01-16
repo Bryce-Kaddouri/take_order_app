@@ -149,6 +149,40 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child:ListView(
+          children: [
+            DrawerHeader(
+              child: Text("Drawer Header"),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home_outlined),
+              title: Text("Home"),
+              onTap: () {
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.add_shopping_cart_outlined),
+              title: Text("Add Order"),
+              onTap: () {
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings_outlined),
+              title: Text("Settings"),
+              onTap: () {
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      ),
+
       body: CustomScrollView(
         controller: _mainScrollController,
         slivers: [
