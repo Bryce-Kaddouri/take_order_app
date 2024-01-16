@@ -1,7 +1,9 @@
 import 'dart:math';
-
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter/material.dart';
-import 'package:calendar_appbar/calendar_appbar.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/route_manager.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 
 class OrderScreen extends StatefulWidget {
@@ -14,15 +16,12 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _horizontalScrollController = ScrollController();
-  DateTime? selectedDate;
+  DateTime selectedDate = DateTime.now();
 
   Random random = Random();
 
   @override
   void initState() {
-    setState(() {
-      selectedDate = DateTime.now();
-    });
     super.initState();
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -38,6 +37,17 @@ class _OrderScreenState extends State<OrderScreen> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  Future<DateTime?> selectDate() async {
+    // global key for the form
+    return showDatePicker(
+        context: context,
+        currentDate: selectedDate,
+        initialDate: DateTime.now(),
+        // first date of the year
+        firstDate: DateTime.now().subtract(Duration(days: 365)),
+        lastDate: DateTime.now().add(Duration(days: 365)));
   }
 
   Widget test(DateTime date) {
@@ -82,15 +92,16 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  Widget itemList(bool isSelected, String value, int index) {
+  Widget itemList(DateTime selectedDate, String value, int index) {
     double width = MediaQuery.of(context).size.width;
     double itemWidth = width / 7;
     print("itemWidth $itemWidth");
-    DateTime now = DateTime.now();
     int dayOfYear = index + 1;
-    DateTime date = DateTime(now.year, 1, 1).add(Duration(days: dayOfYear - 1));
-    bool isToday =
-        date.day == now.day && date.month == now.month && date.year == now.year;
+    DateTime dateOfItem =
+        DateTime(selectedDate.year, 1, 1).add(Duration(days: dayOfYear - 1));
+    bool isToday = dateOfItem.day == selectedDate.day &&
+        dateOfItem.month == selectedDate.month &&
+        dateOfItem.year == selectedDate.year;
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -117,7 +128,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
               ),
             Text(
-              date.day.toString(),
+              dateOfItem.day.toString(),
               style: TextStyle(
                 color: isToday ? Colors.black : Colors.grey,
                 fontWeight: FontWeight.bold,
@@ -125,7 +136,7 @@ class _OrderScreenState extends State<OrderScreen> {
               ),
             ),
             Text(
-              DateHelper.getDayInLetter(date),
+              DateHelper.getDayInLetter(dateOfItem),
               style: TextStyle(
                   color: isToday ? Colors.black : Colors.grey, fontSize: 16),
             ),
@@ -144,7 +155,25 @@ class _OrderScreenState extends State<OrderScreen> {
           SliverAppBar(
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  DateTime? date = await selectDate();
+                  if (date != null) {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                    int currentDay = selectedDate.day;
+                    double width = MediaQuery.of(context).size.width;
+                    double itemWidth = width / 7;
+                    double w = itemWidth;
+                    print("w $w");
+                    _horizontalScrollController.animateTo(
+                      (currentDay - 1) * w,
+                      duration: Duration(milliseconds: 500),
+                      // bounce effect
+                      curve: Curves.easeOut,
+                    );
+                  }
+                },
                 icon: Icon(Icons.calendar_today),
               ),
             ],
@@ -216,7 +245,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             scrollDirection: Axis.horizontal,
                             childrenDelegate: SliverChildBuilderDelegate(
                               (context, index) => itemList(
-                                  index == selectedDate!.day - 1,
+                                  selectedDate,
                                   DateHelper.getDayInLetter(
                                       DateTime(selectedDate!.year, 1, 1)
                                           .add(Duration(days: index))),
