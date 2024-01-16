@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:calendar_appbar/calendar_appbar.dart';
+import 'package:take_order_app/src/core/helper/date_helper.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -23,106 +24,211 @@ class _OrderScreenState extends State<OrderScreen> {
       selectedDate = DateTime.now();
     });
     super.initState();
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      int currentDay = DateTime.now().day;
+      double width = MediaQuery.of(context).size.width;
+      double itemWidth = width / 7;
+      double w = itemWidth;
+      print("w $w");
+      _horizontalScrollController.animateTo(
+        (currentDay - 1) * w,
+        duration: Duration(milliseconds: 500),
+        // bounce effect
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  Widget test(DateTime date) {
+    List<Widget> list = [];
+    List.generate(7, (index) {
+      DateTime newDate = date.add(Duration(days: index));
+      print("newDate $newDate");
+      Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 5,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          width: 60,
+          height: 60,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                newDate.day.toString(),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              Text(
+                DateHelper.getDayInLetter(newDate),
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+
+    return Row(
+      children: list,
+    );
+  }
+
+  Widget itemList(bool isSelected, String value, int index) {
+    double width = MediaQuery.of(context).size.width;
+    double itemWidth = width / 7;
+    print("itemWidth $itemWidth");
+    DateTime now = DateTime.now();
+    int dayOfYear = index + 1;
+    DateTime date = DateTime(now.year, 1, 1).add(Duration(days: dayOfYear - 1));
+    bool isToday =
+        date.day == now.day && date.month == now.month && date.year == now.year;
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      elevation: isToday ? 5 : 0,
+      color: isToday ? Colors.white : Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        width: itemWidth,
+        height: isToday ? 70 : 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isToday)
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            Text(
+              date.day.toString(),
+              style: TextStyle(
+                color: isToday ? Colors.black : Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            Text(
+              DateHelper.getDayInLetter(date),
+              style: TextStyle(
+                  color: isToday ? Colors.black : Colors.grey, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: CalendarAppBar(
-        fullCalendar: true,
-        onDateChanged: (value) => setState(() => selectedDate = value),
-        lastDate: DateTime.now(),
-        events: List.generate(
-            100,
-            (index) => DateTime.now()
-                .subtract(Duration(days: index * random.nextInt(5)))),
-      ),*/
       body: CustomScrollView(
         controller: _mainScrollController,
         slivers: [
-          HorizontalSliverList(
-            children: List.generate(
-              100,
-              (index) => Container(
-                width: 100,
-                height: 100,
-                color: Colors.green,
-                child: Text("Item $index"),
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Card(
-                    child: Text('data'),
-                  ),
-                  Card(
-                    child: Text('data'),
-                  ),
-                  Card(
-                    child: Text('data'),
-                  ),
-                  Card(
-                    child: Text('data'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Container(
-              height: 100.0,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 200,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 100.0,
-                    child: Card(
-                      child: Text('data'),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // horizontal list
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => Container(
-                width: 100,
-                height: 100,
-                color: Colors.green,
-                child: Text("Item $index"),
-              ),
-              childCount: 10,
-            ),
-          ),
           SliverAppBar(
-            collapsedHeight: 100,
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.calendar_today),
+              ),
+            ],
+            collapsedHeight: 60,
             pinned: true,
             floating: true,
-            expandedHeight: 200,
+            expandedHeight: 140,
             backgroundColor: Colors.blue,
-            flexibleSpace: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 100,
-              color: Colors.red,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: AlwaysScrollableScrollPhysics(),
-                itemCount: 10,
-                itemBuilder: (context, index) => Container(
-                  width: 100,
-                  height: 100,
-                  color: Colors.green,
-                  child: Text("Item $index"),
-                ),
-              ),
+            centerTitle: false,
+            title: Text(DateHelper.getMonthNameAndYear(selectedDate!)),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                  color: Colors.blue,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        clipBehavior: Clip.none,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            stops: [
+                              0.0,
+                              0.9,
+                              0.9,
+                              1.0,
+                            ],
+                            colors: [
+                              Colors.blue,
+                              Colors.blue,
+                              Colors.white,
+                              Colors.white,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                        width: double.infinity,
+                        height: 80,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollNotification) {
+                              // get the item of the width
+                              double itemWidth =
+                                  MediaQuery.of(context).size.width / 7;
+                              // get the current scroll position
+                              double scrollPos = notification.metrics.pixels;
+                              // get the current item
+                              int currentItem = (scrollPos / itemWidth).round();
+                              print("currentItem $currentItem");
+                              // get the month of the current item
+                              DateTime newDate =
+                                  DateTime(selectedDate!.year, 1, 1)
+                                      .add(Duration(days: currentItem));
+
+                              // check if the month is different from the current month
+                              if (newDate.month != selectedDate!.month) {
+                                setState(() {
+                                  selectedDate = newDate;
+                                });
+                              }
+                            }
+                            return true;
+                          },
+
+                          // 7 item in a row
+                          child: ListView.custom(
+                            controller: _horizontalScrollController,
+                            itemExtent: MediaQuery.of(context).size.width / 7,
+                            scrollDirection: Axis.horizontal,
+                            childrenDelegate: SliverChildBuilderDelegate(
+                              (context, index) => itemList(
+                                  index == selectedDate!.day - 1,
+                                  DateHelper.getDayInLetter(
+                                      DateTime(selectedDate!.year, 1, 1)
+                                          .add(Duration(days: index))),
+                                  index),
+                              childCount: DateHelper.getNbDaysInYear(
+                                  selectedDate!.year),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
             ),
           ),
           SliverList(
