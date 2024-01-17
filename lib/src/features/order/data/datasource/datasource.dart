@@ -50,21 +50,40 @@ class OrderDataSource {
       print(e);
       /*return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/
     }
+  }
 
-    Future<List<OrderModel>> getOrders() async {
-      try {
-        List<Map<String, dynamic>> response =
-            await _client.from('orders').select().order('id', ascending: true);
-        if (response.isNotEmpty) {
-          List<OrderModel> orderList =
-              response.map((e) => OrderModel.fromJson(e)).toList();
-          return orderList;
-        } else {
-          return [];
-        }
-      } catch (e) {
+  Future<List<OrderModel>> getOrders() async {
+    try {
+      // orders inner join customers on orders.customer_id = customers.id
+      // example :
+      //If you want to filter a table based on a child table's values you can use the !inner() function. For example, if you wanted
+      //to select all rows in a message table which belong to a user with the username "Jane":
+
+      // final data = await supabase
+      //     .from('messages')
+      //     .select('*, users!inner(*)')
+      //     .eq('users.username', 'Jane');
+
+      var response = await _client
+          .from('orders')
+          .select('*, customers!inner(*)')
+          .eq('customer_id', 1);
+      print(response);
+      if (response.isNotEmpty) {
+        print(response);
+        /* List<OrderModel> orderList =
+            response.map((e) => OrderModel.fromJson(e)).toList();*/
+        return [];
+      } else {
         return [];
       }
+    } on PostgrestException catch (error) {
+      print('postgrest error');
+      print(error);
+      return [];
+    } catch (e) {
+      print(e);
+      return [];
     }
   }
 }
