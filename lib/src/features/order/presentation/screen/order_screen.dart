@@ -4,7 +4,11 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/route_manager.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
+import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
+
+import '../../data/model/order_model.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -150,7 +154,7 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child:ListView(
+        child: ListView(
           children: [
             DrawerHeader(
               child: Text("Drawer Header"),
@@ -182,7 +186,6 @@ class _OrderScreenState extends State<OrderScreen> {
           ],
         ),
       ),
-
       body: CustomScrollView(
         controller: _mainScrollController,
         slivers: [
@@ -294,12 +297,41 @@ class _OrderScreenState extends State<OrderScreen> {
                   )),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => ListTile(
-                title: Text("Item $index"),
+          SliverToBoxAdapter(
+            child: Container(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: () {
+                  /*Get.toNamed("/add_order");*/
+                  OrderDataSource orderDataSource = OrderDataSource();
+                  OrderModel model = OrderModel(
+                    createdAt: DateTime.now(),
+                    updatedAt: DateTime.now(),
+                    date: DateTime.now().add(Duration(days: 1)),
+                    time: TimeOfDay.now(),
+                    customer: CustomerModel(
+                      id: 1,
+                      fName: "Customer 1",
+                      lName: "Customer 1",
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                      phoneNumber: "123456789",
+                    ),
+                    statusId: 1,
+                    userId: '044f7773-88fe-4531-922a-894db45c2765',
+                    cart: [
+                      CartModel(productId: 1, quantity: 5, isDone: false),
+                      CartModel(productId: 2, quantity: 10, isDone: false),
+                      CartModel(productId: 3, quantity: 8, isDone: false),
+                      CartModel(productId: 4, quantity: 1, isDone: false),
+                      CartModel(productId: 7, quantity: 3, isDone: false)
+                    ],
+                  );
+
+                  orderDataSource.createOrder(model);
+                },
+                child: Text("Add Order"),
               ),
-              childCount: 100,
             ),
           ),
         ],
