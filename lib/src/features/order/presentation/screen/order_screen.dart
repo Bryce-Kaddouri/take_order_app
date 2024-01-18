@@ -17,46 +17,43 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _horizontalScrollController = ScrollController();
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now().subtract(Duration(days: 1));
   List datas = [];
 
   Random random = Random();
   List<double> testRangeHours = [];
-  int currentHour = DateTime.now().hour;
+  int currentHour = 0;
 
   void initData() async {
     List<OrderModel> orderList = await OrderDataSource().getOrders();
-    List<int> lstHour = List.generate(23, (index) => index);
-    List orderListOfTheDay = [];
+    List<int> lstHour = List.generate(24, (index) => index);
+    List<OrderModel> orderListOfTheDay = [];
     List<double> lstPosition = [];
-
-    List<Map<String, dynamic>> lstHourMap = lstHour
-        .map((e) => {
-              'hour': e,
-              'order': orderList
-                  .where((element) =>
-                      element.date.day == selectedDate.day - 1 &&
-                      element.date.month == selectedDate.month &&
-                      element.date.year == selectedDate.year &&
-                      element.time.hour == e)
-                  .toList()
-            })
-        .toList();
-    print(lstHourMap);
     orderListOfTheDay = orderList
         .where((element) =>
             element.date.day == selectedDate.day &&
             element.date.month == selectedDate.month &&
             element.date.year == selectedDate.year)
         .toList();
+
+    List<Map<String, dynamic>> lstHourMap = [];
     double sum = 0;
-    for (var test in lstHourMap) {
-      double height = 70;
-      print(test['order'].length);
-      height = height + (test['order'].length * height);
+    for (var hour in lstHour) {
+      double height = 60;
+      List<OrderModel> orderListOfTheHour = orderListOfTheDay
+          .where((element) => element.time.hour == hour)
+          .toList();
+      height = height + (orderListOfTheHour.length * height);
       sum = sum + height;
-      lstPosition.add(sum);
+      Map<String, dynamic> map = {
+        'hour': hour,
+        'order': orderListOfTheHour,
+        'position': sum,
+      };
+      lstHourMap.add(map);
     }
+    print(lstHourMap);
+
     print(lstPosition);
     setState(() {
       datas = lstHourMap;
@@ -83,7 +80,14 @@ class _OrderScreenState extends State<OrderScreen> {
         curve: Curves.easeOut,
       );
       List<OrderModel> orderListOfTheDay = [];
+
+/*
       List<int> lstHour = List.generate(24, (index) => index);
+*/
+      print('lstHour');
+/*
+      print(lstHour);
+*/
       initData();
       /*_mainScrollController.animateTo(
         0,
@@ -91,21 +95,6 @@ class _OrderScreenState extends State<OrderScreen> {
         // bounce effect
         curve: Curves.easeOut,
       );*/
-
-      _mainScrollController.addListener(() {
-        double currentPositionY =
-            _mainScrollController.position.pixels; // get the current position
-        print(testRangeHours);
-        print(currentPositionY);
-        int indexPosition =
-            testRangeHours.indexWhere((element) => element > currentPositionY);
-        print(indexPosition);
-        if (indexPosition != -1) {
-          setState(() {
-            currentHour = lstHour[indexPosition];
-          });
-        }
-      });
     });
   }
 
@@ -252,157 +241,160 @@ class _OrderScreenState extends State<OrderScreen> {
             ],
           ),
         ),
-        body: Stack(children: [
-          Container(
-            child: CustomScrollView(
-              controller: _mainScrollController,
-              slivers: [
-                SliverAppBar(
-                  actions: [
-                    IconButton(
-                      onPressed: () async {
-                        DateTime? date = await selectDate();
-                        if (date != null) {
-                          setState(() {
-                            selectedDate = date;
-                          });
-                          int currentDay = selectedDate.day;
-                          double width = MediaQuery.of(context).size.width;
-                          double itemWidth = width / 7;
-                          double w = itemWidth;
-                          print("w $w");
-                          _horizontalScrollController.animateTo(
-                            (currentDay - 1) * w,
-                            duration: Duration(milliseconds: 500),
-                            // bounce effect
-                            curve: Curves.easeOut,
-                          );
-                        }
-                      },
-                      icon: Icon(Icons.calendar_today),
-                    ),
-                  ],
-                  collapsedHeight: 60,
-                  pinned: true,
-                  floating: true,
-                  expandedHeight: 140,
-                  backgroundColor: Colors.blue,
-                  centerTitle: false,
-                  title: Text(DateHelper.getMonthNameAndYear(selectedDate!)),
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                        color: Colors.blue,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              clipBehavior: Clip.none,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  stops: [
-                                    0.0,
-                                    0.9,
-                                    0.9,
-                                    1.0,
-                                  ],
-                                  colors: [
-                                    Colors.blue,
-                                    Colors.blue,
-                                    Colors.white,
-                                    Colors.white,
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                              ),
-                              width: double.infinity,
-                              height: 80,
-                              child: NotificationListener<ScrollNotification>(
-                                onNotification: (notification) {
-                                  if (notification is ScrollNotification) {
-                                    // get the item of the width
-                                    double itemWidth =
-                                        MediaQuery.of(context).size.width / 7;
-                                    // get the current scroll position
-                                    double scrollPos =
-                                        notification.metrics.pixels;
-                                    // get the current item
-                                    int currentItem =
-                                        (scrollPos / itemWidth).round();
-                                    print("currentItem $currentItem");
-                                    // get the month of the current item
-                                    DateTime newDate =
+        body: CustomScrollView(
+          controller: _mainScrollController,
+          slivers: [
+            SliverAppBar(
+              actions: [
+                IconButton(
+                  onPressed: () async {
+                    DateTime? date = await selectDate();
+                    if (date != null) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                      int currentDay = selectedDate.day;
+                      double width = MediaQuery.of(context).size.width;
+                      double itemWidth = width / 7;
+                      double w = itemWidth;
+                      print("w $w");
+                      _horizontalScrollController.animateTo(
+                        (currentDay - 1) * w,
+                        duration: Duration(milliseconds: 500),
+                        // bounce effect
+                        curve: Curves.easeOut,
+                      );
+                    }
+                  },
+                  icon: Icon(Icons.calendar_today),
+                ),
+              ],
+              collapsedHeight: 60,
+              pinned: true,
+              floating: true,
+              expandedHeight: 140,
+              backgroundColor: Colors.blue,
+              centerTitle: false,
+              title: Text(DateHelper.getMonthNameAndYear(selectedDate!)),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                    color: Colors.blue,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          clipBehavior: Clip.none,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              stops: [
+                                0.0,
+                                0.9,
+                                0.9,
+                                1.0,
+                              ],
+                              colors: [
+                                Colors.blue,
+                                Colors.blue,
+                                Colors.white,
+                                Colors.white,
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                          width: double.infinity,
+                          height: 80,
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (notification) {
+                              if (notification is ScrollNotification) {
+                                // get the item of the width
+                                double itemWidth =
+                                    MediaQuery.of(context).size.width / 7;
+                                // get the current scroll position
+                                double scrollPos = notification.metrics.pixels;
+                                // get the current item
+                                int currentItem =
+                                    (scrollPos / itemWidth).round();
+                                print("currentItem $currentItem");
+                                // get the month of the current item
+                                DateTime newDate =
+                                    DateTime(selectedDate!.year, 1, 1)
+                                        .add(Duration(days: currentItem));
+
+                                // check if the month is different from the current month
+                                if (newDate.month != selectedDate!.month) {
+                                  setState(() {
+                                    selectedDate = newDate;
+                                  });
+                                }
+                              }
+                              return true;
+                            },
+
+                            // 7 item in a row
+                            child: ListView.custom(
+                              controller: _horizontalScrollController,
+                              itemExtent: MediaQuery.of(context).size.width / 7,
+                              scrollDirection: Axis.horizontal,
+                              childrenDelegate: SliverChildBuilderDelegate(
+                                (context, index) => itemList(
+                                    selectedDate,
+                                    DateHelper.getDayInLetter(
                                         DateTime(selectedDate!.year, 1, 1)
-                                            .add(Duration(days: currentItem));
-
-                                    // check if the month is different from the current month
-                                    if (newDate.month != selectedDate!.month) {
-                                      setState(() {
-                                        selectedDate = newDate;
-                                      });
-                                    }
-                                  }
-                                  return true;
-                                },
-
-                                // 7 item in a row
-                                child: ListView.custom(
-                                  controller: _horizontalScrollController,
-                                  itemExtent:
-                                      MediaQuery.of(context).size.width / 7,
-                                  scrollDirection: Axis.horizontal,
-                                  childrenDelegate: SliverChildBuilderDelegate(
-                                    (context, index) => itemList(
-                                        selectedDate,
-                                        DateHelper.getDayInLetter(
-                                            DateTime(selectedDate!.year, 1, 1)
-                                                .add(Duration(days: index))),
-                                        index),
-                                    childCount: DateHelper.getNbDaysInYear(
-                                        selectedDate!.year),
-                                  ),
-                                ),
+                                            .add(Duration(days: index))),
+                                    index),
+                                childCount: DateHelper.getNbDaysInYear(
+                                    selectedDate!.year),
                               ),
                             ),
-                          ],
-                        )),
-                  ),
+                          ),
+                        ),
+                      ],
+                    )),
+              ),
+            ),
+            if (datas.isEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text("No order"),
                 ),
-                if (datas.isEmpty)
-                  SliverToBoxAdapter(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text("No order"),
-                    ),
-                  )
-                else
-                  NotificationListener<ScrollNotification>(
-                      onNotification: (notification) {
-                        // get the current scroll position
-                        double scrollPos = notification.metrics.pixels;
-                        print("scrollPos $scrollPos");
-                        return true;
-                      },
-                      child: SliverVariedExtentList.list(
-                          children: List.generate(23, (index) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1,
-                                  ),
-                                ),
+              )
+            else
+              SliverList.list(
+                children: List.generate(datas.length, (index) {
+                  Map<String, dynamic> data = datas[index];
+                  return Row(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        width: 60,
+                        child: Text(
+                          '${data['hour']} h',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            minHeight: 60,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey,
+                                width: 1,
                               ),
-                              child: Column(
-                                  children: List.generate(
-                                      datas[index]['order'].length, (index2) {
-                                OrderModel orderModel =
-                                    datas[index]['order'][index2];
-                                print('-' * 50);
-                                print(orderModel.time);
+                            ),
+                          ),
+                          child: Column(
+                            children: List.generate(
+                              data['order'].length,
+                              (index2) {
+                                OrderModel orderModel = data['order'][index2];
                                 return Card(
-                                  margin: EdgeInsets.all(10),
                                   color: Colors.red,
                                   child: Row(
                                     children: [
@@ -429,22 +421,122 @@ class _OrderScreenState extends State<OrderScreen> {
                                     ],
                                   ),
                                 );
-                              })),
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            /*       SliverVariedExtentList.list(
+                      children: List.generate(24, (hour) {
+                        print('datas[hour]');
+                        print(hour);
+                        return Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.grey,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Container(
+                            height: 60,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  child: Text(
+                                    '$hour h',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    child: Text(
+                                      'Customer',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Container(
+                                    child: Text(
+                                      'Customer',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          */ /* Column(
+                              children: List.generate(
+                                  datas[hour]['order'].length, (index2) {
+                            OrderModel orderModel =
+                                datas[hour]['order'][index2];
+                            print('-' * 50);
+                            print(orderModel.time);
+                            return Card(
+                              color: Colors.red,
+                              child: Row(
+                                children: [
+                                  Text('${orderModel.time.format(context)}'),
+                                  Container(
+                                    height: 60,
+                                    child: Text(
+                                      orderModel.customer.fName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    height: 60,
+                                    child: Text(
+                                      orderModel.customer.lName,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
-                          }),
-                          itemExtentBuilder: (index, layout) {
-                            double height = 70;
-                            int nbOrder = datas[index]['order'].length;
+                          })),*/ /*
+                        );
+                      }),
+                      itemExtentBuilder: (index, layout) {
+                        print('datas[index]');
+                        print(index);
+                        double height = index > 23 ? 0 : 60;
+                        int nbOrder = 0;
+                        */ /* if (index < 23) {
+                          nbOrder = datas[index]['order'].length;
+                        }*/ /*
+                        */ /*   print('datas[index]');
+                        print(datas);*/ /*
 
-                            height = height + (nbOrder * height);
-                            return height;
-                          })),
-                SliverToBoxAdapter(
+                        print('hour : $test');
+
+                        height = height + (nbOrder * height);
+                        return height;
+                      }),*/
+            /* SliverToBoxAdapter(
                   child: Container(
                     alignment: Alignment.center,
                     child: ElevatedButton(
                       onPressed: () {
-                        /*Get.toNamed("/add_order");*/
+                        */ /*Get.toNamed("/add_order");*/ /*
                         OrderDataSource orderDataSource = OrderDataSource();
                         OrderModel model = OrderModel(
                           createdAt: DateTime.now(),
@@ -530,37 +622,9 @@ class _OrderScreenState extends State<OrderScreen> {
                       child: Text("Add Order"),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).size.height / 2,
-            right: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                // glassmorphism effect
-                color: Colors.white.withOpacity(0.5),
-                shape: BoxShape.rectangle,
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.5),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              padding: EdgeInsets.all(10),
-              child: Text('$currentHour h'),
-            ),
-          ),
-        ]),
+                ),*/
+          ],
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             List<OrderModel> orderList = await OrderDataSource().getOrders();
