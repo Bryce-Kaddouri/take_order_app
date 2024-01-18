@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../cart/data/model/cart_model.dart';
 import '../model/order_model.dart';
 
 class OrderDataSource {

@@ -218,8 +218,8 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.home_outlined),
-                title: Text("Home"),
+                leading: Icon(Icons.list_alt_outlined),
+                title: Text("Order List"),
                 onTap: () {
                   Get.back();
                 },
@@ -430,107 +430,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   );
                 }),
               ),
-            /*       SliverVariedExtentList.list(
-                      children: List.generate(24, (hour) {
-                        print('datas[hour]');
-                        print(hour);
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: Container(
-                            height: 60,
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 60,
-                                  child: Text(
-                                    '$hour h',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    child: Text(
-                                      'Customer',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    child: Text(
-                                      'Customer',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          */ /* Column(
-                              children: List.generate(
-                                  datas[hour]['order'].length, (index2) {
-                            OrderModel orderModel =
-                                datas[hour]['order'][index2];
-                            print('-' * 50);
-                            print(orderModel.time);
-                            return Card(
-                              color: Colors.red,
-                              child: Row(
-                                children: [
-                                  Text('${orderModel.time.format(context)}'),
-                                  Container(
-                                    height: 60,
-                                    child: Text(
-                                      orderModel.customer.fName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 60,
-                                    child: Text(
-                                      orderModel.customer.lName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          })),*/ /*
-                        );
-                      }),
-                      itemExtentBuilder: (index, layout) {
-                        print('datas[index]');
-                        print(index);
-                        double height = index > 23 ? 0 : 60;
-                        int nbOrder = 0;
-                        */ /* if (index < 23) {
-                          nbOrder = datas[index]['order'].length;
-                        }*/ /*
-                        */ /*   print('datas[index]');
-                        print(datas);*/ /*
 
-                        print('hour : $test');
-
-                        height = height + (nbOrder * height);
-                        return height;
-                      }),*/
             /* SliverToBoxAdapter(
                   child: Container(
                     alignment: Alignment.center,
