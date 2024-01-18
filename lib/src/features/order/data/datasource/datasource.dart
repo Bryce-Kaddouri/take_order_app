@@ -8,13 +8,14 @@ class OrderDataSource {
   /*Future<List<OrderModel>> getOrders();
   Future<OrderModel> getOrder(String id);*/
   Future<OrderModel?> createOrder(OrderModel order) async {
+    print('create order');
     try {
       Map<String, dynamic> orderInfo = {
         'created_at': order.createdAt.toIso8601String(),
         'updated_at': order.updatedAt.toIso8601String(),
         'customer_id': order.customer.id,
-        'status_id': order.statusId,
-        'user_id': order.userId,
+        'status_id': order.status.id,
+        'user_id': order.user.uid,
         'date': order.date.toIso8601String(),
         'time': '${order.time.hour}:${order.time.minute}',
       };
@@ -25,9 +26,9 @@ class OrderDataSource {
         List<CartModel> cartDatas = order.cart;
         for (int i = 0; i < cartDatas.length; i++) {
           Map<String, dynamic> cartInfo = {
-            'order_id': response[0]['id'],
-            'order_date': response[0]['date'],
-            'product_id': cartDatas[i].productId,
+            'id': response[0]['id'],
+            'date': response[0]['date'],
+            'product_id': cartDatas[i].product.id,
             'quantity': cartDatas[i].quantity,
             'is_done': cartDatas[i].isDone,
           };
@@ -40,6 +41,7 @@ class OrderDataSource {
         print(categoryModel.toJson());
         return Right(categoryModel);*/
       } else {
+        print('response is empty');
         /* return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/
       }
     } on PostgrestException catch (error) {
@@ -65,15 +67,14 @@ class OrderDataSource {
       //     .eq('users.username', 'Jane');
 
       var response = await _client
-          .from('orders')
-          .select('*, customers!inner(*)')
-          .eq('customer_id', 1);
-      print(response);
+          .from('all_orders_view')
+          .select()
+          .order('order_time', ascending: true);
       if (response.isNotEmpty) {
-        print(response);
-        /* List<OrderModel> orderList =
-            response.map((e) => OrderModel.fromJson(e)).toList();*/
-        return [];
+        List<OrderModel> orderList =
+            response.map((e) => OrderModel.fromJson(e)).toList();
+        print(orderList);
+        return orderList;
       } else {
         return [];
       }
