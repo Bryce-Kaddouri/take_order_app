@@ -45,6 +45,7 @@ class OrderModel {
         hour: int.parse(json['order_time'].split(':')[0]),
         minute: int.parse(json['order_time'].split(':')[1]),
       ),
+      /*json['order_is_paid'],*/
       customer: CustomerModel.fromJson(json['customer']),
       status: StatusModel.fromJson(json['status']),
       user: UserModel.fromJson(json),
@@ -59,8 +60,10 @@ class OrderModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
+        'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+        'date': date.toIso8601String(),
+        'time': '${time.hour}:${time.minute}',
         'customer': customer.toJson(),
         'status': status.toJson(),
         'user': user.toJson(),

@@ -232,6 +232,20 @@ class _OrderScreenState extends State<OrderScreen> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.person_outline),
+                title: Text("Customer List"),
+                onTap: () {
+                  Get.back();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person_add_outlined),
+                title: Text("Add Customer"),
+                onTap: () {
+                  Get.back();
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.settings_outlined),
                 title: Text("Settings"),
                 onTap: () {
