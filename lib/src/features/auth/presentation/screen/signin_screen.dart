@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/auth_provider.dart';
@@ -50,19 +51,21 @@ class SignInScreen extends StatelessWidget {
                   // Validate and save the form values
                   if (_formKey.currentState!.saveAndValidate()) {
                     debugPrint(_formKey.currentState?.value.toString());
-                    context
+                    Future<bool> test = context
                         .read<AuthProvider>()
                         .login(
                           _formKey.currentState?.value['email'],
                           _formKey.currentState?.value['password'],
                         )
-                        .then((value) {
+                        .whenComplete(() {});
+
+                    test.then((value) {
                       if (value) {
-                        Get.offAllNamed('/home');
+                        context.go('/');
                       } else {
                         Get.snackbar(
                           'Error',
-                          context.read<AuthProvider>().loginErrorMessage!,
+                          context.read<AuthProvider>().loginErrorMessage,
                           backgroundColor: Colors.red,
                           colorText: Colors.white,
                           margin: const EdgeInsets.all(10),
@@ -87,7 +90,65 @@ class SignInScreen extends StatelessWidget {
                         );
                       }
                     });
+
+                    /*Get.snackbar(
+                        'Error',
+                        context.read<AuthProvider>().loginErrorMessage,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                        margin: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
+                        snackPosition: SnackPosition.TOP,
+                        duration: const Duration(seconds: 3),
+                        icon: const Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                        ),
+                        isDismissible: true,
+                        forwardAnimationCurve: Curves.easeOutBack,
+                        reverseAnimationCurve: Curves.easeInBack,
+                        onTap: (value) => Get.back(),
+                        mainButton: TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text(
+                            'OK',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );*/
                   }
+
+                  /*  .then((value) {
+                      if (value) {
+                        context.go('/');
+                      } else {
+                        Get.snackbar(
+                          'Error',
+                          context.read<AuthProvider>().loginErrorMessage,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                          margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
+                          snackPosition: SnackPosition.TOP,
+                          duration: const Duration(seconds: 3),
+                          icon: const Icon(
+                            Icons.error_outline,
+                            color: Colors.white,
+                          ),
+                          isDismissible: true,
+                          forwardAnimationCurve: Curves.easeOutBack,
+                          reverseAnimationCurve: Curves.easeInBack,
+                          onTap: (value) => Get.back(),
+                          mainButton: TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text(
+                              'OK',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      }
+                    });*/
                 },
                 minWidth: double.infinity,
                 height: 50,

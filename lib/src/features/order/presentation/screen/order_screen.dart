@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
+import 'package:go_router/go_router.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
 
@@ -228,7 +229,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 leading: Icon(Icons.add_shopping_cart_outlined),
                 title: Text("Add Order"),
                 onTap: () {
-                  Get.back();
+                  context.go('/add-customer');
                 },
               ),
               ListTile(
@@ -249,7 +250,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 leading: Icon(Icons.settings_outlined),
                 title: Text("Settings"),
                 onTap: () {
-                  Get.back();
+                  context.go('/setting');
                 },
               ),
             ],

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
+import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
+import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
+import 'package:take_order_app/src/features/setting/presentation/screen/setting_screen.dart';
 
 class RouterHelper {
   static GoRouter router = GoRouter(
@@ -11,16 +14,38 @@ class RouterHelper {
         path: '/',
         pageBuilder: (context, state) {
           if (context.read<AuthProvider>().checkIsLoggedIn()) {
-            return const MaterialPage(child: Text('Dashboard'));
+            print('logged in');
+            return const MaterialPage(child: OrderScreen());
           } else {
-            return MaterialPage(child: OrderScreen());
+            print('not logged in');
+            return MaterialPage(child: SignInScreen());
           }
         },
       ),
       GoRoute(
-        path: '/login',
+        path: '/home',
+        pageBuilder: (context, state) {
+          if (context.read<AuthProvider>().checkIsLoggedIn()) {
+            return const MaterialPage(child: OrderScreen());
+          } else {
+            return MaterialPage(child: SignInScreen());
+          }
+        },
+      ),
+      GoRoute(
+        path: '/setting',
+        pageBuilder: (context, state) {
+          if (context.read<AuthProvider>().checkIsLoggedIn()) {
+            return const MaterialPage(child: SettingScreen());
+          } else {
+            return MaterialPage(child: SignInScreen());
+          }
+        },
+      ),
+      GoRoute(
+        path: '/add-customer',
         pageBuilder: (context, state) =>
-            const MaterialPage(child: Text('Login')),
+            MaterialPage(child: AddCustomerScreen()),
       ),
       GoRoute(
         path: '/register',

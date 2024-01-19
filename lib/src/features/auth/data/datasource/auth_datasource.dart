@@ -13,13 +13,22 @@ class AuthDataSource {
     try {
       final response = await _auth.signInWithPassword(
           email: params.email, password: params.password);
+      print('response');
+      print(response);
       if (response.user != null &&
           response.user!.appMetadata['role'] == 'SELLER') {
         return Right(response);
       } else {
+        _auth.signOut();
         return Left(AuthFailure(errorMessage: 'Invalid Credential'));
       }
+    } on PostgrestException catch (e) {
+      print('postgrest error');
+      print(e);
+      return Left(AuthFailure(errorMessage: 'Invalid Credential'));
     } catch (e) {
+      print('error');
+      print(e);
       return Left(AuthFailure(errorMessage: 'Invalid Credential'));
     }
   }

@@ -22,7 +22,24 @@ class AuthProvider with ChangeNotifier {
     required this.authGetUserUseCase,
     required this.authIsLoggedInUseCase,
     required this.authOnAuthChangeUseCase,
-  });
+  }) {
+    authOnAuthChangeUseCase.call(NoParams()).listen((event) {
+      // check if is login or logout
+      print('event');
+      print(event.event);
+
+      switch (event.event) {
+        case AuthChangeEvent.signedIn:
+          print('logged in');
+
+          break;
+        case AuthChangeEvent.signedOut:
+          print('logged out');
+          break;
+        default:
+      }
+    });
+  }
 
   bool checkIsLoggedIn() {
     return authIsLoggedInUseCase.call(NoParams());
