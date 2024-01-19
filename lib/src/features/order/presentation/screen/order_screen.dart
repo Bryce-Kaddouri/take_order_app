@@ -243,7 +243,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 leading: Icon(Icons.person_add_outlined),
                 title: Text("Add Customer"),
                 onTap: () {
-                  Get.back();
+                  context.go('/customers/add');
                 },
               ),
               ListTile(

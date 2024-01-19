@@ -61,7 +61,7 @@ class SignInScreen extends StatelessWidget {
 
                     test.then((value) {
                       if (value) {
-                        context.go('/home');
+                        context.go('/orders');
                         /*Future.delayed(const Duration(milliseconds: 500), () {
                           context.go('/home');
                         });*/

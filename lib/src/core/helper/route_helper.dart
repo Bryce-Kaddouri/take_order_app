@@ -15,7 +15,7 @@ class RouterHelper {
         if (isLoggedIn) {
           print(state.path);
           if (state.path == '/' || state.path == '/signin') {
-            return '/home';
+            return '/orders';
           }else{
             return state.path;
           }
@@ -25,15 +25,26 @@ class RouterHelper {
         }
       },
       routes: <RouteBase>[
-        GoRoute(path: '/home', pageBuilder: (context, state) {
+        GoRoute(path: '/orders', pageBuilder: (context, state) {
           return MaterialPage(child: OrderScreen());
-        }),
+        },
+
+        ),
         GoRoute(path: '/signin', pageBuilder: (context, state) {
           return MaterialPage(child: SignInScreen());
         }),
         GoRoute(path: '/setting', pageBuilder: (context, state) {
           return MaterialPage(child: SettingScreen());
         },name: 'setting'),
+        GoRoute(path: '/customers', pageBuilder: (context, state) {
+          return MaterialPage(child: Text('test'));
+        },name: 'customers', routes: [
+          GoRoute(path: 'add', pageBuilder: (context, state) {
+            return MaterialPage(child: AddCustomerScreen());
+          },name: 'add'),
+        ]),
+
+
       ],
 
     ),
