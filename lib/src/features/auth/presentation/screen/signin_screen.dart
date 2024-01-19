@@ -61,31 +61,31 @@ class SignInScreen extends StatelessWidget {
 
                     test.then((value) {
                       if (value) {
-                        context.go('/');
+                        context.go('/home');
+                        /*Future.delayed(const Duration(milliseconds: 500), () {
+                          context.go('/home');
+                        });*/
                       } else {
-                        Get.snackbar(
-                          'Error',
-                          context.read<AuthProvider>().loginErrorMessage,
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
-                          margin: const EdgeInsets.all(10),
-                          padding: const EdgeInsets.all(10),
-                          snackPosition: SnackPosition.TOP,
-                          duration: const Duration(seconds: 3),
-                          icon: const Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                          ),
-                          isDismissible: true,
-                          forwardAnimationCurve: Curves.easeOutBack,
-                          reverseAnimationCurve: Curves.easeInBack,
-                          onTap: (value) => Get.back(),
-                          mainButton: TextButton(
-                            onPressed: () => Get.back(),
-                            child: const Text(
-                              'OK',
-                              style: TextStyle(color: Colors.white),
+                        // show materiql banner
+                        ScaffoldMessenger.of(context).showMaterialBanner(
+                          MaterialBanner(
+                            content: Text(
+                              context.read<AuthProvider>().loginErrorMessage,
+                              style: const TextStyle(color: Colors.white),
                             ),
+                            backgroundColor: Colors.red,
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context)
+                                      .hideCurrentMaterialBanner();
+                                },
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       }

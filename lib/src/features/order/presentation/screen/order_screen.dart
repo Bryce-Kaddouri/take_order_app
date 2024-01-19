@@ -250,6 +250,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 leading: Icon(Icons.settings_outlined),
                 title: Text("Settings"),
                 onTap: () {
+                  print('setting');
                   context.go('/setting');
                 },
               ),

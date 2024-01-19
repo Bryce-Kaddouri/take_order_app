@@ -49,13 +49,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp.router(
-      routerDelegate: RouterHelper.router.routerDelegate,
-      routeInformationParser: RouterHelper.router.routeInformationParser,
-      routeInformationProvider: RouterHelper.router.routeInformationProvider,
-      routingCallback: (routing) {
-        print(routing);
-      },
+    return MaterialApp.router(
+      routerConfig: RouterHelper().getRoute(),
+
+      /*routerDelegate: RouterHelper().getRoute().routerDelegate,
+      routeInformationParser: RouterHelper().getRoute().routeInformationParser,
+      routeInformationProvider: RouterHelper().getRoute().routeInformationProvider,*/
+
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.

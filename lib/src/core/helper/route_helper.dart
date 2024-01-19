@@ -8,7 +8,40 @@ import 'package:take_order_app/src/features/order/presentation/screen/order_scre
 import 'package:take_order_app/src/features/setting/presentation/screen/setting_screen.dart';
 
 class RouterHelper {
-  static GoRouter router = GoRouter(
+  final ValueNotifier<RoutingConfig> myRoutingConfig = ValueNotifier<RoutingConfig>(
+    RoutingConfig(
+      redirect: (context, state) {
+        bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
+        if (isLoggedIn) {
+          print(state.path);
+          if (state.path == '/' || state.path == '/signin') {
+            return '/home';
+          }else{
+            return state.path;
+          }
+
+        } else {
+          return '/signin';
+        }
+      },
+      routes: <RouteBase>[
+        GoRoute(path: '/home', pageBuilder: (context, state) {
+          return MaterialPage(child: OrderScreen());
+        }),
+        GoRoute(path: '/signin', pageBuilder: (context, state) {
+          return MaterialPage(child: SignInScreen());
+        }),
+        GoRoute(path: '/setting', pageBuilder: (context, state) {
+          return MaterialPage(child: SettingScreen());
+        },name: 'setting'),
+      ],
+
+    ),
+  );
+  GoRouter getRoute(){
+    return GoRouter.routingConfig(routingConfig: myRoutingConfig,observers: [NavigatorObserver()]);
+  }
+  /*static GoRouter router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
@@ -93,5 +126,5 @@ class RouterHelper {
             const MaterialPage(child: Text('Edit Product')),
       ),
     ],
-  );
+  );*/
 }
