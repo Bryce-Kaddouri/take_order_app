@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
 import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
+import 'package:take_order_app/src/features/customer/presentation/screen/customer_detail_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/setting/presentation/screen/setting_screen.dart';
@@ -43,7 +44,13 @@ class RouterHelper {
           GoRoute(path: 'add', pageBuilder: (context, state) {
             return MaterialPage(child: AddCustomerScreen());
           },name: 'add'),
+          GoRoute(path: 'details/:id', pageBuilder: (context, state) {
+            return MaterialPage(child: CustomerDetailScreen(
+              id: int.parse(state.pathParameters['id']!),
+            ));
+          },name: 'customer-details'),
         ]),
+
 
 
       ],

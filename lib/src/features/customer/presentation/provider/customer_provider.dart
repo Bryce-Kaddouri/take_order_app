@@ -67,7 +67,7 @@ class CustomerProvider with ChangeNotifier {
 
     await result.fold((l) async {}, (r) async {
       print(r.toJson());
-      customerModel = CustomerModel.fromJson(r.toJson());
+      customerModel = r;
     });
 
     return customerModel;

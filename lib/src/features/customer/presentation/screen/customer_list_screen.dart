@@ -13,6 +13,13 @@ class CustomerListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading:  BackButton(
+          onPressed: (){
+            context.go('/orders');
+          },
+        ),
+        centerTitle: true,
         title: const Text('Customers'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
@@ -105,7 +112,7 @@ class CustomerListScreen extends StatelessWidget {
                         title: Text(snapshot.data?[index].fName ?? ''),
                         subtitle: Text(snapshot.data?[index].lName ?? ''),
                         onTap: () {
-                          context.go('/customers/${snapshot.data?[index].id}');
+                          context.goNamed('customer-details', pathParameters: {'id': snapshot.data![index].id.toString()});
                         },
                       ),);
                     },

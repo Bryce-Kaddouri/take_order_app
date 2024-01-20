@@ -46,7 +46,7 @@ class CustomerDataSource {
           .limit(1)
           .order('id', ascending: true);
       if (response.isNotEmpty) {
-        CustomerModel productModel = CustomerModel.fromJson(response[0]);
+        CustomerModel productModel = CustomerModel.fromJsonFromTable(response[0]);
         return Right(productModel);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting customer'));
