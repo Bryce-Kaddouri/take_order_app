@@ -17,6 +17,8 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: double.infinity,
         padding: const EdgeInsets.all(20),
         alignment: Alignment.center,
         child: FormBuilder(

@@ -72,4 +72,111 @@ class CustomerProvider with ChangeNotifier {
 
     return customerModel;
   }
+
+  Future<CustomerModel?> addCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+    CustomerModel customerModelParam = CustomerModel(
+      phoneNumber: phoneNumber, id: null, fName: fName, lName: lName,
+    );
+    CustomerModel? customerModelResponse;
+    final result = await customerAddCustomerUseCase.call(customerModelParam);
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          onVisible: () {
+            Future.delayed(const Duration(seconds: 2), () {
+              // dismiss banner
+              ScaffoldMessenger.of(context)
+                  .hideCurrentMaterialBanner();
+            });
+          },
+          content: Text(
+            l.errorMessage,
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          actions: [
+            TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                    .hideCurrentMaterialBanner();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+
+    }, (CustomerModel r) async {
+      print(r.toJson());
+      customerModelResponse = r;
+    });
+
+    return customerModelResponse;
+  }
+
+  Future<CustomerModel?> updateCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+    CustomerModel customerModelParam = CustomerModel(
+      phoneNumber: phoneNumber, id: _customerModel?.id, fName: fName, lName: lName,
+    );
+    CustomerModel? customerModelResponse;
+    final result = await customerUpdateCustomerUseCase.call(customerModelParam);
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          onVisible: () {
+            Future.delayed(const Duration(seconds: 2), () {
+              // dismiss banner
+              ScaffoldMessenger.of(context)
+                  .hideCurrentMaterialBanner();
+            });
+          },
+          content: Text(
+            l.errorMessage,
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          actions: [
+            TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                    .hideCurrentMaterialBanner();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+
+    }, (CustomerModel r) async {
+      print(r.toJson());
+      customerModelResponse = r;
+    });
+
+    return customerModelResponse;
+  }
+
+  Future<List<CustomerModel>?> getCustomers() async {
+    List<CustomerModel>? customerModelList;
+    final result = await customerGetCustomersUseCase.call(NoParams());
+
+    await result.fold((l) async {
+
+    }, (r) async {
+      print('result');
+      print(r);
+      customerModelList = r;
+    });
+
+    return customerModelList;
+  }
 }

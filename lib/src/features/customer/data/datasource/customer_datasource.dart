@@ -14,10 +14,16 @@ class CustomerDataSource {
       List<Map<String, dynamic>> response = await _client
           .from('customers')
           .select()
+      .order('l_name', ascending: true);
+
+      print('response');
+      print(response);
+/*
           .order('l_name', ascending: true);
+*/
       if (response.isNotEmpty) {
         List<CustomerModel> customerList =
-            response.map((e) => CustomerModel.fromJson(e)).toList();
+            response.map((e) => CustomerModel.fromJsonFromTable(e)).toList();
         return Right(customerList);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting customers'));
@@ -57,19 +63,26 @@ class CustomerDataSource {
   Future<Either<DatabaseFailure, CustomerModel>> addCustomer(
       CustomerModel customer) async {
     try {
-      List<Map<String, dynamic>> response =
-          await _client.from('customers').insert(customer.toJson()).select();
-      if (response.isNotEmpty) {
-        CustomerModel customerModel = CustomerModel.fromJson(response[0]);
-        return Right(customerModel);
-      } else {
-        return Left(DatabaseFailure(errorMessage: 'Error adding customer'));
-      }
+      Map<String, dynamic> mapCustomer = customer.toJson();
+      mapCustomer.remove('id');
+      mapCustomer.remove('created_at');
+      mapCustomer.remove('updated_at');
+      Map<String, dynamic> response =
+          await _client.from('customers').insert(mapCustomer).select().single();
+      print('response');
+      print(response);
+      CustomerModel customerModel = CustomerModel.fromJsonFromTable(response);
+      print('customerModel');
+      print(customerModel.toJson());
+
+      return Right(customerModel);
+
     } on PostgrestException catch (error) {
       print('postgrest error');
       print(error);
-      return Left(DatabaseFailure(errorMessage: 'Error adding customer'));
+      return Left(DatabaseFailure(errorMessage: error.message));
     } catch (e) {
+      print(e);
       return Left(DatabaseFailure(errorMessage: 'Error adding customer'));
     }
   }
@@ -80,7 +93,7 @@ class CustomerDataSource {
       List<Map<String, dynamic>> response = await _client
           .from('customers')
           .update(customer.toJson())
-          .eq('id', customer.id)
+          .eq('id', customer.id!)
           .select();
       if (response.isNotEmpty) {
         CustomerModel customerModel = CustomerModel.fromJson(response[0]);

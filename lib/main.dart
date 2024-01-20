@@ -12,6 +12,14 @@ import 'package:take_order_app/src/features/auth/business/usecase/auth_on_auth_c
 import 'package:take_order_app/src/features/auth/data/datasource/auth_datasource.dart';
 import 'package:take_order_app/src/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
+import 'package:take_order_app/src/features/customer/business/repository/customer_repository.dart';
+import 'package:take_order_app/src/features/customer/business/usecase/customer_add_customer_usecase.dart';
+import 'package:take_order_app/src/features/customer/business/usecase/customer_get_customer_by_id_usecase.dart';
+import 'package:take_order_app/src/features/customer/business/usecase/customer_get_customers_usecase.dart';
+import 'package:take_order_app/src/features/customer/business/usecase/customer_update_customer_usecase.dart';
+import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
+import 'package:take_order_app/src/features/customer/data/repository/customer_repository_impl.dart';
+import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -21,6 +29,8 @@ Future<void> main() async {
   );
   AuthRepository authRepository =
       AuthRepositoryImpl(dataSource: AuthDataSource());
+  CustomerRepository customerRepository =
+      CustomerRepositoryImpl(dataSource: CustomerDataSource());
   runApp(
     MultiProvider(
       providers: [
@@ -37,6 +47,11 @@ Future<void> main() async {
                 AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
           ),
         ),
+  ChangeNotifierProvider<CustomerProvider>(
+  create: (context) => CustomerProvider(
+ customerGetCustomersUseCase: CustomerGetCustomersUseCase(customerRepository: customerRepository), customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(customerRepository: customerRepository), customerAddCustomerUseCase: CustomerAddCustomerUseCase(customerRepository: customerRepository), customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(customerRepository: customerRepository),
+  ),
+  ),
       ],
       child: const MyApp(),
     ),
