@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
 
 import '../../data/model/customer_model.dart';
 import '../provider/customer_provider.dart';
@@ -17,16 +18,28 @@ Widget build(BuildContext context) {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            FutureBuilder<CustomerModel?>(
-              future: context.read<CustomerProvider>().getCustomerById(id),
+            FutureBuilder(
+              future: Future.wait([
+                context.read<CustomerProvider>().getCustomerById(id),
+                OrderDataSource().getOrders(),
+
+
+            ]),
               builder: (context, snapshot) {
+/*
                 print(snapshot.data);
+*/
                 if (snapshot.hasData) {
+                  print('-' * 50 );
+                  print(snapshot.data);
+                  print('-' * 50 );
+                 /*CustomerModel customerModel = snapshot.data[0];
+                  print(customerModel.fName);*/
                   return Column(
                     children: [
-                      Text(snapshot.data!.fName),
+                     /* Text(snapshot.data!.fName),
                       Text(snapshot.data!.lName),
-                      Text(snapshot.data!.phoneNumber),
+                      Text(snapshot.data!.phoneNumber),*/
                     ],
                   );
                 } else {

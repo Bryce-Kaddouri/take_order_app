@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/features/customer/data/model/customer_model.dart';
 
 import '../../../../core/data/exception/failure.dart';
+import '../../../order/data/datasource/datasource.dart';
 
 class CustomerDataSource {
   final _client = Supabase.instance.client;
@@ -108,5 +109,17 @@ class CustomerDataSource {
     } catch (e) {
       return Left(DatabaseFailure(errorMessage: 'Error updating customer'));
     }
+  }
+
+  Future getCustomerInfosById(int customerId) async{
+
+    return OrderDataSource().getOrdersBySupplierId(customerId);
+
+   /* return Future.wait([
+      getCustomerById(customerId),
+
+      OrderDataSource().getOrdersBySupplierId(customerId),
+
+    ]);*/
   }
 }

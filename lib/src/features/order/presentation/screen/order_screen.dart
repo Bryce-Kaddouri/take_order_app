@@ -416,7 +416,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                     children: [
                                       Text(
                                           '${orderModel.time.format(context)}'),
-                                      Container(
+                                     /* Container(
                                         height: 60,
                                         child: Text(
                                           orderModel.customer.fName,
@@ -433,7 +433,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ),
+                                      ),*/
                                     ],
                                   ),
                                 );

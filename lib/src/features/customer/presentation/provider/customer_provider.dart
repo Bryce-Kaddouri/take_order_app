@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_add_customer_usecase.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_update_customer_usecase.dart';
+import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
 
 import '../../../../core/data/usecase/usecase.dart';
 
@@ -65,12 +66,30 @@ class CustomerProvider with ChangeNotifier {
     CustomerModel? customerModel;
     final result = await customerGetCustomersByIdUseCase.call(id);
 
-    await result.fold((l) async {}, (r) async {
+    await result.fold((l) async {
+      print(l.errorMessage);
+    }, (r) async {
       print(r.toJson());
       customerModel = r;
     });
 
     return customerModel;
+  }
+
+  Future getCustomerInfoById(int customerId) async {
+    var res = null;
+    final result = await CustomerDataSource().getCustomerInfosById(customerId);
+    await result.fold((l) async {
+      print("error");
+      print(l.errorMessage);
+    }, (r) async {
+      print("result");
+      print(r);
+      res = r;
+    });
+
+    return res;
+
   }
 
   Future<CustomerModel?> addCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
