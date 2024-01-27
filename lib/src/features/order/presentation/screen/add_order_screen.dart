@@ -57,7 +57,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         },
         onStepContinue: () {
           print(currentStep);
-          if (currentStep < 2) {
+          if (currentStep < 4) {
             if (currentStep == 0) {
               if (_formKeyCustomer.currentState!.validate()) {
                 setState(() {
@@ -74,6 +74,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               } else {
                 print('invalid');
               }
+            } else if (currentStep == 2) {
+              setState(() {
+                currentStep += 1;
+              });
+            } else if (currentStep == 3) {
+              setState(() {
+                currentStep += 1;
+              });
+            } else if (currentStep == 4) {
+              setState(() {
+                currentStep += 1;
+              });
             }
           }
         },
@@ -81,6 +93,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         currentStep: currentStep,
         steps: <Step>[
           Step(
+            isActive: currentStep >= 0,
             title: const Text('Customer Detail'),
             content: Container(
               color: Colors.red,
@@ -119,6 +132,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             ),
           ),
           Step(
+            isActive: currentStep >= 1,
             title: const Text('Date & Time'),
             content: Container(
               color: Colors.blue,
@@ -166,25 +180,378 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             ),
           ),
           Step(
+            isActive: currentStep >= 2,
             title: const Text('Fill Order'),
             content: Container(
               color: Colors.yellow,
               height: 500,
               width: MediaQuery.of(context).size.width,
               child: Container(
-                child: ListView.builder(
-                  itemCount: context.watch<OrderProvider>().cartList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                          '${context.watch<OrderProvider>().cartList[index].product.name}'),
-                      subtitle: Text(
-                          '${context.watch<OrderProvider>().cartList[index].product.price}'),
-                      trailing: Text(
-                          '${context.watch<OrderProvider>().cartList[index].quantity}'),
-                    );
-                  },
-                ),
+                child: context.watch<OrderProvider>().cartList.isNotEmpty
+                    ? ListView.builder(
+                        itemCount:
+                            context.watch<OrderProvider>().cartList.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              onTap: () {
+                                // global key for form builder
+                                final _formKeyQty =
+                                    GlobalKey<FormBuilderState>();
+                                showAdaptiveDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              if (_formKeyQty.currentState!
+                                                  .validate()) {
+                                                context
+                                                    .read<OrderProvider>()
+                                                    .updateQuantityCartList(
+                                                        index,
+                                                        int.parse(_formKeyQty
+                                                            .currentState!
+                                                            .fields['quantity']!
+                                                            .value
+                                                            .toString()));
+                                                Navigator.pop(context);
+                                              }
+                                            },
+                                            child: Text('Confirm'),
+                                          ),
+                                        ],
+                                        title: Text('Edit Quantity'),
+                                        content: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.8,
+                                          height: 100,
+                                          child: FormBuilder(
+                                            key: _formKeyQty,
+                                            child: Column(
+                                              children: [
+                                                FormBuilderTextField(
+                                                  initialValue: context
+                                                      .watch<OrderProvider>()
+                                                      .cartList[index]
+                                                      .quantity
+                                                      .toString(),
+                                                  autofocus: true,
+                                                  name: 'quantity',
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Quantity',
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                  ),
+                                                  validator:
+                                                      FormBuilderValidators
+                                                          .compose([
+                                                    FormBuilderValidators
+                                                        .required(),
+                                                    FormBuilderValidators
+                                                        .numeric(),
+                                                    // check > 0
+                                                    FormBuilderValidators.min(
+                                                        1),
+                                                  ]),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              tileColor: Colors.grey[200],
+                              title: Text(
+                                  '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                              subtitle: Text(
+                                  '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                              trailing: Container(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        int currentQty = context
+                                            .read<OrderProvider>()
+                                            .cartList[index]
+                                            .quantity;
+                                        if (currentQty > 1) {
+                                          context
+                                              .read<OrderProvider>()
+                                              .updateQuantityCartList(
+                                                  index, currentQty - 1);
+                                        } else {
+                                          context
+                                              .read<OrderProvider>()
+                                              .removeCartList(context
+                                                  .read<OrderProvider>()
+                                                  .cartList[index]);
+                                        }
+                                      },
+                                      icon: Icon(Icons.remove),
+                                    ),
+                                    Text(
+                                        context
+                                            .watch<OrderProvider>()
+                                            .cartList[index]
+                                            .quantity
+                                            .toString(),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        )),
+                                    IconButton(
+                                      onPressed: () {
+                                        int currentQty = context
+                                            .read<OrderProvider>()
+                                            .cartList[index]
+                                            .quantity;
+                                        context
+                                            .read<OrderProvider>()
+                                            .updateQuantityCartList(
+                                                index, currentQty + 1);
+                                      },
+                                      icon: Icon(Icons.add),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text(
+                          'No item added\nPlease add item first',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          Step(
+            isActive: currentStep >= 3,
+            title: const Text('Review Order'),
+            content: Container(
+              color: Colors.purple,
+              height: 500,
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                child: context.watch<OrderProvider>().cartList.isNotEmpty
+                    ? Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: context
+                                  .watch<OrderProvider>()
+                                  .cartList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.symmetric(
+                                    vertical: 5,
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    tileColor: Colors.grey[200],
+                                    title: Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    subtitle: Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                    trailing: Container(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                              'x${context.watch<OrderProvider>().cartList[index].quantity}'),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              tileColor: Colors.grey[200],
+                              title: Text('Total'),
+                              trailing: Container(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                        '${context.watch<OrderProvider>().totalAmount}'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: Text(
+                          'No item added\nPlease add item first',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          Step(
+            isActive: currentStep >= 4,
+            title: const Text('Confirm Order'),
+            content: Container(
+              color: Colors.purple,
+              height: 500,
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                child: context.watch<OrderProvider>().cartList.isNotEmpty
+                    ? Column(
+                        children: [
+                          Expanded(
+                              child: Container(
+                            child: Column(
+                              children: [
+                                Text('Customer'),
+                                Text(
+                                    '${lstCustomers.firstWhere((element) => element.id == _formKeyCustomer.currentState!.fields['customer_id']!.value).fName} ${lstCustomers.firstWhere((element) => element.id == _formKeyCustomer.currentState!.fields['customer_id']!.value).lName}'),
+                                Text('Order Date & Time'),
+                                Text(
+                                    '${_formKeyDateTime.currentState!.fields['order_date']!.value} ${_formKeyDateTime.currentState!.fields['order_time']!.value}'),
+                              ],
+                            ),
+                          )),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: context
+                                  .watch<OrderProvider>()
+                                  .cartList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: EdgeInsets.symmetric(
+                                    vertical: 5,
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    tileColor: Colors.grey[200],
+                                    title: Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    subtitle: Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                    trailing: Container(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                              'x${context.watch<OrderProvider>().cartList[index].quantity}'),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              tileColor: Colors.grey[200],
+                              title: Text('Total'),
+                              trailing: Container(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                        '${context.watch<OrderProvider>().totalAmount}'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: Text(
+                          'No item added\nPlease add item first',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
               ),
             ),
           ),
@@ -257,6 +624,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                           .orderQty,
                                     ),
                                   );
+                              // reset selected product and order qty
+                              context.read<OrderProvider>().setSelectedProduct(
+                                    null,
+                                  );
+                              context.read<OrderProvider>().setOrderQty(1);
                               // close dialog
                               Navigator.pop(context);
                             },
@@ -283,6 +655,17 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                       if (snapshot.hasData) {
                                         List<ProductModel> lstProduct =
                                             snapshot.data as List<ProductModel>;
+
+                                        // remove where product is already in cart
+                                        lstProduct = lstProduct
+                                            .where((element) => !context
+                                                .read<OrderProvider>()
+                                                .cartList
+                                                .map((e) => e.product.id)
+                                                .toList()
+                                                .contains(element.id))
+                                            .toList();
+
                                         lstProduct = lstProduct
                                             .where((element) => element.name
                                                 .toLowerCase()

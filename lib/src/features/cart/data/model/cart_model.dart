@@ -2,7 +2,7 @@ import '../../../product/data/model/product_model.dart';
 
 class CartModel {
   final int? id;
-  final int quantity;
+  int quantity;
   final bool isDone;
   final ProductModel product;
 

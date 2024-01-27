@@ -54,4 +54,17 @@ class OrderProvider with ChangeNotifier {
     _cartList.clear();
     notifyListeners();
   }
+
+  void updateQuantityCartList(int index, int quantity) {
+    _cartList[index].quantity = quantity;
+    notifyListeners();
+  }
+
+  double get totalAmount {
+    double total = 0;
+    for (var element in _cartList) {
+      total += element.quantity * element.product.price;
+    }
+    return total;
+  }
 }
