@@ -1,8 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
+import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 
 import '../../../cart/data/model/cart_model.dart';
-import '../../../product/data/model/product_model.dart';
 import '../model/order_model.dart';
 
 class OrderDataSource {
@@ -10,15 +9,15 @@ class OrderDataSource {
 
   /*Future<List<OrderModel>> getOrders();
   Future<OrderModel> getOrder(String id);*/
-  Future<OrderModel?> createOrder(OrderModel order) async {
+  /*Future<OrderModel?> createOrder(OrderModel order) async {
     print('create order');
     try {
       Map<String, dynamic> orderInfo = {
         'created_at': order.createdAt.toIso8601String(),
         'updated_at': order.updatedAt.toIso8601String(),
-        /*'customer_id': order.customer.id,
+        */ /*'customer_id': order.customer.id,
         'status_id': order.status.id,
-        'user_id': order.user.uid,*/
+        'user_id': order.user.uid,*/ /*
         'date': order.date.toIso8601String(),
         'time': '${order.time.hour}:${order.time.minute}',
       };
@@ -26,7 +25,7 @@ class OrderDataSource {
           await _client.from('orders').insert(orderInfo).select();
       print(response);
       if (response.isNotEmpty) {
-        /*List<CartModel> cartDatas = order.cart;
+        */ /*List<CartModel> cartDatas = order.cart;
         for (int i = 0; i < cartDatas.length; i++) {
           Map<String, dynamic> cartInfo = {
             'id': response[0]['id'],
@@ -39,13 +38,62 @@ class OrderDataSource {
               await _client.from('cart').insert(cartInfo).select();
           print(cartResponse);
         }
-        print('response is not empty');*/
+        print('response is not empty');*/ /*
+        */ /*CategoryModel categoryModel = CategoryModel.fromJson(response[0]);
+        print(categoryModel.toJson());
+        return Right(categoryModel);*/ /*
+      } else {
+        print('response is empty');
+        */ /* return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/ /*
+      }
+    } on PostgrestException catch (error) {
+      print('postgrest error');
+      print(error);
+      */ /*return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/ /*
+    } catch (e) {
+      print(e);
+      */ /*return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/ /*
+    }
+  }*/
+
+  Future<bool> placeOrder(PlaceOrderModel order) async {
+    bool isSuccess = false;
+    print('create order');
+    try {
+      DateTime now = DateTime.now();
+      Map<String, dynamic> orderInfo = {
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+        'customer_id': order.customer.id,
+        'status_id': 1,
+        'user_id': _client.auth.currentUser!.id,
+        'date': order.orderDate.toIso8601String(),
+        'time': '${order.orderTime.hour}:${order.orderTime.minute}',
+        'amount_paid': order.paymentAmount,
+      };
+      List<Map<String, dynamic>> response =
+          await _client.from('orders').insert(orderInfo).select();
+      print(response);
+      if (response.isNotEmpty) {
+        List<CartModel> cartDatas = order.cartList;
+        for (int i = 0; i < cartDatas.length; i++) {
+          Map<String, dynamic> cartInfo = {
+            'id': response[0]['id'],
+            'date': response[0]['date'],
+            'product_id': cartDatas[i].product.id,
+            'quantity': cartDatas[i].quantity,
+            'is_done': cartDatas[i].isDone,
+          };
+          List<Map<String, dynamic>> cartResponse =
+              await _client.from('cart').insert(cartInfo).select();
+          print(cartResponse);
+        }
+        isSuccess = true;
+
+        print('response is not empty');
         /*CategoryModel categoryModel = CategoryModel.fromJson(response[0]);
         print(categoryModel.toJson());
         return Right(categoryModel);*/
-      } else {
-        print('response is empty');
-        /* return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/
       }
     } on PostgrestException catch (error) {
       print('postgrest error');
@@ -55,6 +103,8 @@ class OrderDataSource {
       print(e);
       /*return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/
     }
+
+    return isSuccess;
   }
 
   Future<List<OrderModel>> getOrders() async {
@@ -97,12 +147,10 @@ class OrderDataSource {
 
   Future<List<OrderModel>> getOrdersByCustomerId(int customerId) async {
     try {
-
-
       // get orders by customer id (customer field is jsonb type so we need to use ->> operator)
       // https://supabase.io/docs/guides/database#selecting-data
 
-     /* select
+      /* select
           *
           from
       all_orders_view
@@ -113,25 +161,21 @@ class OrderDataSource {
           .from('users')
 
           /*.select('* ->> customer_id as customer_id')*/
-      .select(
-
-      );
+          .select();
 /*
           .eq('test_json->customer_id', customerId);
 */
 
-
-     /* .contains('customer', {'customer_id': customerId})*/
+      /* .contains('customer', {'customer_id': customerId})*/
 
 /*
           .order('order_time', ascending: true);
 */
-print('response from getOrdersByCustomerId');
-print(response);
-
+      print('response from getOrdersByCustomerId');
+      print(response);
 
       if (response.isNotEmpty) {
-      /*  List<OrderModel> orderList =
+        /*  List<OrderModel> orderList =
         response.map((e) => OrderModel.fromJson(e)).toList();
         print(orderList);*/
         return [];
@@ -148,19 +192,22 @@ print(response);
     }
   }
 
-  Future<List<Object>> getOrdersBySupplierId(int customerId) async{
+  Future<List<Object>> getOrdersBySupplierId(int customerId) async {
     print('getOrdersBySupplierId');
     try {
-      List<Map<String, dynamic>> response = await _client.
-      from('all_orders_view').select()
-          .eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
+      List<Map<String, dynamic>> response = await _client
+          .from('all_orders_view')
+          .select()
+          .eq('customer ->> customer_id', customerId)
+          .order('order_time', ascending: true);
 /*
           response = response.where((element) => element['customer']['customer_id'] == supplierId).toList();
 */
-      List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
+      List<OrderModel> orderList =
+          response.map((e) => OrderModel.fromJson(e)).toList();
 
       return orderList;
-          /*.from('all_orders_view')
+      /*.from('all_orders_view')
           .select();*/
 /*
           .eq('supplier_id', supplierId)
@@ -168,8 +215,6 @@ print(response);
 /*
           .order('order_time', ascending: true);
 */
-
-
     } on PostgrestException catch (error) {
       print('postgrest error');
       print(error);
@@ -179,6 +224,4 @@ print(response);
       return [];
     }
   }
-
-
 }

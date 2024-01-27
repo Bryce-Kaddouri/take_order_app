@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
+import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 
 import '../../../cart/data/model/cart_model.dart';
 import '../../../product/data/model/product_model.dart';
@@ -66,5 +68,9 @@ class OrderProvider with ChangeNotifier {
       total += element.quantity * element.product.price;
     }
     return total;
+  }
+
+  Future<bool> placeOrder(PlaceOrderModel orderModel) async {
+    return OrderDataSource().placeOrder(orderModel);
   }
 }

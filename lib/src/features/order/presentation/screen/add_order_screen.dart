@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   int currentStep = 0;
   final _formKeyCustomer = GlobalKey<FormBuilderState>();
   final _formKeyDateTime = GlobalKey<FormBuilderState>();
+  final _fromKeyPayment = GlobalKey<FormBuilderState>();
 
   List<CustomerModel> lstCustomers = [];
   int selectedCustomerId = -1;
@@ -57,7 +59,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         },
         onStepContinue: () {
           print(currentStep);
-          if (currentStep < 4) {
+          if (currentStep < 5) {
             if (currentStep == 0) {
               if (_formKeyCustomer.currentState!.validate()) {
                 setState(() {
@@ -75,13 +77,21 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 print('invalid');
               }
             } else if (currentStep == 2) {
-              setState(() {
-                currentStep += 1;
-              });
+              if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                setState(() {
+                  currentStep += 1;
+                });
+              } else {
+                print('invalid');
+              }
             } else if (currentStep == 3) {
-              setState(() {
-                currentStep += 1;
-              });
+              if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                setState(() {
+                  currentStep += 1;
+                });
+              } else {
+                print('invalid');
+              }
             } else if (currentStep == 4) {
               setState(() {
                 currentStep += 1;
@@ -450,6 +460,57 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
           ),
           Step(
             isActive: currentStep >= 4,
+            title: const Text('Payment Detail'),
+            content: Container(
+              color: Colors.green,
+              height: 500,
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                child: FormBuilder(
+                  key: _fromKeyPayment,
+                  child: Column(
+                    children: [
+                      Text('Total Amount'),
+                      Text('${context.watch<OrderProvider>().totalAmount}'),
+                      FormBuilderTextField(
+                        name: 'payment_amount',
+                        decoration: InputDecoration(
+                          labelText: 'Payment Amount',
+                          border: OutlineInputBorder(),
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter(RegExp(r'^\d+\.?\d{0,2}'),
+                              allow: true),
+                        ],
+                        initialValue: context
+                            .watch<OrderProvider>()
+                            .totalAmount
+                            .toString(),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+/*
+                          FormBuilderValidators.numeric(),
+*/
+                          // check if number
+                        ]),
+                      ),
+                      // note field
+                      FormBuilderTextField(
+                        name: 'note',
+                        decoration: InputDecoration(
+                          labelText: 'Note',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: FormBuilderValidators.compose([]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Step(
+            isActive: currentStep >= 5,
             title: const Text('Confirm Order'),
             content: Container(
               color: Colors.purple,
