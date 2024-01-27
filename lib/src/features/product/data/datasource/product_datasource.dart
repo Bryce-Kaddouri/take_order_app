@@ -1,10 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/data/exception/failure.dart';
-import '../../business/param/product_add_param.dart';
 import '../model/product_model.dart';
 
 class ProductDataSource {
@@ -14,13 +11,19 @@ class ProductDataSource {
     try {
       List<Map<String, dynamic>> response =
           await _client.from('products').select().order('id', ascending: true);
+      print(response);
       if (response.isNotEmpty) {
+        print('response is not empty');
         List<ProductModel> productList =
-            response.map((e) => ProductModel.fromJson(e)).toList();
+            response.map((e) => ProductModel.fromJsonTable(e)).toList();
         return Right(productList);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting products'));
       }
+    } on PostgrestException catch (error) {
+      print('postgrest error');
+      print(error);
+      return Left(DatabaseFailure(errorMessage: 'Error getting products'));
     } catch (e) {
       return Left(DatabaseFailure(errorMessage: 'Error getting products'));
     }

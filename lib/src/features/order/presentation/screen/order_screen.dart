@@ -229,7 +229,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 leading: Icon(Icons.add_shopping_cart_outlined),
                 title: Text("Add Order"),
                 onTap: () {
-                  context.go('/add-customer');
+                  context.go('/add-order');
                 },
               ),
               ListTile(
@@ -416,7 +416,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                     children: [
                                       Text(
                                           '${orderModel.time.format(context)}'),
-                                     /* Container(
+                                      /* Container(
                                         height: 60,
                                         child: Text(
                                           orderModel.customer.fName,

@@ -1,14 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/data/usecase/usecase.dart';
-
-import '../../business/param/product_add_param.dart';
-
-import '../../business/usecase/product_get_products_usecase.dart';
 import '../../business/usecase/product_get_product_by_id_usecase.dart';
+import '../../business/usecase/product_get_products_usecase.dart';
 import '../../business/usecase/product_get_signed_url_usecase.dart';
 import '../../data/model/product_model.dart';
 
@@ -104,5 +98,19 @@ class ProductProvider with ChangeNotifier {
     });
 
     return productModel;
+  }
+
+  Future<List<ProductModel>> getProducts() async {
+    List<ProductModel> productList = [];
+    final result = await productGetProductsUseCase.call(NoParams());
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+    }, (r) async {
+      print(r);
+      productList = r;
+    });
+
+    return productList;
   }
 }

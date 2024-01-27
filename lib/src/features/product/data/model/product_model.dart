@@ -7,16 +7,18 @@ class ProductModel {
   /*final DateTime createdAt;
   final DateTime updatedAt;*/
   final double price;
-  final CategoryModel category;
+  final CategoryModel? category;
+  final int? categoryId;
 
   ProductModel({
     required this.id,
     required this.name,
     required this.imageUrl,
-   /* required this.createdAt,
+    /* required this.createdAt,
     required this.updatedAt,*/
     required this.price,
-    required this.category,
+    this.category,
+    this.categoryId,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,16 @@ class ProductModel {
     );
   }
 
+  factory ProductModel.fromJsonTable(Map<String, dynamic> json) {
+    return ProductModel(
+      id: json['id'],
+      name: json['name'],
+      imageUrl: json['photo_url'],
+      price: json['price'],
+      categoryId: json['category_id'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -39,7 +51,17 @@ class ProductModel {
       /*'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),*/
       'price': price,
-      'category_info': category.toJson(),
+      'category_info': category?.toJson(),
+    };
+  }
+
+  Map<String, dynamic> toJsonTable() {
+    return {
+      'id': id,
+      'name': name,
+      'photo_url': imageUrl,
+      'price': price,
+      'category_id': categoryId,
     };
   }
 
@@ -58,11 +80,10 @@ class ProductModel {
       id: id ?? this.id,
       name: name ?? this.name,
       imageUrl: imageUrl ?? this.imageUrl,
-     /* createdAt: createdAt ?? this.createdAt,
+      /* createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,*/
       price: price ?? this.price,
       category: category ?? this.category,
-
     );
   }
 }

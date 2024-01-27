@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
 import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_detail_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
-import 'package:take_order_app/src/features/order/presentation/screen/add_order_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/setting/presentation/screen/setting_screen.dart';
 
+import '../../features/auth/presentation/provider/auth_provider.dart';
+import '../../features/order/presentation/screen/add_order_screen.dart';
+
 class RouterHelper {
-  final ValueNotifier<RoutingConfig> myRoutingConfig = ValueNotifier<RoutingConfig>(
+  final ValueNotifier<RoutingConfig> myRoutingConfig =
+      ValueNotifier<RoutingConfig>(
     RoutingConfig(
       redirect: (context, state) {
         bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
@@ -19,53 +21,66 @@ class RouterHelper {
           print(state.path);
           if (state.path == '/' || state.path == '/signin') {
             return '/orders';
-          }else{
+          } else {
             return state.path;
           }
-
         } else {
           return '/signin';
         }
       },
       routes: <RouteBase>[
-        GoRoute(path: '/orders', pageBuilder: (context, state) {
-          return MaterialPage(child: OrderScreen());
-        },
-          routes: [
-            GoRoute(path: 'add', pageBuilder: (context, state) {
+        GoRoute(
+            path: '/add-order',
+            pageBuilder: (context, state) {
               return MaterialPage(child: AddOrderScreen());
-            },name: 'addOrder'),
-          ],
-
-
+            },
+            name: 'addOrder'),
+        GoRoute(
+          path: '/orders',
+          pageBuilder: (context, state) {
+            return MaterialPage(child: OrderScreen());
+          },
         ),
-        GoRoute(path: '/signin', pageBuilder: (context, state) {
-          return MaterialPage(child: SignInScreen());
-        }),
-        GoRoute(path: '/setting', pageBuilder: (context, state) {
-          return MaterialPage(child: SettingScreen());
-        },name: 'setting'),
-        GoRoute(path: '/customers', pageBuilder: (context, state) {
-          return MaterialPage(child: CustomerListScreen());
-        },name: 'customers', routes: [
-          GoRoute(path: 'add', pageBuilder: (context, state) {
-            return MaterialPage(child: AddCustomerScreen());
-          },name: 'addCustomer'),
-          GoRoute(path: 'details/:id', pageBuilder: (context, state) {
-            return MaterialPage(child: CustomerDetailScreen(
-              id: int.parse(state.pathParameters['id']!),
-            ));
-          },name: 'customer-details'),
-        ]),
-
-
-
+        GoRoute(
+            path: '/signin',
+            pageBuilder: (context, state) {
+              return MaterialPage(child: SignInScreen());
+            }),
+        GoRoute(
+            path: '/setting',
+            pageBuilder: (context, state) {
+              return MaterialPage(child: SettingScreen());
+            },
+            name: 'setting'),
+        GoRoute(
+            path: '/customers',
+            pageBuilder: (context, state) {
+              return MaterialPage(child: CustomerListScreen());
+            },
+            name: 'customers',
+            routes: [
+              GoRoute(
+                  path: 'add',
+                  pageBuilder: (context, state) {
+                    return MaterialPage(child: AddCustomerScreen());
+                  },
+                  name: 'addCustomer'),
+              GoRoute(
+                  path: 'details/:id',
+                  pageBuilder: (context, state) {
+                    return MaterialPage(
+                        child: CustomerDetailScreen(
+                      id: int.parse(state.pathParameters['id']!),
+                    ));
+                  },
+                  name: 'customer-details'),
+            ]),
       ],
-
     ),
   );
-  GoRouter getRoute(){
-    return GoRouter.routingConfig(routingConfig: myRoutingConfig,observers: [NavigatorObserver()]);
+  GoRouter getRoute() {
+    return GoRouter.routingConfig(
+        routingConfig: myRoutingConfig, observers: [NavigatorObserver()]);
   }
   /*static GoRouter router = GoRouter(
     routes: [

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/core/helper/route_helper.dart';
@@ -20,6 +19,14 @@ import 'package:take_order_app/src/features/customer/business/usecase/customer_u
 import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
 import 'package:take_order_app/src/features/customer/data/repository/customer_repository_impl.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
+import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
+import 'package:take_order_app/src/features/product/business/repository/product_repository.dart';
+import 'package:take_order_app/src/features/product/business/usecase/product_get_product_by_id_usecase.dart';
+import 'package:take_order_app/src/features/product/business/usecase/product_get_products_usecase.dart';
+import 'package:take_order_app/src/features/product/business/usecase/product_get_signed_url_usecase.dart';
+import 'package:take_order_app/src/features/product/data/datasource/product_datasource.dart';
+import 'package:take_order_app/src/features/product/data/repository/product_repository_impl.dart';
+import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -31,9 +38,21 @@ Future<void> main() async {
       AuthRepositoryImpl(dataSource: AuthDataSource());
   CustomerRepository customerRepository =
       CustomerRepositoryImpl(dataSource: CustomerDataSource());
+  ProductRepository productRepository =
+      ProductRepositoryImpl(dataSource: ProductDataSource());
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<ProductProvider>(
+          create: (context) => ProductProvider(
+            productGetProductsUseCase:
+                ProductGetProductsUseCase(productRepository: productRepository),
+            productGetProductByIdUseCase: ProductGetProductByIdUseCase(
+                productRepository: productRepository),
+            productGetSignedUrlUseCase: ProductGetSignedUrlUseCase(
+                productRepository: productRepository),
+          ),
+        ),
         ChangeNotifierProvider<AuthProvider>(
           create: (context) => AuthProvider(
             authLoginUseCase: AuthLoginUseCase(authRepository: authRepository),
@@ -47,11 +66,21 @@ Future<void> main() async {
                 AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
           ),
         ),
-  ChangeNotifierProvider<CustomerProvider>(
-  create: (context) => CustomerProvider(
- customerGetCustomersUseCase: CustomerGetCustomersUseCase(customerRepository: customerRepository), customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(customerRepository: customerRepository), customerAddCustomerUseCase: CustomerAddCustomerUseCase(customerRepository: customerRepository), customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(customerRepository: customerRepository),
-  ),
-  ),
+        ChangeNotifierProvider<CustomerProvider>(
+          create: (context) => CustomerProvider(
+            customerGetCustomersUseCase: CustomerGetCustomersUseCase(
+                customerRepository: customerRepository),
+            customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(
+                customerRepository: customerRepository),
+            customerAddCustomerUseCase: CustomerAddCustomerUseCase(
+                customerRepository: customerRepository),
+            customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(
+                customerRepository: customerRepository),
+          ),
+        ),
+        ChangeNotifierProvider<OrderProvider>(
+          create: (context) => OrderProvider(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -65,7 +94,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-        debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       routerConfig: RouterHelper().getRoute(),
 
       /*routerDelegate: RouterHelper().getRoute().routerDelegate,
