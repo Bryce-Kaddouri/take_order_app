@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
 
 import '../../../cart/data/model/cart_model.dart';
+import '../../../product/data/model/product_model.dart';
 import '../model/order_model.dart';
 
 class OrderDataSource {
@@ -147,26 +148,28 @@ print(response);
     }
   }
 
-  Future<List<OrderModel>> getOrdersBySupplierId(int supplierId) async{
+  Future<List<Object>> getOrdersBySupplierId(int customerId) async{
+    print('getOrdersBySupplierId');
     try {
-      var response = await _client
-          .from('all_orders_view')
-          .select();
+      List<Map<String, dynamic>> response = await _client.
+      from('all_orders_view').select()
+          .eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
+/*
+          response = response.where((element) => element['customer']['customer_id'] == supplierId).toList();
+*/
+      List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
+
+      return orderList;
+          /*.from('all_orders_view')
+          .select();*/
 /*
           .eq('supplier_id', supplierId)
 */
 /*
           .order('order_time', ascending: true);
 */
-      if (response.isNotEmpty) {
-        List<OrderModel> orderList =
-        response.map((e) => OrderModel.fromJson(e)).toList();
-        print('order list');
-        print(orderList);
-        return orderList;
-      } else {
-        return [];
-      }
+
+
     } on PostgrestException catch (error) {
       print('postgrest error');
       print(error);

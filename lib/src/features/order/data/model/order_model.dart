@@ -17,7 +17,9 @@ class OrderModel {
  final CustomerModel customer;
   final StatusModel status;
   final UserModel user;
+
   final List<CartModel> cart;
+
 
   OrderModel({
     this.id,
@@ -28,23 +30,29 @@ class OrderModel {
   required this.customer,
      required this.status,
     required this.user,
+
     required this.cart,
+
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
-    List<dynamic> cart =
+   /* List<dynamic> cart =
         json['cart']['cart_items'];
     print(cart);
     String cartString = cart.toString();
     var test = jsonEncode(cart);
     print(test);
-    var test2 = jsonDecode(test);
-    print('*' * 50);
-    print(test2);
+    var test2 = jsonDecode(test);*/
+   /* print('*' * 50);
+    print(test2);*/
 
     /*List<Map<String, dynamic>> jsonCart =
         json['cart']['cart_items'].cast<Map<String, dynamic>>();
+
 */
+
+
+
     return OrderModel(
       id: json['order_id'],
       createdAt: DateTime.parse(json['order_created_at']),
@@ -57,8 +65,10 @@ class OrderModel {
       /*json['order_is_paid'],*/
      customer: CustomerModel.fromJson(json['customer']),
       status: StatusModel.fromJson(json['status']),
-      user: UserModel.fromJson(json),
-      cart: test2.map((e) => CartModel.fromJson(e)).toList(),
+      user: UserModel.fromJson(json['user']),
+
+      cart: List<CartModel>.from(json['cart'].map((x) => CartModel.fromJson(x))),
+
     );
   }
 

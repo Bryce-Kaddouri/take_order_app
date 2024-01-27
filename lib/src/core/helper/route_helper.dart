@@ -6,6 +6,7 @@ import 'package:take_order_app/src/features/auth/presentation/screen/signin_scre
 import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_detail_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
+import 'package:take_order_app/src/features/order/presentation/screen/add_order_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/setting/presentation/screen/setting_screen.dart';
 
@@ -30,6 +31,12 @@ class RouterHelper {
         GoRoute(path: '/orders', pageBuilder: (context, state) {
           return MaterialPage(child: OrderScreen());
         },
+          routes: [
+            GoRoute(path: 'add', pageBuilder: (context, state) {
+              return MaterialPage(child: AddOrderScreen());
+            },name: 'addOrder'),
+          ],
+
 
         ),
         GoRoute(path: '/signin', pageBuilder: (context, state) {
@@ -43,7 +50,7 @@ class RouterHelper {
         },name: 'customers', routes: [
           GoRoute(path: 'add', pageBuilder: (context, state) {
             return MaterialPage(child: AddCustomerScreen());
-          },name: 'add'),
+          },name: 'addCustomer'),
           GoRoute(path: 'details/:id', pageBuilder: (context, state) {
             return MaterialPage(child: CustomerDetailScreen(
               id: int.parse(state.pathParameters['id']!),
