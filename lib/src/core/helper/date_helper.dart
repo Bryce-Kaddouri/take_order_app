@@ -24,10 +24,41 @@ class DateHelper {
     return dayOfYear;
   }
 
-
-
   static int getNbDaysInYear(int year) {
     return year % 4 == 0 ? 366 : 365;
+  }
+
+  static int getNbDaysInMonth(DateTime date) {
+    int month = date.month;
+    int year = date.year;
+    int nbDays = 0;
+    if (month == 2) {
+      nbDays = year % 4 == 0 ? 29 : 28;
+    } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+      nbDays = 30;
+    } else {
+      nbDays = 31;
+    }
+    return nbDays;
+  }
+
+  static getNbWeekInMonth(DateTime date) {
+    DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
+    int dayOfWeek = firstDayOfMonth.weekday;
+    int nbDayInMonth = getNbDaysInMonth(date);
+    int nbWeek = (dayOfWeek + nbDayInMonth) ~/ 7;
+    return nbWeek;
+  }
+
+  // get the days of the week by the current date (monday, tuesday, ...)
+  static List<DateTime> getDaysInWeek(DateTime date) {
+    List<DateTime> days = [];
+    int dayOfWeek = date.weekday;
+    DateTime firstDayOfWeek = date.subtract(Duration(days: dayOfWeek - 1));
+    for (int i = 0; i < 7; i++) {
+      days.add(firstDayOfWeek.add(Duration(days: i)));
+    }
+    return days;
   }
 
   // method to get day in letter (ex: SUnday ==> Sun)

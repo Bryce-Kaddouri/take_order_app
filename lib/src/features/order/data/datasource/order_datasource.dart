@@ -68,9 +68,7 @@ class OrderDataSource {
       var response = await _client
           .from('all_orders_view')
           .select()
-/*
           .eq('order_date', date.toIso8601String())
-*/
           .order('order_time', ascending: true);
       print('response from getOrders');
       print(response);

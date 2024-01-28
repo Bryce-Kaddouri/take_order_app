@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
+import 'package:take_order_app/src/features/order/presentation/widget/date_item_widget.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/drawer_widget.dart';
 
 import '../../data/model/order_model.dart';
@@ -15,29 +16,11 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   ScrollController _mainScrollController = ScrollController();
-  ScrollController _horizontalScrollController = ScrollController();
-  PageController _pageController = PageController();
+  ScrollController _testController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      int currentDay = DateTime.now().day;
-      double width = MediaQuery.of(context).size.width;
-      double itemWidth = width / 7;
-      double w = itemWidth;
-      print("w $w");
-      /*_horizontalScrollController.animateTo(
-        (currentDay - 1) * w,
-        duration: Duration(milliseconds: 500),
-        // bounce effect
-        curve: Curves.easeOut,
-      );*/
-      List<OrderModel> orderListOfTheDay = [];
-
-      print('lstHour');
-    });
   }
 
   Future<DateTime?> selectDate() async {
@@ -51,118 +34,6 @@ class _OrderScreenState extends State<OrderScreen> {
         lastDate: DateTime.now().add(Duration(days: 365)));
   }
 
-  Widget test(DateTime date) {
-    List<Widget> list = [];
-    List.generate(7, (index) {
-      DateTime newDate = date.add(Duration(days: index));
-      print("newDate $newDate");
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        elevation: 5,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          width: 60,
-          height: 60,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                newDate.day.toString(),
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              Text(
-                DateHelper.getDayInLetter(newDate),
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-
-    return Row(
-      children: list,
-    );
-  }
-
-  Widget itemList(DateTime selectedDate, String value, int index) {
-    double width = MediaQuery.of(context).size.width;
-    double itemWidth = width / 7;
-    print("itemWidth $itemWidth");
-    int dayOfYear = index + 1;
-    DateTime dateOfItem =
-        DateTime(selectedDate.year, 1, 1).add(Duration(days: dayOfYear - 1));
-    bool isToday = dateOfItem.day == selectedDate.day &&
-        dateOfItem.month == selectedDate.month &&
-        dateOfItem.year == selectedDate.year;
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      elevation: isToday ? 5 : 0,
-      color: isToday ? Colors.white : Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          context.read<OrderProvider>().setSelectedDate(dateOfItem);
-          int currentDay = context.read<OrderProvider>().selectedDate.day;
-          double width = MediaQuery.of(context).size.width;
-          double itemWidth = width / 7;
-          double w = itemWidth;
-          print("w $w");
-          _horizontalScrollController.animateTo(
-            (currentDay - 1) * w,
-            duration: Duration(milliseconds: 500),
-            // bounce effect
-            curve: Curves.easeOut,
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          width: itemWidth,
-          height: isToday ? 70 : 60,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isToday)
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                ),
-              Text(
-                dateOfItem.day.toString(),
-                style: TextStyle(
-                  color: isToday ? Colors.black : Colors.grey,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              Text(
-                DateHelper.getDayInLetter(dateOfItem),
-                style: TextStyle(
-                    color: isToday ? Colors.black : Colors.grey, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,27 +43,20 @@ class _OrderScreenState extends State<OrderScreen> {
           actions: [
             IconButton(
               onPressed: () async {
-                DateTime? date = await selectDate();
-                if (date != null) {
-                  /*setState(() {
-                        selectedDate = date;
-                      });*/
-                  context.read<OrderProvider>().setSelectedDate(date);
-                  int currentDay =
-                      context.read<OrderProvider>().selectedDate.day;
-                  double width = MediaQuery.of(context).size.width;
-                  double itemWidth = width / 7;
-                  double w = itemWidth;
-                  print("w $w");
-                  _horizontalScrollController.animateTo(
-                    (currentDay - 1) * w,
-                    duration: Duration(milliseconds: 500),
-                    // bounce effect
-                    curve: Curves.easeOut,
-                  );
-                }
+                DateTime now = DateTime.now();
+                context.read<OrderProvider>().setSelectedDate(now);
               },
-              icon: Icon(Icons.calendar_today),
+              icon: const Icon(Icons.calendar_today),
+            ),
+            IconButton(
+              onPressed: () async {
+                await selectDate().then((value) {
+                  if (value != null) {
+                    context.read<OrderProvider>().setSelectedDate(value);
+                  }
+                });
+              },
+              icon: const Icon(Icons.edit_calendar),
             ),
           ],
           collapsedHeight: 60,
@@ -201,8 +65,10 @@ class _OrderScreenState extends State<OrderScreen> {
           expandedHeight: 140,
           backgroundColor: Colors.blue,
           centerTitle: false,
-          title: Text(DateHelper.getMonthNameAndYear(
-              context.watch<OrderProvider>().selectedDate!)),
+          title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(DateHelper.getMonthNameAndYear(
+                context.watch<OrderProvider>().selectedDate!)),
+          ]),
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
                 color: Colors.blue,
@@ -210,7 +76,9 @@ class _OrderScreenState extends State<OrderScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
+/*
                       clipBehavior: Clip.none,
+*/
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           stops: [
@@ -231,65 +99,27 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                       width: double.infinity,
                       height: 80,
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (notification) {
-                          if (notification is ScrollNotification) {
-                            // get the item of the width
-                            double itemWidth =
-                                MediaQuery.of(context).size.width / 7;
-                            // get the current scroll position
-                            double scrollPos = notification.metrics.pixels;
-                            // get the current item
-                            int currentItem = (scrollPos / itemWidth).round();
-                            print("currentItem $currentItem");
-                            // get the month of the current item
-                            DateTime newDate = DateTime(
-                                    context
-                                        .read<OrderProvider>()
-                                        .selectedDate!
-                                        .year,
-                                    1,
-                                    1)
-                                .add(Duration(days: currentItem));
-
-                            // check if the month is different from the current month
-                            if (newDate.month !=
-                                context
-                                    .read<OrderProvider>()
-                                    .selectedDate!
-                                    .month) {
-                              /*context
-                                  .read<OrderProvider>()
-                                  .setSelectedDate(newDate);*/
-                            }
-                          }
-                          return true;
-                        },
-
-                        // 7 item in a row
-                        child: ListView.custom(
-                          controller: _horizontalScrollController,
-                          itemExtent: MediaQuery.of(context).size.width / 7,
-                          scrollDirection: Axis.horizontal,
-                          childrenDelegate: SliverChildBuilderDelegate(
-                            (context, index) => itemList(
-                                context.watch<OrderProvider>().selectedDate,
-                                DateHelper.getDayInLetter(DateTime(
-                                        context
-                                            .watch<OrderProvider>()
-                                            .selectedDate!
-                                            .year,
-                                        1,
-                                        1)
-                                    .add(Duration(days: index))),
-                                index),
-                            childCount: DateHelper.getNbDaysInYear(context
-                                .watch<OrderProvider>()
-                                .selectedDate!
-                                .year),
+                      child: GridView(
+                          controller: _testController,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 7,
+                            childAspectRatio: 1,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 0,
+                            mainAxisExtent: 80,
                           ),
-                        ),
-                      ),
+                          children: [
+                            for (DateTime dateItem in DateHelper.getDaysInWeek(
+                                context.read<OrderProvider>().selectedDate!))
+                              DateItemWidget(
+                                selectedDate:
+                                    context.read<OrderProvider>().selectedDate!,
+                                value: 'test',
+                                dateItem: dateItem,
+                              ),
+                          ]),
                     ),
                   ],
                 )),
@@ -302,26 +132,17 @@ class _OrderScreenState extends State<OrderScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
-                List<OrderModel> orderList = snapshot.data as List<OrderModel>;
-                List<int> lstHour = List.generate(24, (index) => index);
-                List<OrderModel> orderListOfTheDay = [];
-                List<double> lstPosition = [];
-
-                DateTime selectedDate =
-                    context.read<OrderProvider>().selectedDate!;
-
-                orderListOfTheDay = orderList
-                    .where((element) =>
-                        element.date.day == selectedDate.day &&
-                        element.date.month == selectedDate.month &&
-                        element.date.year == selectedDate.year)
-                    .toList();
-
                 List<Map<String, dynamic>> lstHourMap = [];
+
+                List<OrderModel> orderList = snapshot.data as List<OrderModel>;
+                print('order list length');
+                print(orderList.length);
+                List<int> lstHour = List.generate(24, (index) => index);
+
                 double sum = 0;
                 for (var hour in lstHour) {
                   double height = 60;
-                  List<OrderModel> orderListOfTheHour = orderListOfTheDay
+                  List<OrderModel> orderListOfTheHour = orderList
                       .where((element) => element.time.hour == hour)
                       .toList();
                   height = height + (orderListOfTheHour.length * height);
@@ -333,9 +154,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   };
                   lstHourMap.add(map);
                 }
-                print(lstHourMap);
 
-                print(lstPosition);
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
