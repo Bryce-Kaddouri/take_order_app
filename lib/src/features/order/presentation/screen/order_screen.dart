@@ -227,6 +227,8 @@ class _OrderScreenState extends State<OrderScreen> {
             } else {
               return SliverToBoxAdapter(
                 child: Container(
+                  height: MediaQuery.of(context).size.height - 200,
+                  width: double.infinity,
                   alignment: Alignment.center,
                   child: CircularProgressIndicator(),
                 ),
