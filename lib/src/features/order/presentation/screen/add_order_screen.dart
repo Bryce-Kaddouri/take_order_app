@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
+import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
@@ -44,6 +46,124 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         title: Text('Add Order'),
       ),
       body: Stepper(
+        controlsBuilder: (context, details) {
+          return Row(
+            children: [
+              TextButton(
+                onPressed: currentStep != 0
+                    ? () {
+                        if (currentStep > 0) {
+                          setState(() {
+                            currentStep -= 1;
+                          });
+                        }
+                      }
+                    : null,
+                child: Text('Back'),
+              ),
+              if (currentStep == 5)
+                TextButton(
+                  onPressed: () {
+                    List<CartModel> cartList =
+                        context.read<OrderProvider>().cartList;
+                    CustomerModel customer = lstCustomers.firstWhere(
+                        (element) =>
+                            element.id ==
+                            _formKeyCustomer
+                                .currentState!.fields['customer_id']!.value);
+                    double paymentAmount = double.parse(_fromKeyPayment
+                        .currentState!.fields['payment_amount']!.value
+                        .toString());
+                    DateTime orderDate = _formKeyDateTime
+                        .currentState!.fields['order_date']!.value;
+                    TimeOfDay orderTime = TimeOfDay.fromDateTime(
+                        _formKeyDateTime
+                            .currentState!.fields['order_time']!.value);
+                    String note = _fromKeyPayment
+                        .currentState!.fields['note']!.value
+                        .toString();
+
+                    PlaceOrderModel placeOrderModel = PlaceOrderModel(
+                      cartList: cartList,
+                      customer: customer,
+                      paymentAmount: paymentAmount,
+                      orderDate: orderDate,
+                      orderTime: orderTime,
+                      note: note,
+                    );
+
+                    context
+                        .read<OrderProvider>()
+                        .placeOrder(placeOrderModel)
+                        .then((value) {
+                      if (value) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Order added'),
+                          ),
+                        );
+                        context.go('/orders');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error adding order'),
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  child: Text('Confirm'),
+                ),
+              if (currentStep < 5)
+                TextButton(
+                  onPressed: () {
+                    print(currentStep);
+                    if (currentStep < 5) {
+                      if (currentStep == 0) {
+                        if (_formKeyCustomer.currentState!.validate()) {
+                          setState(() {
+                            currentStep += 1;
+                          });
+                        } else {
+                          print('invalid');
+                        }
+                      } else if (currentStep == 1) {
+                        if (_formKeyDateTime.currentState!.validate()) {
+                          setState(() {
+                            currentStep += 1;
+                          });
+                        } else {
+                          print('invalid');
+                        }
+                      } else if (currentStep == 2) {
+                        if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                          setState(() {
+                            currentStep += 1;
+                          });
+                        } else {
+                          print('invalid');
+                        }
+                      } else if (currentStep == 3) {
+                        if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                          setState(() {
+                            currentStep += 1;
+                          });
+                        } else {
+                          print('invalid');
+                        }
+                      } else if (currentStep == 4) {
+                        setState(() {
+                          currentStep += 1;
+                        });
+                      }
+                    }
+                  },
+                  child: Text('Next'),
+                ),
+            ],
+          );
+        },
+        physics: AlwaysScrollableScrollPhysics(),
         controller: stepScrollController,
         onStepTapped: (step) {
           setState(() {
@@ -510,6 +630,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             ),
           ),
           Step(
+            state: StepState.complete,
             isActive: currentStep >= 5,
             title: const Text('Confirm Order'),
             content: Container(
