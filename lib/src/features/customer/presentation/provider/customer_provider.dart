@@ -1,16 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_add_customer_usecase.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_update_customer_usecase.dart';
-import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
 
 import '../../../../core/data/usecase/usecase.dart';
-
 import '../../business/usecase/customer_get_customer_by_id_usecase.dart';
 import '../../business/usecase/customer_get_customers_usecase.dart';
-
 import '../../data/model/customer_model.dart';
 
 class CustomerProvider with ChangeNotifier {
@@ -76,7 +70,7 @@ class CustomerProvider with ChangeNotifier {
     return customerModel;
   }
 
-  Future getCustomerInfoById(int customerId) async {
+  /*Future getCustomerInfoById(int customerId) async {
     var res = null;
     final result = await CustomerDataSource().getCustomerInfosById(customerId);
     await result.fold((l) async {
@@ -90,11 +84,15 @@ class CustomerProvider with ChangeNotifier {
 
     return res;
 
-  }
+  }*/
 
-  Future<CustomerModel?> addCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+  Future<CustomerModel?> addCustomer(String fName, String lName,
+      String phoneNumber, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
-      phoneNumber: phoneNumber, id: null, fName: fName, lName: lName,
+      phoneNumber: phoneNumber,
+      id: null,
+      fName: fName,
+      lName: lName,
     );
     CustomerModel? customerModelResponse;
     final result = await customerAddCustomerUseCase.call(customerModelParam);
@@ -106,8 +104,7 @@ class CustomerProvider with ChangeNotifier {
           onVisible: () {
             Future.delayed(const Duration(seconds: 2), () {
               // dismiss banner
-              ScaffoldMessenger.of(context)
-                  .hideCurrentMaterialBanner();
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
             });
           },
           content: Text(
@@ -118,8 +115,7 @@ class CustomerProvider with ChangeNotifier {
           actions: [
             TextButton(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .hideCurrentMaterialBanner();
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
               },
               child: const Text(
                 'OK',
@@ -129,7 +125,6 @@ class CustomerProvider with ChangeNotifier {
           ],
         ),
       );
-
     }, (CustomerModel r) async {
       print(r.toJson());
       customerModelResponse = r;
@@ -138,9 +133,13 @@ class CustomerProvider with ChangeNotifier {
     return customerModelResponse;
   }
 
-  Future<CustomerModel?> updateCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+  Future<CustomerModel?> updateCustomer(String fName, String lName,
+      String phoneNumber, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
-      phoneNumber: phoneNumber, id: _customerModel?.id, fName: fName, lName: lName,
+      phoneNumber: phoneNumber,
+      id: _customerModel?.id,
+      fName: fName,
+      lName: lName,
     );
     CustomerModel? customerModelResponse;
     final result = await customerUpdateCustomerUseCase.call(customerModelParam);
@@ -152,8 +151,7 @@ class CustomerProvider with ChangeNotifier {
           onVisible: () {
             Future.delayed(const Duration(seconds: 2), () {
               // dismiss banner
-              ScaffoldMessenger.of(context)
-                  .hideCurrentMaterialBanner();
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
             });
           },
           content: Text(
@@ -164,8 +162,7 @@ class CustomerProvider with ChangeNotifier {
           actions: [
             TextButton(
               onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .hideCurrentMaterialBanner();
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
               },
               child: const Text(
                 'OK',
@@ -175,7 +172,6 @@ class CustomerProvider with ChangeNotifier {
           ],
         ),
       );
-
     }, (CustomerModel r) async {
       print(r.toJson());
       customerModelResponse = r;
@@ -188,9 +184,7 @@ class CustomerProvider with ChangeNotifier {
     List<CustomerModel>? customerModelList;
     final result = await customerGetCustomersUseCase.call(NoParams());
 
-    await result.fold((l) async {
-
-    }, (r) async {
+    await result.fold((l) async {}, (r) async {
       print('result');
       print(r);
       customerModelList = r;

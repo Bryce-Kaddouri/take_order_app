@@ -1,11 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/features/customer/data/model/customer_model.dart';
 
 import '../../../../core/data/exception/failure.dart';
-import '../../../order/data/datasource/datasource.dart';
 
 class CustomerDataSource {
   final _client = Supabase.instance.client;
@@ -15,7 +12,7 @@ class CustomerDataSource {
       List<Map<String, dynamic>> response = await _client
           .from('customers')
           .select()
-      .order('l_name', ascending: true);
+          .order('l_name', ascending: true);
 
       print('response');
       print(response);
@@ -47,7 +44,8 @@ class CustomerDataSource {
           .limit(1)
           .order('id', ascending: true);
       if (response.isNotEmpty) {
-        CustomerModel productModel = CustomerModel.fromJsonFromTable(response[0]);
+        CustomerModel productModel =
+            CustomerModel.fromJsonFromTable(response[0]);
         return Right(productModel);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting customer'));
@@ -77,7 +75,6 @@ class CustomerDataSource {
       print(customerModel.toJson());
 
       return Right(customerModel);
-
     } on PostgrestException catch (error) {
       print('postgrest error');
       print(error);
@@ -111,15 +108,15 @@ class CustomerDataSource {
     }
   }
 
-  Future getCustomerInfosById(int customerId) async{
+  /*Future getCustomerInfosById(int customerId) async{
 
     return OrderDataSource().getOrdersBySupplierId(customerId);
 
-   /* return Future.wait([
+   */ /* return Future.wait([
       getCustomerById(customerId),
 
       OrderDataSource().getOrdersBySupplierId(customerId),
 
-    ]);*/
-  }
+    ]);*/ /*
+  }*/
 }

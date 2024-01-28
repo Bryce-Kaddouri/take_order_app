@@ -19,6 +19,12 @@ import 'package:take_order_app/src/features/customer/business/usecase/customer_u
 import 'package:take_order_app/src/features/customer/data/datasource/customer_datasource.dart';
 import 'package:take_order_app/src/features/customer/data/repository/customer_repository_impl.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
+import 'package:take_order_app/src/features/order/business/repository/order_repository.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_customer_id_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_date_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_place_order_usecase.dart';
+import 'package:take_order_app/src/features/order/data/datasource/order_datasource.dart';
+import 'package:take_order_app/src/features/order/data/repository/order_repository_impl.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
 import 'package:take_order_app/src/features/product/business/repository/product_repository.dart';
 import 'package:take_order_app/src/features/product/business/usecase/product_get_product_by_id_usecase.dart';
@@ -40,6 +46,8 @@ Future<void> main() async {
       CustomerRepositoryImpl(dataSource: CustomerDataSource());
   ProductRepository productRepository =
       ProductRepositoryImpl(dataSource: ProductDataSource());
+  OrderRepository orderRepository =
+      OrderRepositoryImpl(orderDataSource: OrderDataSource());
   runApp(
     MultiProvider(
       providers: [
@@ -79,7 +87,15 @@ Future<void> main() async {
           ),
         ),
         ChangeNotifierProvider<OrderProvider>(
-          create: (context) => OrderProvider(),
+          create: (context) => OrderProvider(
+            orderGetOrdersByDateUseCase:
+                OrderGetOrdersByDateUseCase(orderRepository: orderRepository),
+            orderGetOrdersByCustomerIdUseCase:
+                OrderGetOrdersByCustomerIdUseCase(
+                    orderRepository: orderRepository),
+            orderPlaceOrderUseCase:
+                OrderPlaceOrderUseCase(orderRepository: orderRepository),
+          ),
         ),
       ],
       child: const MyApp(),

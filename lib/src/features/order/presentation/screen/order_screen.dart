@@ -5,7 +5,6 @@ import 'package:get/route_manager.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
-import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
 
 import '../../data/model/order_model.dart';
 import '../provider/order_provider.dart';
@@ -29,8 +28,9 @@ class _OrderScreenState extends State<OrderScreen> {
   List<double> testRangeHours = [];
   int currentHour = 0;
 
-  void initData() async {
-    List<OrderModel> orderList = await OrderDataSource().getOrders();
+  void initData(DateTime date) async {
+    List<OrderModel> orderList =
+        await context.read<OrderProvider>().getOrdersByDate(date);
     List<int> lstHour = List.generate(24, (index) => index);
     List<OrderModel> orderListOfTheDay = [];
     List<double> lstPosition = [];
@@ -91,7 +91,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
       print('lstHour');
 
-      initData();
+      initData(context.read<OrderProvider>().selectedDate!);
     });
   }
 
@@ -383,7 +383,8 @@ class _OrderScreenState extends State<OrderScreen> {
                   )),
             ),
           ),
-          if (datas.isEmpty)
+
+          /*if (datas.isEmpty)
             SliverToBoxAdapter(
               child: Container(
                 alignment: Alignment.center,
@@ -427,6 +428,7 @@ class _OrderScreenState extends State<OrderScreen> {
                               return Card(
                                 color: Colors.red,
                                 child: Container(
+                                  height: 80,
                                   padding: EdgeInsets.all(8),
                                   child: Row(
                                     children: [
@@ -446,7 +448,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ],
                 );
               }),
-            ),
+            ),*/
         ],
       ),
     );

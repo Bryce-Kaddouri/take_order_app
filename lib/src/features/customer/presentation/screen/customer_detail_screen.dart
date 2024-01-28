@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
 import 'package:take_order_app/src/features/status/data/model/status_model.dart';
 
-import '../../../cart/data/model/cart_model.dart';
 import '../../../order/data/model/order_model.dart';
+import '../../../order/presentation/provider/order_provider.dart';
 import '../../data/model/customer_model.dart';
 import '../provider/customer_provider.dart';
 
@@ -26,7 +22,7 @@ class CustomerDetailScreen extends StatelessWidget {
   CustomerDetailScreen({required this.id});
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Customer Detail'),
@@ -36,23 +32,19 @@ Widget build(BuildContext context) {
           children: [
             FutureBuilder<List<dynamic>>(
               future: Future.wait([
-
-
                 context.read<CustomerProvider>().getCustomerById(id),
+                context.read<OrderProvider>().getOrdersByCustomerId(id),
 
-
-                OrderDataSource().getOrdersBySupplierId(id),
-
-
-            ]),
+                /* OrderDataSource().getOrdersBySupplierId(id),*/
+              ]),
               builder: (context, snapshot) {
 /*
                 print(snapshot.data);
 */
                 if (snapshot.hasData) {
-                  print('-' * 50 );
+                  print('-' * 50);
                   print(snapshot.data);
-                  print('-' * 50 );
+                  print('-' * 50);
                   CustomerModel customerModel = snapshot.data![0];
                   print(customerModel.fName);
                   print(customerModel.lName);
@@ -79,56 +71,74 @@ Widget build(BuildContext context) {
                   }
                   print(orderByDateList.length);
 
-
-
-
                   return Column(
                     children: [
-                     Container(
-                       child: Column(
-                         children: [
-                           Text('First Name: ${customerModel.fName}'),
-                           Text('Last Name: ${customerModel.lName}'),
-                           Text('Phone Number: ${customerModel.phoneNumber}'),
-                         ],
-                       ),
-                     ),
+                      Container(
+                        child: Column(
+                          children: [
+                            Text('First Name: ${customerModel.fName}'),
+                            Text('Last Name: ${customerModel.lName}'),
+                            Text('Phone Number: ${customerModel.phoneNumber}'),
+                          ],
+                        ),
+                      ),
                       Container(
                         width: MediaQuery.of(context).size.width,
                         color: Colors.grey,
-
                         child: Column(
-                          children: List.generate(orderByDateList.length, (index) {
+                          children:
+                              List.generate(orderByDateList.length, (index) {
                             return Column(
                               children: [
                                 Container(
                                   padding: EdgeInsets.all(10),
-                                  child:
-                                Text('Date: ${orderByDateList[index].date}'),color: Colors.blue,),
+                                  child: Text(
+                                      'Date: ${orderByDateList[index].date}'),
+                                  color: Colors.blue,
+                                ),
                                 Column(
-                                  children: List.generate(orderByDateList[index].orders.length, (index2) {
-                                    StatusModel statusModel = orderByDateList[index].orders[index2].status;
-                                    Color statusColor = Color.fromRGBO(statusModel.color.red, statusModel.color.green, statusModel.color.blue, 1);
+                                  children: List.generate(
+                                      orderByDateList[index].orders.length,
+                                      (index2) {
+                                    StatusModel statusModel =
+                                        orderByDateList[index]
+                                            .orders[index2]
+                                            .status;
+                                    Color statusColor = Color.fromRGBO(
+                                        statusModel.color.red,
+                                        statusModel.color.green,
+                                        statusModel.color.blue,
+                                        1);
                                     return Card(
                                       child: Container(
                                         padding: EdgeInsets.all(10),
                                         child: Row(
                                           children: [
-                                           Expanded(child: Row(
-                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                             children: [
-                                               CircleAvatar(
-                                                 backgroundColor: Colors.blue,
-                                                 child: Text('${orderByDateList[index].orders[index2].id}'),
-                                               ),
-                                               Text('${orderByDateList[index].orders[index2].status.name}',style: TextStyle(color:
-                                                   statusColor
-
-                                               ),),
-                                               Text('${orderByDateList[index].orders[index2].time.hour}:${orderByDateList[index].orders[index2].time.minute}'),
-                                             ],
-                                           ),),
-                                            SizedBox(width: 10,),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.blue,
+                                                    child: Text(
+                                                        '${orderByDateList[index].orders[index2].id}'),
+                                                  ),
+                                                  Text(
+                                                    '${orderByDateList[index].orders[index2].status.name}',
+                                                    style: TextStyle(
+                                                        color: statusColor),
+                                                  ),
+                                                  Text(
+                                                      '${orderByDateList[index].orders[index2].time.hour}:${orderByDateList[index].orders[index2].time.minute}'),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
                                             Icon(Icons.arrow_forward_ios),
                                           ],
                                         ),
@@ -154,5 +164,3 @@ Widget build(BuildContext context) {
     );
   }
 }
-
-

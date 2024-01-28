@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_customer_id_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_date_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_place_order_usecase.dart';
+import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 
 import '../../../cart/data/model/cart_model.dart';
 import '../../../product/data/model/product_model.dart';
 
 class OrderProvider with ChangeNotifier {
+  OrderGetOrdersByDateUseCase orderGetOrdersByDateUseCase;
+  OrderGetOrdersByCustomerIdUseCase orderGetOrdersByCustomerIdUseCase;
+  OrderPlaceOrderUseCase orderPlaceOrderUseCase;
+
+  OrderProvider({
+    required this.orderGetOrdersByDateUseCase,
+    required this.orderGetOrdersByCustomerIdUseCase,
+    required this.orderPlaceOrderUseCase,
+  });
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
@@ -79,6 +99,50 @@ class OrderProvider with ChangeNotifier {
   }
 
   Future<bool> placeOrder(PlaceOrderModel orderModel) async {
-    return OrderDataSource().placeOrder(orderModel);
+    bool isSuccess = false;
+    setLoading(true);
+    final result = await orderPlaceOrderUseCase.call(orderModel);
+
+    await result.fold((l) async {
+      print(l);
+      isSuccess = false;
+    }, (r) async {
+      print(r);
+      isSuccess = true;
+    });
+
+    setLoading(false);
+
+    return isSuccess;
+  }
+
+  Future<List<OrderModel>> getOrdersByDate(DateTime date) async {
+    List<OrderModel> orderList = [];
+    setLoading(true);
+    final result = await orderGetOrdersByDateUseCase.call(date);
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+    }, (r) async {
+      print(r);
+      orderList = r;
+    });
+
+    return orderList;
+  }
+
+  Future<List<OrderModel>> getOrdersByCustomerId(int customerId) async {
+    List<OrderModel> orderList = [];
+    setLoading(true);
+    final result = await orderGetOrdersByCustomerIdUseCase.call(customerId);
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+    }, (r) async {
+      print(r);
+      orderList = r;
+    });
+
+    return orderList;
   }
 }
