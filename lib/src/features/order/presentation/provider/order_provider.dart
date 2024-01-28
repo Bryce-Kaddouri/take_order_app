@@ -118,7 +118,6 @@ class OrderProvider with ChangeNotifier {
 
   Future<List<OrderModel>> getOrdersByDate(DateTime date) async {
     List<OrderModel> orderList = [];
-    setLoading(true);
     final result = await orderGetOrdersByDateUseCase.call(date);
 
     await result.fold((l) async {
@@ -127,6 +126,9 @@ class OrderProvider with ChangeNotifier {
       print(r);
       orderList = r;
     });
+
+    print('order list from provider');
+    print(orderList.length);
 
     return orderList;
   }
