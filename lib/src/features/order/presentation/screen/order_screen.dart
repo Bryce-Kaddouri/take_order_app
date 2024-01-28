@@ -89,20 +89,9 @@ class _OrderScreenState extends State<OrderScreen> {
       );
       List<OrderModel> orderListOfTheDay = [];
 
-/*
-      List<int> lstHour = List.generate(24, (index) => index);
-*/
       print('lstHour');
-/*
-      print(lstHour);
-*/
+
       initData();
-      /*_mainScrollController.animateTo(
-        0,
-        duration: Duration(milliseconds: 500),
-        // bounce effect
-        curve: Curves.easeOut,
-      );*/
     });
   }
 
@@ -216,369 +205,251 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            children: [
-              DrawerHeader(
-                child: Text("Drawer Header"),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.list_alt_outlined),
-                title: Text("Order List"),
-                onTap: () {
-                  Get.back();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.add_shopping_cart_outlined),
-                title: Text("Add Order"),
-                onTap: () {
-                  context.go('/add-order');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person_outline),
-                title: Text("Customer List"),
-                onTap: () {
-                  context.go('/customers');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person_add_outlined),
-                title: Text("Add Customer"),
-                onTap: () {
-                  context.go('/customers/add');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.settings_outlined),
-                title: Text("Settings"),
-                onTap: () {
-                  print('setting');
-                  context.go('/setting');
-                },
-              ),
-            ],
-          ),
-        ),
-        body: CustomScrollView(
-          controller: _mainScrollController,
-          slivers: [
-            SliverAppBar(
-              actions: [
-                IconButton(
-                  onPressed: () async {
-                    DateTime? date = await selectDate();
-                    if (date != null) {
-                      /*setState(() {
-                        selectedDate = date;
-                      });*/
-                      context.read<OrderProvider>().setSelectedDate(date);
-                      int currentDay =
-                          context.read<OrderProvider>().selectedDate.day;
-                      double width = MediaQuery.of(context).size.width;
-                      double itemWidth = width / 7;
-                      double w = itemWidth;
-                      print("w $w");
-                      _horizontalScrollController.animateTo(
-                        (currentDay - 1) * w,
-                        duration: Duration(milliseconds: 500),
-                        // bounce effect
-                        curve: Curves.easeOut,
-                      );
-                    }
-                  },
-                  icon: Icon(Icons.calendar_today),
-                ),
-              ],
-              collapsedHeight: 60,
-              pinned: true,
-              floating: true,
-              expandedHeight: 140,
-              backgroundColor: Colors.blue,
-              centerTitle: false,
-              title: Text(DateHelper.getMonthNameAndYear(
-                  context.watch<OrderProvider>().selectedDate!)),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                    color: Colors.blue,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          clipBehavior: Clip.none,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              stops: [
-                                0.0,
-                                0.9,
-                                0.9,
-                                1.0,
-                              ],
-                              colors: [
-                                Colors.blue,
-                                Colors.blue,
-                                Colors.white,
-                                Colors.white,
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                          width: double.infinity,
-                          height: 80,
-                          child: NotificationListener<ScrollNotification>(
-                            onNotification: (notification) {
-                              if (notification is ScrollNotification) {
-                                // get the item of the width
-                                double itemWidth =
-                                    MediaQuery.of(context).size.width / 7;
-                                // get the current scroll position
-                                double scrollPos = notification.metrics.pixels;
-                                // get the current item
-                                int currentItem =
-                                    (scrollPos / itemWidth).round();
-                                print("currentItem $currentItem");
-                                // get the month of the current item
-                                DateTime newDate = DateTime(
-                                        context
-                                            .read<OrderProvider>()
-                                            .selectedDate!
-                                            .year,
-                                        1,
-                                        1)
-                                    .add(Duration(days: currentItem));
-
-                                // check if the month is different from the current month
-                                if (newDate.month !=
-                                    context
-                                        .read<OrderProvider>()
-                                        .selectedDate!
-                                        .month) {
-                                  /*setState(() {
-                                    selectedDate = newDate;
-                                  });*/
-                                  context
-                                      .read<OrderProvider>()
-                                      .setSelectedDate(newDate);
-                                }
-                              }
-                              return true;
-                            },
-
-                            // 7 item in a row
-                            child: ListView.custom(
-                              controller: _horizontalScrollController,
-                              itemExtent: MediaQuery.of(context).size.width / 7,
-                              scrollDirection: Axis.horizontal,
-                              childrenDelegate: SliverChildBuilderDelegate(
-                                (context, index) => itemList(
-                                    context.watch<OrderProvider>().selectedDate,
-                                    DateHelper.getDayInLetter(DateTime(
-                                            context
-                                                .watch<OrderProvider>()
-                                                .selectedDate!
-                                                .year,
-                                            1,
-                                            1)
-                                        .add(Duration(days: index))),
-                                    index),
-                                childCount: DateHelper.getNbDaysInYear(context
-                                    .watch<OrderProvider>()
-                                    .selectedDate!
-                                    .year),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Text("Drawer Header"),
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
             ),
-            if (datas.isEmpty)
-              SliverToBoxAdapter(
-                child: Container(
-                  alignment: Alignment.center,
-                  child: Text("No order"),
-                ),
-              )
-            else
-              SliverList.list(
-                children: List.generate(datas.length, (index) {
-                  Map<String, dynamic> data = datas[index];
-                  return Row(
+            ListTile(
+              leading: Icon(Icons.list_alt_outlined),
+              title: Text("Order List"),
+              onTap: () {
+                Get.back();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.add_shopping_cart_outlined),
+              title: Text("Add Order"),
+              onTap: () {
+                context.go('/add-order');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person_outline),
+              title: Text("Customer List"),
+              onTap: () {
+                context.go('/customers');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person_add_outlined),
+              title: Text("Add Customer"),
+              onTap: () {
+                context.go('/customers/add');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings_outlined),
+              title: Text("Settings"),
+              onTap: () {
+                print('setting');
+                context.go('/setting');
+              },
+            ),
+          ],
+        ),
+      ),
+      body: CustomScrollView(
+        controller: _mainScrollController,
+        slivers: [
+          SliverAppBar(
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  DateTime? date = await selectDate();
+                  if (date != null) {
+                    /*setState(() {
+                        selectedDate = date;
+                      });*/
+                    context.read<OrderProvider>().setSelectedDate(date);
+                    int currentDay =
+                        context.read<OrderProvider>().selectedDate.day;
+                    double width = MediaQuery.of(context).size.width;
+                    double itemWidth = width / 7;
+                    double w = itemWidth;
+                    print("w $w");
+                    _horizontalScrollController.animateTo(
+                      (currentDay - 1) * w,
+                      duration: Duration(milliseconds: 500),
+                      // bounce effect
+                      curve: Curves.easeOut,
+                    );
+                  }
+                },
+                icon: Icon(Icons.calendar_today),
+              ),
+            ],
+            collapsedHeight: 60,
+            pinned: true,
+            floating: true,
+            expandedHeight: 140,
+            backgroundColor: Colors.blue,
+            centerTitle: false,
+            title: Text(DateHelper.getMonthNameAndYear(
+                context.watch<OrderProvider>().selectedDate!)),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                  color: Colors.blue,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                        alignment: Alignment.center,
-                        width: 60,
-                        child: Text(
-                          '${data['hour']} h',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                        clipBehavior: Clip.none,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            stops: [
+                              0.0,
+                              0.9,
+                              0.9,
+                              1.0,
+                            ],
+                            colors: [
+                              Colors.blue,
+                              Colors.blue,
+                              Colors.white,
+                              Colors.white,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          constraints: BoxConstraints(
-                            minHeight: 60,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.grey,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: Column(
-                            children: List.generate(
-                              data['order'].length,
-                              (index2) {
-                                OrderModel orderModel = data['order'][index2];
-                                return Card(
-                                  color: Colors.red,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                          '${orderModel.time.format(context)}'),
-                                      /* Container(
-                                        height: 60,
-                                        child: Text(
-                                          orderModel.customer.fName,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 60,
-                                        child: Text(
-                                          orderModel.customer.lName,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),*/
-                                    ],
-                                  ),
-                                );
-                              },
+                        width: double.infinity,
+                        height: 80,
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollNotification) {
+                              // get the item of the width
+                              double itemWidth =
+                                  MediaQuery.of(context).size.width / 7;
+                              // get the current scroll position
+                              double scrollPos = notification.metrics.pixels;
+                              // get the current item
+                              int currentItem = (scrollPos / itemWidth).round();
+                              print("currentItem $currentItem");
+                              // get the month of the current item
+                              DateTime newDate = DateTime(
+                                      context
+                                          .read<OrderProvider>()
+                                          .selectedDate!
+                                          .year,
+                                      1,
+                                      1)
+                                  .add(Duration(days: currentItem));
+
+                              // check if the month is different from the current month
+                              if (newDate.month !=
+                                  context
+                                      .read<OrderProvider>()
+                                      .selectedDate!
+                                      .month) {
+                                context
+                                    .read<OrderProvider>()
+                                    .setSelectedDate(newDate);
+                              }
+                            }
+                            return true;
+                          },
+
+                          // 7 item in a row
+                          child: ListView.custom(
+                            controller: _horizontalScrollController,
+                            itemExtent: MediaQuery.of(context).size.width / 7,
+                            scrollDirection: Axis.horizontal,
+                            childrenDelegate: SliverChildBuilderDelegate(
+                              (context, index) => itemList(
+                                  context.watch<OrderProvider>().selectedDate,
+                                  DateHelper.getDayInLetter(DateTime(
+                                          context
+                                              .watch<OrderProvider>()
+                                              .selectedDate!
+                                              .year,
+                                          1,
+                                          1)
+                                      .add(Duration(days: index))),
+                                  index),
+                              childCount: DateHelper.getNbDaysInYear(context
+                                  .watch<OrderProvider>()
+                                  .selectedDate!
+                                  .year),
                             ),
                           ),
                         ),
                       ),
                     ],
-                  );
-                }),
+                  )),
+            ),
+          ),
+          if (datas.isEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                alignment: Alignment.center,
+                child: Text("No order"),
               ),
-
-            /* SliverToBoxAdapter(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        */ /*Get.toNamed("/add_order");*/ /*
-                        OrderDataSource orderDataSource = OrderDataSource();
-                        OrderModel model = OrderModel(
-                          createdAt: DateTime.now(),
-                          updatedAt: DateTime.now(),
-                          date: DateTime.now(),
-                          time: TimeOfDay(hour: 8, minute: 55),
-                          customer: CustomerModel(
-                            id: 1,
-                            fName: "Customer 1",
-                            lName: "Customer 1",
-                            createdAt: DateTime.now(),
-                            updatedAt: DateTime.now(),
-                            phoneNumber: "123456789",
-                          ),
-                          status: StatusModel(
-                            id: 1,
-                            name: "Status 1",
-                            step: 1,
-                            color: Colors.blue,
-                          ),
-                          user: UserModel(
-                            uid: "044f7773-88fe-4531-922a-894db45c2765",
-                            fName: "User 1",
-                            lName: "User 1",
-                          ),
-                          cart: [
-                            CartModel(
-                              product: ProductModel(
-                                id: 1,
-                                name: "Product 1",
-                                price: 10,
-                                photoUrl: "Product 1",
-                                category: CategoryModel(
-                                  isVisible: true,
-                                  id: 1,
-                                  name: "Category 1",
-                                  description: "Category 1",
-                                  photoUrl: "Category 1",
-                                ),
-                              ),
-                              quantity: 5,
-                              isDone: false,
-                            ),
-                            CartModel(
-                              product: ProductModel(
-                                id: 2,
-                                name: "Product 1",
-                                price: 10,
-                                photoUrl: "Product 1",
-                                category: CategoryModel(
-                                  isVisible: true,
-                                  id: 1,
-                                  name: "Category 1",
-                                  description: "Category 1",
-                                  photoUrl: "Category 1",
-                                ),
-                              ),
-                              quantity: 1,
-                              isDone: false,
-                            ),
-                            CartModel(
-                              product: ProductModel(
-                                id: 4,
-                                name: "Product 1",
-                                price: 10,
-                                photoUrl: "Product 1",
-                                category: CategoryModel(
-                                  isVisible: true,
-                                  id: 1,
-                                  name: "Category 1",
-                                  description: "Category 1",
-                                  photoUrl: "Category 1",
-                                ),
-                              ),
-                              quantity: 9,
-                              isDone: false,
-                            ),
-                          ],
-                        );
-
-                        orderDataSource.createOrder(model);
-                      },
-                      child: Text("Add Order"),
+            )
+          else
+            SliverList.list(
+              children: List.generate(datas.length, (index) {
+                Map<String, dynamic> data = datas[index];
+                return Row(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      width: 60,
+                      child: Text(
+                        '${data['hour']} h',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                ),*/
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            List<OrderModel> orderList = await OrderDataSource().getOrders();
-/*
-            print(orderList);
-*/
-          },
-          child: Icon(Icons.add),
-        ));
+                    Expanded(
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: 60,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          children: List.generate(
+                            data['order'].length,
+                            (index2) {
+                              OrderModel orderModel = data['order'][index2];
+                              return Card(
+                                color: Colors.red,
+                                child: Container(
+                                  padding: EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                          '${orderModel.time.format(context)}'),
+                                      Text(
+                                          '${orderModel.customer!.fName} ${orderModel.customer!.lName}'),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ),
+        ],
+      ),
+    );
   }
 }
 
