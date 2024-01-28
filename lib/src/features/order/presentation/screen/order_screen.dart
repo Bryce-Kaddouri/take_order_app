@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/order/data/datasource/datasource.dart';
 
 import '../../data/model/order_model.dart';
+import '../provider/order_provider.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -18,7 +20,9 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _horizontalScrollController = ScrollController();
+/*
   DateTime selectedDate = DateTime.now().subtract(Duration(days: 1));
+*/
   List datas = [];
 
   Random random = Random();
@@ -30,6 +34,9 @@ class _OrderScreenState extends State<OrderScreen> {
     List<int> lstHour = List.generate(24, (index) => index);
     List<OrderModel> orderListOfTheDay = [];
     List<double> lstPosition = [];
+
+    DateTime selectedDate = context.read<OrderProvider>().selectedDate;
+
     orderListOfTheDay = orderList
         .where((element) =>
             element.date.day == selectedDate.day &&
@@ -103,7 +110,7 @@ class _OrderScreenState extends State<OrderScreen> {
     // global key for the form
     return showDatePicker(
         context: context,
-        currentDate: selectedDate,
+        currentDate: context.read<OrderProvider>().selectedDate,
         initialDate: DateTime.now(),
         // first date of the year
         firstDate: DateTime.now().subtract(Duration(days: 365)),
@@ -266,10 +273,12 @@ class _OrderScreenState extends State<OrderScreen> {
                   onPressed: () async {
                     DateTime? date = await selectDate();
                     if (date != null) {
-                      setState(() {
+                      /*setState(() {
                         selectedDate = date;
-                      });
-                      int currentDay = selectedDate.day;
+                      });*/
+                      context.read<OrderProvider>().setSelectedDate(date);
+                      int currentDay =
+                          context.read<OrderProvider>().selectedDate.day;
                       double width = MediaQuery.of(context).size.width;
                       double itemWidth = width / 7;
                       double w = itemWidth;
@@ -291,7 +300,8 @@ class _OrderScreenState extends State<OrderScreen> {
               expandedHeight: 140,
               backgroundColor: Colors.blue,
               centerTitle: false,
-              title: Text(DateHelper.getMonthNameAndYear(selectedDate!)),
+              title: Text(DateHelper.getMonthNameAndYear(
+                  context.watch<OrderProvider>().selectedDate!)),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                     color: Colors.blue,
@@ -333,15 +343,27 @@ class _OrderScreenState extends State<OrderScreen> {
                                     (scrollPos / itemWidth).round();
                                 print("currentItem $currentItem");
                                 // get the month of the current item
-                                DateTime newDate =
-                                    DateTime(selectedDate!.year, 1, 1)
-                                        .add(Duration(days: currentItem));
+                                DateTime newDate = DateTime(
+                                        context
+                                            .read<OrderProvider>()
+                                            .selectedDate!
+                                            .year,
+                                        1,
+                                        1)
+                                    .add(Duration(days: currentItem));
 
                                 // check if the month is different from the current month
-                                if (newDate.month != selectedDate!.month) {
-                                  setState(() {
+                                if (newDate.month !=
+                                    context
+                                        .read<OrderProvider>()
+                                        .selectedDate!
+                                        .month) {
+                                  /*setState(() {
                                     selectedDate = newDate;
-                                  });
+                                  });*/
+                                  context
+                                      .read<OrderProvider>()
+                                      .setSelectedDate(newDate);
                                 }
                               }
                               return true;
@@ -354,13 +376,20 @@ class _OrderScreenState extends State<OrderScreen> {
                               scrollDirection: Axis.horizontal,
                               childrenDelegate: SliverChildBuilderDelegate(
                                 (context, index) => itemList(
-                                    selectedDate,
-                                    DateHelper.getDayInLetter(
-                                        DateTime(selectedDate!.year, 1, 1)
-                                            .add(Duration(days: index))),
+                                    context.watch<OrderProvider>().selectedDate,
+                                    DateHelper.getDayInLetter(DateTime(
+                                            context
+                                                .watch<OrderProvider>()
+                                                .selectedDate!
+                                                .year,
+                                            1,
+                                            1)
+                                        .add(Duration(days: index))),
                                     index),
-                                childCount: DateHelper.getNbDaysInYear(
-                                    selectedDate!.year),
+                                childCount: DateHelper.getNbDaysInYear(context
+                                    .watch<OrderProvider>()
+                                    .selectedDate!
+                                    .year),
                               ),
                             ),
                           ),

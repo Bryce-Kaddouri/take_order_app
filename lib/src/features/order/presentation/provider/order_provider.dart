@@ -6,6 +6,14 @@ import '../../../cart/data/model/cart_model.dart';
 import '../../../product/data/model/product_model.dart';
 
 class OrderProvider with ChangeNotifier {
+  DateTime _selectedDate = DateTime.now();
+  DateTime get selectedDate => _selectedDate;
+
+  void setSelectedDate(DateTime value) {
+    _selectedDate = value;
+    notifyListeners();
+  }
+
   int _orderQty = 1;
   int get orderQty => _orderQty;
 
