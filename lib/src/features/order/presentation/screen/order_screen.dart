@@ -16,9 +16,7 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _horizontalScrollController = ScrollController();
-/*
-  DateTime selectedDate = DateTime.now().subtract(Duration(days: 1));
-*/
+  PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -30,12 +28,12 @@ class _OrderScreenState extends State<OrderScreen> {
       double itemWidth = width / 7;
       double w = itemWidth;
       print("w $w");
-      _horizontalScrollController.animateTo(
+      /*_horizontalScrollController.animateTo(
         (currentDay - 1) * w,
         duration: Duration(milliseconds: 500),
         // bounce effect
         curve: Curves.easeOut,
-      );
+      );*/
       List<OrderModel> orderListOfTheDay = [];
 
       print('lstHour');
@@ -112,38 +110,54 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
       elevation: isToday ? 5 : 0,
       color: isToday ? Colors.white : Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        width: itemWidth,
-        height: isToday ? 70 : 60,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isToday)
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(3),
+      child: InkWell(
+        onTap: () {
+          context.read<OrderProvider>().setSelectedDate(dateOfItem);
+          int currentDay = context.read<OrderProvider>().selectedDate.day;
+          double width = MediaQuery.of(context).size.width;
+          double itemWidth = width / 7;
+          double w = itemWidth;
+          print("w $w");
+          _horizontalScrollController.animateTo(
+            (currentDay - 1) * w,
+            duration: Duration(milliseconds: 500),
+            // bounce effect
+            curve: Curves.easeOut,
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          width: itemWidth,
+          height: isToday ? 70 : 60,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isToday)
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              Text(
+                dateOfItem.day.toString(),
+                style: TextStyle(
+                  color: isToday ? Colors.black : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
                 ),
               ),
-            Text(
-              dateOfItem.day.toString(),
-              style: TextStyle(
-                color: isToday ? Colors.black : Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+              Text(
+                DateHelper.getDayInLetter(dateOfItem),
+                style: TextStyle(
+                    color: isToday ? Colors.black : Colors.grey, fontSize: 16),
               ),
-            ),
-            Text(
-              DateHelper.getDayInLetter(dateOfItem),
-              style: TextStyle(
-                  color: isToday ? Colors.black : Colors.grey, fontSize: 16),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -197,7 +211,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   children: [
                     Container(
                       clipBehavior: Clip.none,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           stops: [
                             0.0,
@@ -244,9 +258,9 @@ class _OrderScreenState extends State<OrderScreen> {
                                     .read<OrderProvider>()
                                     .selectedDate!
                                     .month) {
-                              context
+                              /*context
                                   .read<OrderProvider>()
-                                  .setSelectedDate(newDate);
+                                  .setSelectedDate(newDate);*/
                             }
                           }
                           return true;
@@ -281,73 +295,6 @@ class _OrderScreenState extends State<OrderScreen> {
                 )),
           ),
         ),
-
-        /*if (datas.isEmpty)
-            SliverToBoxAdapter(
-              child: Container(
-                alignment: Alignment.center,
-                child: Text("No order"),
-              ),
-            )
-          else
-            SliverList.list(
-              children: List.generate(datas.length, (index) {
-                Map<String, dynamic> data = datas[index];
-                return Row(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      width: 60,
-                      child: Text(
-                        '${data['hour']} h',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: 60,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          children: List.generate(
-                            data['order'].length,
-                            (index2) {
-                              OrderModel orderModel = data['order'][index2];
-                              return Card(
-                                color: Colors.red,
-                                child: Container(
-                                  height: 80,
-                                  padding: EdgeInsets.all(8),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                          '${orderModel.time.format(context)}'),
-                                      Text(
-                                          '${orderModel.customer!.fName} ${orderModel.customer!.lName}'),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ),*/
-
         FutureBuilder(
           future: context
               .read<OrderProvider>()
