@@ -15,7 +15,7 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.dataSource});
 
   @override
-  Future<Either<AuthFailure, AuthResponse>> login(LoginParams params) async {
+  Future<Either<AuthFailure, bool>> login(LoginParams params) async {
     return await dataSource.login(params);
   }
 

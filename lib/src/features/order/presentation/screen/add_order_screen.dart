@@ -1,12 +1,10 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/responsive_helper.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
-import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
@@ -22,13 +20,19 @@ class AddOrderScreen extends StatefulWidget {
 class _AddOrderScreenState extends State<AddOrderScreen> {
   ScrollController stepScrollController = ScrollController();
   int currentStep = 0;
-  final _formKeyCustomer = GlobalKey<FormBuilderState>();
-  final _formKeyDateTime = GlobalKey<FormBuilderState>();
-  final _fromKeyPayment = GlobalKey<FormBuilderState>();
+  final _formKeyCustomer = GlobalKey<FormState>();
+  final DateTime selected = DateTime.now().copyWith(
+    hour: 9,
+    minute: 0,
+    second: 0,
+  );
+  final _fromKeyPayment = GlobalKey<FormState>();
 
   List<CustomerModel> lstCustomers = [];
+  List<ProductModel> lstProducts = [];
   int selectedCustomerId = -1;
   DateTime selectedDate = DateTime.now();
+  double numberBoxValue = 0.0;
 
   @override
   void initState() {
@@ -38,7 +42,14 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
         lstCustomers = value!;
       });
     });
+    context.read<ProductProvider>().getProducts().then((value) {
+      setState(() {
+        lstProducts = value!;
+      });
+    });
   }
+
+  int? selectedProductId;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +76,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               if (currentStep == 5)
                 TextButton(
                   onPressed: () {
-                    List<CartModel> cartList =
+                    /*List<CartModel> cartList =
                         context.read<OrderProvider>().cartList;
                     CustomerModel customer = lstCustomers.firstWhere(
                         (element) =>
@@ -111,7 +122,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                           ),
                         );
                       }
-                    });
+                    });*/
                   },
                   child: Text('Confirm'),
                 ),
@@ -129,13 +140,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                           print('invalid');
                         }
                       } else if (currentStep == 1) {
-                        if (_formKeyDateTime.currentState!.validate()) {
+                        /*if (_formKeyDateTime.currentState!.validate()) {
                           setState(() {
                             currentStep += 1;
                           });
                         } else {
                           print('invalid');
-                        }
+                        }*/
+                        setState(() {
+                          currentStep += 1;
+                        });
                       } else if (currentStep == 2) {
                         if (context.read<OrderProvider>().cartList.isNotEmpty) {
                           setState(() {
@@ -185,13 +199,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 print('invalid');
               }
             } else if (currentStep == 1) {
-              if (_formKeyDateTime.currentState!.validate()) {
+              /* if (_formKeyDateTime.currentState!.validate()) {
                 setState(() {
                   currentStep += 1;
                 });
               } else {
                 print('invalid');
-              }
+              }*/
+              setState(() {
+                currentStep += 1;
+              });
             } else if (currentStep == 2) {
               if (context.read<OrderProvider>().cartList.isNotEmpty) {
                 setState(() {
@@ -215,9 +232,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             }
           }
         },
-        type: !ResponsiveHelper.isDesktop(context)
-            ? StepperType.vertical
-            : StepperType.horizontal,
+        type: !ResponsiveHelper.isDesktop(context) ? StepperType.vertical : StepperType.horizontal,
         currentStep: currentStep,
         steps: <Step>[
           Step(
@@ -226,7 +241,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             content: Container(
               padding: EdgeInsets.all(10),
               width: MediaQuery.of(context).size.width,
-              child: FormBuilder(
+              child: /*FormBuilder(
                 key: _formKeyCustomer,
                 child: Column(
                   children: [
@@ -256,7 +271,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                     ),
                   ],
                 ),
-              ),
+              ),*/
+                  fluent.Form(key: _formKeyCustomer, child: fluent.AutoSuggestBox.form(items: List.generate(lstCustomers.length, (index) => fluent.AutoSuggestBoxItem<String>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: '${lstCustomers[index].id}')))),
             ),
           ),
           Step(
@@ -265,47 +281,30 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             content: Container(
               padding: EdgeInsets.all(10),
               width: MediaQuery.of(context).size.width,
-              child: FormBuilder(
-                key: _formKeyDateTime,
-                child: Column(
-                  children: [
-                    FormBuilderDateTimePicker(
-                      firstDate: selectedDate,
-                      initialDate: selectedDate,
-                      name: 'order_date',
-                      inputType: InputType.date,
-                      decoration: InputDecoration(
-                        labelText: 'Order Date',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                        // check if number
-                      ]),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    FormBuilderDateTimePicker(
-                      firstDate: selectedDate,
-                      initialDate: selectedDate,
-                      initialTime: TimeOfDay(
-                        hour: 11,
-                        minute: 30,
-                      ),
-                      name: 'order_time',
-                      inputType: InputType.time,
-                      decoration: InputDecoration(
-                        labelText: 'Order Time',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                        // check if number
-                      ]),
-                    ),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  fluent.DatePicker(
+                    header: 'Pick a date',
+                    selected: selected,
+                    onChanged: (time) {
+                      setState(() {
+                        selectedDate = time;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  fluent.TimePicker(
+                    selected: selected,
+                    onChanged: (DateTime time) {
+                      setState(() {
+                        selectedDate = time;
+                      });
+                    },
+                    hourFormat: HourFormat.HH,
+                  ),
+                ],
               ),
             ),
           ),
@@ -334,10 +333,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                 ),
                               ),
                               child: ListTile(
-                                onTap: () {
+                                onTap: () async {
                                   // global key for form builder
-                                  final _formKeyQty =
-                                      GlobalKey<FormBuilderState>();
+                                  final _formKeyQty = GlobalKey<FormBuilderState>();
+
                                   showAdaptiveDialog(
                                       context: context,
                                       builder: (context) {
@@ -351,18 +350,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                             ),
                                             TextButton(
                                               onPressed: () {
-                                                if (_formKeyQty.currentState!
-                                                    .validate()) {
-                                                  context
-                                                      .read<OrderProvider>()
-                                                      .updateQuantityCartList(
-                                                          index,
-                                                          int.parse(_formKeyQty
-                                                              .currentState!
-                                                              .fields[
-                                                                  'quantity']!
-                                                              .value
-                                                              .toString()));
+                                                if (_formKeyQty.currentState!.validate()) {
+                                                  context.read<OrderProvider>().updateQuantityCartList(index, int.parse(_formKeyQty.currentState!.fields['quantity']!.value.toString()));
                                                   Navigator.pop(context);
                                                 }
                                               },
@@ -371,38 +360,25 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                           ],
                                           title: Text('Edit Quantity'),
                                           content: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.8,
+                                            width: MediaQuery.of(context).size.width * 0.8,
                                             height: 100,
                                             child: FormBuilder(
                                               key: _formKeyQty,
                                               child: Column(
                                                 children: [
                                                   FormBuilderTextField(
-                                                    initialValue: context
-                                                        .watch<OrderProvider>()
-                                                        .cartList[index]
-                                                        .quantity
-                                                        .toString(),
+                                                    initialValue: context.watch<OrderProvider>().cartList[index].quantity.toString(),
                                                     autofocus: true,
                                                     name: 'quantity',
                                                     decoration: InputDecoration(
                                                       labelText: 'Quantity',
-                                                      border:
-                                                          OutlineInputBorder(),
+                                                      border: OutlineInputBorder(),
                                                     ),
-                                                    validator:
-                                                        FormBuilderValidators
-                                                            .compose([
-                                                      FormBuilderValidators
-                                                          .required(),
-                                                      FormBuilderValidators
-                                                          .numeric(),
+                                                    validator: FormBuilderValidators.compose([
+                                                      FormBuilderValidators.required(),
+                                                      FormBuilderValidators.numeric(),
                                                       // check > 0
-                                                      FormBuilderValidators.min(
-                                                          1),
+                                                      FormBuilderValidators.min(1),
                                                     ]),
                                                   ),
                                                 ],
@@ -412,54 +388,31 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                         );
                                       });
                                 },
-                                title: Text(
-                                    '${context.watch<OrderProvider>().cartList[index].product.name}'),
-                                subtitle: Text(
-                                    '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                title: Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                subtitle: Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
                                 trailing: Container(
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
                                         onPressed: () {
-                                          int currentQty = context
-                                              .read<OrderProvider>()
-                                              .cartList[index]
-                                              .quantity;
+                                          int currentQty = context.read<OrderProvider>().cartList[index].quantity;
                                           if (currentQty > 1) {
-                                            context
-                                                .read<OrderProvider>()
-                                                .updateQuantityCartList(
-                                                    index, currentQty - 1);
+                                            context.read<OrderProvider>().updateQuantityCartList(index, currentQty - 1);
                                           } else {
-                                            context
-                                                .read<OrderProvider>()
-                                                .removeCartList(context
-                                                    .read<OrderProvider>()
-                                                    .cartList[index]);
+                                            context.read<OrderProvider>().removeCartList(context.read<OrderProvider>().cartList[index]);
                                           }
                                         },
                                         icon: Icon(Icons.remove),
                                       ),
-                                      Text(
-                                          context
-                                              .watch<OrderProvider>()
-                                              .cartList[index]
-                                              .quantity
-                                              .toString(),
+                                      Text(context.watch<OrderProvider>().cartList[index].quantity.toString(),
                                           style: TextStyle(
                                             fontSize: 20,
                                           )),
                                       IconButton(
                                         onPressed: () {
-                                          int currentQty = context
-                                              .read<OrderProvider>()
-                                              .cartList[index]
-                                              .quantity;
-                                          context
-                                              .read<OrderProvider>()
-                                              .updateQuantityCartList(
-                                                  index, currentQty + 1);
+                                          int currentQty = context.read<OrderProvider>().cartList[index].quantity;
+                                          context.read<OrderProvider>().updateQuantityCartList(index, currentQty + 1);
                                         },
                                         icon: Icon(Icons.add),
                                       ),
@@ -509,16 +462,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                       ),
                                     ),
                                     child: ListTile(
-                                      title: Text(
-                                          '${context.watch<OrderProvider>().cartList[index].product.name}'),
-                                      subtitle: Text(
-                                          '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                      title: Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                      subtitle: Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
                                       trailing: Container(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Text(
-                                                'x${context.watch<OrderProvider>().cartList[index].quantity}'),
+                                            Text('x${context.watch<OrderProvider>().cartList[index].quantity}'),
                                           ],
                                         ),
                                       ),
@@ -543,8 +493,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                        '${context.watch<OrderProvider>().totalAmount}'),
+                                    Text('${context.watch<OrderProvider>().totalAmount}'),
                                   ],
                                 ),
                               ),
@@ -569,12 +518,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
               padding: EdgeInsets.all(10),
               width: MediaQuery.of(context).size.width,
               child: Container(
-                child: FormBuilder(
+                child: Form(
                   key: _fromKeyPayment,
                   child: Column(
                     children: [
                       Text('Total Amount'),
                       Text('${context.watch<OrderProvider>().totalAmount}'),
+                      /*
                       FormBuilderTextField(
                         name: 'payment_amount',
                         decoration: InputDecoration(
@@ -582,20 +532,29 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                           border: OutlineInputBorder(),
                         ),
                         inputFormatters: [
-                          FilteringTextInputFormatter(RegExp(r'^\d+\.?\d{0,2}'),
-                              allow: true),
+                          FilteringTextInputFormatter(RegExp(r'^\d+\.?\d{0,2}'), allow: true),
                         ],
-                        initialValue: context
-                            .watch<OrderProvider>()
-                            .totalAmount
-                            .toString(),
+                        initialValue: context.watch<OrderProvider>().totalAmount.toString(),
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
-/*
+*/ /*
                           FormBuilderValidators.numeric(),
-*/
+*/ /*
                           // check if number
                         ]),
+                      ),*/
+                      fluent.NumberFormBox(
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                          FormBuilderValidators.numeric(),
+                        ]),
+                        min: 0,
+                        value: numberBoxValue,
+                        onChanged: (value) {
+                          setState(() {
+                            numberBoxValue = value!;
+                          });
+                        },
                       ),
                       SizedBox(
                         height: 10,
@@ -631,22 +590,18 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                           Container(
                             child: Column(
                               children: [
-                                Text('Customer'),
+                                /* Text('Customer'),
                                 Text(
                                     '${lstCustomers.firstWhere((element) => element.id == _formKeyCustomer.currentState!.fields['customer_id']!.value).fName} ${lstCustomers.firstWhere((element) => element.id == _formKeyCustomer.currentState!.fields['customer_id']!.value).lName}'),
                                 Text('Order Date & Time'),
                                 Text(
-                                    '${_formKeyDateTime.currentState!.fields['order_date']!.value} ${_formKeyDateTime.currentState!.fields['order_time']!.value}'),
+                                    '${_formKeyDateTime.currentState!.fields['order_date']!.value} ${_formKeyDateTime.currentState!.fields['order_time']!.value}'),*/
                               ],
                             ),
                           ),
                           Container(
                             child: Column(
-                              children: List.generate(
-                                  context
-                                      .watch<OrderProvider>()
-                                      .cartList
-                                      .length, (index) {
+                              children: List.generate(context.watch<OrderProvider>().cartList.length, (index) {
                                 return Container(
                                   margin: EdgeInsets.symmetric(
                                     vertical: 5,
@@ -660,16 +615,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                     ),
                                   ),
                                   child: ListTile(
-                                    title: Text(
-                                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
-                                    subtitle: Text(
-                                        '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                    title: Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    subtitle: Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
                                     trailing: Container(
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                              'x${context.watch<OrderProvider>().cartList[index].quantity}'),
+                                          Text('x${context.watch<OrderProvider>().cartList[index].quantity}'),
                                         ],
                                       ),
                                     ),
@@ -693,8 +645,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                        '${context.watch<OrderProvider>().totalAmount}'),
+                                    Text('${context.watch<OrderProvider>().totalAmount}'),
                                   ],
                                 ),
                               ),
@@ -717,195 +668,102 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       floatingActionButton: currentStep == 2
           ? FloatingActionButton(
               onPressed: () async {
-                await showAdaptiveDialog(
-                    context: context,
-                    builder: (context) {
-                      TextEditingController searchController =
-                          TextEditingController();
-                      Stream<String> streamSearch = Stream.periodic(
-                          Duration(milliseconds: 500),
-                          (x) => searchController.text);
+                List<ProductModel> filteredProducts = lstProducts.where((element) => !context.read<OrderProvider>().cartList.map((e) => e.product.id).contains(element.id)).toList();
 
-                      return AlertDialog(
-                        actions: [
-                          Container(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    context
-                                        .read<OrderProvider>()
-                                        .decrementOrderQty();
+                await showDialog<bool>(
+                  context: context,
+                  builder: (context) => fluent.ContentDialog(
+                    constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                    title: Row(children: [
+                      Expanded(
+                        child: const Text('Add Item to cart'),
+                      ),
+                      fluent.IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(fluent.FluentIcons.clear),
+                      ),
+                    ]),
+                    content: fluent.Column(
+                      children: [
+                        fluent.TextBox(),
+                        fluent.Expanded(
+                            child: fluent.ListView.builder(
+                          itemCount: filteredProducts.length,
+                          itemBuilder: (context, index) {
+                            return fluent.ListTile.selectable(
+                              selected: context.watch<OrderProvider>().selectedProductAddId == filteredProducts[index].id,
+                              leading: fluent.Container(
+                                child: fluent.Image(
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return SizedBox();
                                   },
-                                  icon: Icon(Icons.remove),
+                                  image: NetworkImage(filteredProducts[index].imageUrl),
+                                  width: 50,
+                                  height: 50,
                                 ),
-                                Text(
-                                    context
-                                        .watch<OrderProvider>()
-                                        .orderQty
-                                        .toString(),
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    )),
-                                IconButton(
-                                  onPressed: () {
-                                    context
-                                        .read<OrderProvider>()
-                                        .incrementOrderQty();
-                                  },
-                                  icon: Icon(Icons.add),
-                                ),
-                              ],
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context.read<OrderProvider>().clearCartList();
-
-                              // close dialog
-                              Navigator.pop(context);
-                            },
-                            child: Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              context.read<OrderProvider>().addCartList(
-                                    CartModel(
-                                      isDone: false,
-                                      product: context
-                                          .read<OrderProvider>()
-                                          .selectedProduct!,
-                                      quantity: context
-                                          .read<OrderProvider>()
-                                          .orderQty,
-                                    ),
-                                  );
-                              // reset selected product and order qty
-                              context.read<OrderProvider>().setSelectedProduct(
-                                    null,
-                                  );
-                              context.read<OrderProvider>().setOrderQty(1);
-                              // close dialog
-                              Navigator.pop(context);
-                            },
-                            child: Text('Confirm'),
-                          ),
-                        ],
-                        title: Text('Add Item'),
-                        content: Container(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          width: MediaQuery.of(context).size.width,
-                          child: Container(
-                            child: StreamBuilder(
-                              stream: streamSearch,
-                              builder: (context, snapshotSearch) {
-                                if (snapshotSearch.hasData) {
-                                  print(snapshotSearch.data);
-
-                                  return FutureBuilder(
-                                    future: context
-                                        .read<ProductProvider>()
-                                        .getProducts(),
-                                    builder: (context, snapshot) {
-                                      String search = '';
-                                      if (snapshot.hasData) {
-                                        List<ProductModel> lstProduct =
-                                            snapshot.data as List<ProductModel>;
-
-                                        // remove where product is already in cart
-                                        lstProduct = lstProduct
-                                            .where((element) => !context
-                                                .read<OrderProvider>()
-                                                .cartList
-                                                .map((e) => e.product.id)
-                                                .toList()
-                                                .contains(element.id))
-                                            .toList();
-
-                                        lstProduct = lstProduct
-                                            .where((element) => element.name
-                                                .toLowerCase()
-                                                .contains(snapshotSearch.data
-                                                    .toString()
-                                                    .toLowerCase()))
-                                            .toList();
-
-                                        print(lstProduct.length);
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              height: 50,
-                                              child: TextField(
-                                                controller: searchController,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    search = value;
-                                                  });
-
-                                                  print(search);
-                                                },
-                                                decoration: InputDecoration(
-                                                  labelText: 'Search',
-                                                  border: OutlineInputBorder(),
-                                                ),
-                                              ),
-                                            ),
-                                            if (lstProduct.length == 0)
-                                              Center(
-                                                child: Text('No product found'),
-                                              )
-                                            else
-                                              Expanded(
-                                                child: ListView.builder(
-                                                  itemCount: lstProduct.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return ListTile(
-                                                      selected: context
-                                                              .watch<
-                                                                  OrderProvider>()
-                                                              .selectedProduct
-                                                              ?.id ==
-                                                          lstProduct[index].id,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          context
-                                                              .read<
-                                                                  OrderProvider>()
-                                                              .setSelectedProduct(
-                                                                  lstProduct[
-                                                                      index]);
-                                                        });
-                                                      },
-                                                      title: Text(
-                                                          '${lstProduct[index].name}'),
-                                                      subtitle: Text(
-                                                          '${lstProduct[index].price}'),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                          ],
-                                        );
-                                      } else {
-                                        return Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }
-                                    },
-                                  );
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
+                              ),
+                              title: Text(filteredProducts[index].name),
+                              subtitle: Text(filteredProducts[index].price.toString()),
+                              onPressed: () {
+                                setState(() {
+                                  context.read<OrderProvider>().setSelectedProductAddId(filteredProducts[index].id);
+                                });
+                              },
+                            );
+                          },
+                        )),
+                      ],
+                    ),
+                    actions: [
+                      fluent.Container(
+                        child: fluent.Row(
+                          children: [
+                            fluent.Button(
+                              child: const Icon(fluent.FluentIcons.add),
+                              onPressed: () {
+                                context.read<OrderProvider>().incrementOrderQty();
                               },
                             ),
-                          ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              context.watch<OrderProvider>().orderQty.toString(),
+                              style: const TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            fluent.Button(
+                              child: const Icon(fluent.FluentIcons.remove),
+                              onPressed: () {
+                                context.read<OrderProvider>().decrementOrderQty();
+                              },
+                            ),
+                          ],
                         ),
-                      );
-                    });
+                      ),
+                      fluent.FilledButton(
+                        child: const Text('Confirm'),
+                        onPressed: () {
+                          context.read<OrderProvider>().addCartList(
+                                CartModel(
+                                  isDone: false,
+                                  product: lstProducts.firstWhere((element) => element.id == context.read<OrderProvider>().selectedProductAddId),
+                                  quantity: context.read<OrderProvider>().orderQty,
+                                ),
+                              );
+                          context.read<OrderProvider>().setSelectedProductAddId(null);
+                          Navigator.pop(context, true);
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
               child: Icon(Icons.add_shopping_cart),
             )

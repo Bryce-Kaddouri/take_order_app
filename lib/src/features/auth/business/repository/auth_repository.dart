@@ -5,7 +5,7 @@ import '../../../../core/data/exception/failure.dart';
 import '../param/login_params.dart';
 
 abstract class AuthRepository {
-  Future<Either<AuthFailure, AuthResponse>> login(LoginParams params);
+  Future<Either<AuthFailure, bool>> login(LoginParams params);
 
   Future<Either<AuthFailure, String>> logout(NoParams param);
 

@@ -37,6 +37,14 @@ class OrderProvider with ChangeNotifier {
   int _orderQty = 1;
   int get orderQty => _orderQty;
 
+  int? _selectedProductAddId;
+  int? get selectedProductAddId => _selectedProductAddId;
+
+  void setSelectedProductAddId(int? value) {
+    _selectedProductAddId = value;
+    notifyListeners();
+  }
+
   void setOrderQty(int value) {
     _orderQty = value;
     notifyListeners();

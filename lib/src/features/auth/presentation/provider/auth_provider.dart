@@ -73,6 +73,7 @@ class AuthProvider with ChangeNotifier {
       _loginErrorMessage = l.errorMessage;
       isSuccess = false;
     }, (r) async {
+      print('login success');
       isSuccess = true;
     });
 

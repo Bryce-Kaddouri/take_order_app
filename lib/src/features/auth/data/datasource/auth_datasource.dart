@@ -9,7 +9,10 @@ class AuthDataSource {
   final _auth = Supabase.instance.client.auth;
 
   // method to login user
-  Future<Either<AuthFailure, AuthResponse>> login(LoginParams params) async {
+  Future<Either<AuthFailure, bool>> login(LoginParams params) async {
+    print('login data source');
+    print(params.email);
+    print(params.password);
     try {
       final response = await _auth.signInWithPassword(
           email: params.email, password: params.password);
@@ -17,7 +20,7 @@ class AuthDataSource {
       print(response);
       if (response.user != null &&
           response.user!.appMetadata['role'] == 'SELLER') {
-        return Right(response);
+        return Right(true);
       } else {
         _auth.signOut();
         return Left(AuthFailure(errorMessage: 'Invalid Credential'));

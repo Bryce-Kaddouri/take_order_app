@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../screen/add_order_screen.dart';
+
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
 
@@ -29,7 +31,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             leading: Icon(Icons.add_shopping_cart_outlined),
             title: Text("Add Order"),
             onTap: () {
-              context.go('/add-order');
+              print('add order');
+              /*GoRouter.of(context).go('/orders/add');*/
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddOrderScreen()));
             },
           ),
           ListTile(

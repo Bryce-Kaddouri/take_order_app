@@ -5,7 +5,7 @@ import '../../../../core/data/exception/failure.dart';
 import '../param/login_params.dart';
 import '../repository/auth_repository.dart';
 
-class AuthLoginUseCase implements UseCase<AuthResponse, LoginParams> {
+class AuthLoginUseCase implements UseCase<bool, LoginParams> {
   final AuthRepository authRepository;
 
   const AuthLoginUseCase({
@@ -13,7 +13,7 @@ class AuthLoginUseCase implements UseCase<AuthResponse, LoginParams> {
   });
 
   @override
-  Future<Either<AuthFailure, AuthResponse>> call(LoginParams params) {
+  Future<Either<AuthFailure, bool>> call(LoginParams params) {
     return authRepository.login(params);
   }
 }

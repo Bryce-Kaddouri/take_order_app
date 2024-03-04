@@ -6,12 +6,17 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/auth_provider.dart';
-
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 class SignInScreen extends StatelessWidget {
   SignInScreen({super.key});
 
   // global key for the form
-  final _formKey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormState>();
+  // controller for the email field
+  final TextEditingController _emailController = TextEditingController();
+  // controller for the password field
+  final TextEditingController _passwordController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -21,147 +26,113 @@ class SignInScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         alignment: Alignment.center,
-        child: FormBuilder(
+        child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
                 child: Column(children: [
-                  FormBuilderTextField(
-                    name: 'email',
-                    decoration: const InputDecoration(labelText: 'Email'),
+                  fluent.InfoLabel(label: 'Email:',
+                  child:
+                  fluent.TextFormBox(
+
+                    placeholder: 'Email',
+                    controller: _emailController,
+                    prefix: Container(
+                      padding: const EdgeInsets.all(10),
+                      child:const Icon(fluent.FluentIcons.mail),
+                    ),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(),
                       FormBuilderValidators.email(),
                     ]),
                   ),
+                  ),
                   const SizedBox(height: 10),
-                  FormBuilderTextField(
-                    name: 'password',
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
+                fluent.InfoLabel(label: 'Password:',
+                    child:
+                  fluent.PasswordFormBox(
+                    controller: _passwordController,
+                    placeholder: 'Password',
+                    leadingIcon: Container(
+                      padding: const EdgeInsets.all(10),
+                      child:const Icon(fluent.FluentIcons.lock),
+                    ),
+
+                    revealMode: fluent.PasswordRevealMode.peekAlways,
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.required(),
                     ]),
-                  ),
+
+                    ),
+                ),
                 ]),
+
               ),
-              MaterialButton(
-                color: Theme.of(context).colorScheme.secondary,
+              Container(
+                height: 50,
+                width: double.infinity,
+                child:
+              fluent.FilledButton(
+                style: fluent.ButtonStyle(
+
+                ),
                 onPressed: () {
                   // Validate and save the form values
-                  if (_formKey.currentState!.saveAndValidate()) {
-                    debugPrint(_formKey.currentState?.value.toString());
-                    Future<bool> test = context
+                  if (_formKey.currentState!.validate()) {
+                     context
                         .read<AuthProvider>()
                         .login(
-                          _formKey.currentState?.value['email'],
-                          _formKey.currentState?.value['password'],
+                          _emailController.text.trim(),
+                          _passwordController.text.trim(),
                         )
-                        .whenComplete(() {});
-
-                    test.then((value) {
+                        .then((value) {
+                      print(value);
                       if (value) {
+                        print('logged in');
+
                         context.go('/orders');
-                        /*Future.delayed(const Duration(milliseconds: 500), () {
-                          context.go('/home');
-                        });*/
                       } else {
                         // show materiql banner
-                        ScaffoldMessenger.of(context).showMaterialBanner(
-                          MaterialBanner(
-                            content: Text(
-                              context.read<AuthProvider>().loginErrorMessage,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Colors.red,
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentMaterialBanner();
-                                },
-                                child: const Text(
-                                  'OK',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                        fluent.displayInfoBar(
+                          context,
+                          builder: (context, close) {
+                            return fluent.InfoBar(
+                              title: const Text('Error!'),
+                              content: const Text(
+                                  'Invalid email or password. Please try again.'),
+
+
+                              /*'The user has not been added because of an error. ${l.errorMessage}'*/
+
+                              action: IconButton(
+                                icon: const Icon(fluent.FluentIcons.clear),
+                                onPressed: close,
                               ),
-                            ],
-                          ),
+                              severity: fluent.InfoBarSeverity.error,
+                            );
+                          },
+                          alignment: Alignment.topRight,
+                          duration: const Duration(seconds: 5),
                         );
+
                       }
                     });
 
-                    /*Get.snackbar(
-                        'Error',
-                        context.read<AuthProvider>().loginErrorMessage,
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                        margin: const EdgeInsets.all(10),
-                        padding: const EdgeInsets.all(10),
-                        snackPosition: SnackPosition.TOP,
-                        duration: const Duration(seconds: 3),
-                        icon: const Icon(
-                          Icons.error_outline,
-                          color: Colors.white,
-                        ),
-                        isDismissible: true,
-                        forwardAnimationCurve: Curves.easeOutBack,
-                        reverseAnimationCurve: Curves.easeInBack,
-                        onTap: (value) => Get.back(),
-                        mainButton: TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text(
-                            'OK',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      );*/
+
                   }
 
-                  /*  .then((value) {
-                      if (value) {
-                        context.go('/');
-                      } else {
-                        Get.snackbar(
-                          'Error',
-                          context.read<AuthProvider>().loginErrorMessage,
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
-                          margin: const EdgeInsets.all(10),
-                          padding: const EdgeInsets.all(10),
-                          snackPosition: SnackPosition.TOP,
-                          duration: const Duration(seconds: 3),
-                          icon: const Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                          ),
-                          isDismissible: true,
-                          forwardAnimationCurve: Curves.easeOutBack,
-                          reverseAnimationCurve: Curves.easeInBack,
-                          onTap: (value) => Get.back(),
-                          mainButton: TextButton(
-                            onPressed: () => Get.back(),
-                            child: const Text(
-                              'OK',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        );
-                      }
-                    });*/
                 },
-                minWidth: double.infinity,
-                height: 50,
+
                 child: context.watch<AuthProvider>().isLoading
-                    ? const CircularProgressIndicator(
-                        color: Colors.white,
+                    ? const fluent.ProgressRing(
                       )
                     : const Text(
                         'Sign In',
                         style: TextStyle(color: Colors.white),
                       ),
+              ),
               ),
             ],
           ),
