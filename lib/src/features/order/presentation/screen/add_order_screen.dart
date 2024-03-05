@@ -1,10 +1,12 @@
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter/services.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
+import '../../../cart/data/model/cart_model.dart';
 import '../../../customer/data/model/customer_model.dart';
 import '../../../product/data/model/product_model.dart';
 import '../provider/order_provider.dart';
@@ -30,6 +32,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   int selectedCustomerId = -1;
   DateTime selectedDate = DateTime.now();
   double numberBoxValue = 0.0;
+  fluent.PageController pageController = fluent.PageController();
+  // controller for payment amount
+  double _paymentAmount = 0.0;
+  // controller for note
+  final TextEditingController _noteController = TextEditingController();
 
   @override
   void initState() {
@@ -42,6 +49,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
     context.read<ProductProvider>().getProducts().then((value) {
       setState(() {
         lstProducts = value!;
+      });
+    });
+    pageController.addListener(() {
+      setState(() {
+        currentStep = pageController.page!.round();
       });
     });
   }
@@ -63,6 +75,12 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       default:
         return '';
     }
+  }
+
+  @override
+  void dispose() {
+    stepScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -93,11 +111,119 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                     ? null
                     : () {
                         if (currentStep > 0) {
-                          setState(() {
-                            currentStep -= 1;
-                          });
+                          pageController.animateToPage(0, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
                         }
                       }),
+            if (currentStep == 2)
+              fluent.FilledButton(
+                onPressed: () async {
+                  List<ProductModel> filteredProducts = lstProducts.where((element) => !context.read<OrderProvider>().cartList.map((e) => e.product.id).contains(element.id)).toList();
+
+                  await showDialog<bool>(
+                    context: context,
+                    builder: (context) => fluent.ContentDialog(
+                      constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                      title: Row(children: [
+                        Expanded(
+                          child: const Text('Add Item to cart'),
+                        ),
+                        fluent.IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(fluent.FluentIcons.clear),
+                        ),
+                      ]),
+                      content: fluent.Column(
+                        children: [
+                          fluent.TextBox(),
+                          fluent.Expanded(
+                              child: fluent.ListView.builder(
+                            itemCount: filteredProducts.length,
+                            itemBuilder: (context, index) {
+                              return fluent.ListTile.selectable(
+                                selected: context.watch<OrderProvider>().selectedProductAddId == filteredProducts[index].id,
+                                leading: fluent.Container(
+                                  child: fluent.Image(
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return SizedBox();
+                                    },
+                                    image: NetworkImage(filteredProducts[index].imageUrl),
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                                title: Text(filteredProducts[index].name),
+                                subtitle: Text(filteredProducts[index].price.toString()),
+                                onPressed: () {
+                                  setState(() {
+                                    context.read<OrderProvider>().setSelectedProductAddId(filteredProducts[index].id);
+                                  });
+                                },
+                              );
+                            },
+                          )),
+                        ],
+                      ),
+                      actions: [
+                        fluent.Container(
+                          child: fluent.Row(
+                            children: [
+                              fluent.Button(
+                                child: const Icon(fluent.FluentIcons.add),
+                                onPressed: () {
+                                  context.read<OrderProvider>().incrementOrderQty();
+                                },
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                context.watch<OrderProvider>().orderQty.toString(),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              fluent.Button(
+                                child: const Icon(fluent.FluentIcons.remove),
+                                onPressed: () {
+                                  context.read<OrderProvider>().decrementOrderQty();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        fluent.FilledButton(
+                          child: const Text('Confirm'),
+                          onPressed: () {
+                            context.read<OrderProvider>().addCartList(
+                                  CartModel(
+                                    isDone: false,
+                                    product: lstProducts.firstWhere((element) => element.id == context.read<OrderProvider>().selectedProductAddId),
+                                    quantity: context.read<OrderProvider>().orderQty,
+                                  ),
+                                );
+                            context.read<OrderProvider>().setSelectedProductAddId(null);
+                            Navigator.pop(context, true);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: fluent.Container(
+                  padding: EdgeInsets.all(0),
+                  height: 40,
+                  width: 40,
+                  child: fluent.Icon(
+                    fluent.FluentIcons.circle_addition,
+                    size: 30,
+                  ),
+                ),
+              ),
             fluent.Button(
                 child: fluent.Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
@@ -114,9 +240,32 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 ),
                 onPressed: () {
                   print(currentStep);
-                  setState(() {
-                    currentStep += 1;
-                  });
+                  if (currentStep == 0) {
+                    if (_formKeyCustomer.currentState!.validate()) {
+                      /* setState(() {
+                        currentStep += 1;
+                      });*/
+                      pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                    }
+                  } else if (currentStep == 1) {
+                    pageController.animateToPage(2, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  } else if (currentStep == 2) {
+                    if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                      pageController.animateToPage(3, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                    } else {
+                      fluent.displayInfoBar(alignment: fluent.Alignment.topRight, context, builder: (context, close) {
+                        return fluent.InfoBar(
+                          title: const Text('Error!'),
+                          content: const Text('Please add item first'),
+                          severity: fluent.InfoBarSeverity.error,
+                          action: IconButton(
+                            icon: const Icon(fluent.FluentIcons.clear),
+                            onPressed: close,
+                          ),
+                        );
+                      });
+                    }
+                  }
                 }),
           ],
         ),
@@ -299,7 +448,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             }),
           ),
           fluent.Expanded(
-            child: fluent.PageView(children: [
+            child: fluent.PageView(controller: pageController, children: [
               // page for customer
               fluent.Container(
                 padding: EdgeInsets.all(10),
@@ -308,13 +457,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   key: _formKeyCustomer,
                   child: fluent.Column(
                     children: [
-                      fluent.Container(
-                        constraints: fluent.BoxConstraints(
-                          maxHeight: 40,
+                      fluent.AutoSuggestBox.form(
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
+                        placeholder: 'Select Customer',
+                        items: List.generate(
+                          lstCustomers.length,
+                          (index) => fluent.AutoSuggestBoxItem<String>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: '${lstCustomers[index].id}'),
                         ),
-                        height: 40,
-                        width: double.infinity,
-                        child: fluent.AutoSuggestBox.form(placeholder: 'Select Customer', items: List.generate(lstCustomers.length, (index) => fluent.AutoSuggestBoxItem<String>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: '${lstCustomers[index].id}'))),
                       ),
                     ],
                   ),
@@ -356,114 +507,128 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: fluent.Container(
                   child: context.watch<OrderProvider>().cartList.isNotEmpty
-                      ? fluent.Column(
-                          children: List.generate(
-                            context.watch<OrderProvider>().cartList.length,
-                            (index) {
-                              return fluent.Container(
-                                margin: EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey,
+                      ? fluent.Column(children: [
+                          fluent.Expanded(
+                            child: fluent.ListView.builder(
+                                itemCount: context.watch<OrderProvider>().cartList.length,
+                                itemBuilder: (context, index) {
+                                  return fluent.ListTile(
+                                    shape: fluent.RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: Colors.grey,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                  ),
-                                ),
-                                child: fluent.ListTile(
-                                  onPressed: () async {
-                                    // global key for form builder
-                                    final _formKeyQty = GlobalKey<FormBuilderState>();
-
-                                    /* showAdaptiveDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return fluent.AlertDialog(
-                                        actions: [
-                                          fluent.TextButton(
+                                    leading: fluent.Container(
+                                      child: fluent.Image(
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return SizedBox();
+                                        },
+                                        image: NetworkImage(context.watch<OrderProvider>().cartList[index].product.imageUrl),
+                                        width: 50,
+                                        height: 50,
+                                      ),
+                                    ),
+                                    title: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    subtitle: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                    trailing: fluent.Container(
+                                      child: fluent.Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          fluent.IconButton(
                                             onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: fluent.Text('Cancel'),
-                                          ),
-                                          fluent.TextButton(
-                                            onPressed: () {
-                                              if (_formKeyQty.currentState!.validate()) {
-                                                context.read<OrderProvider>().updateQuantityCartList(index, int.parse(_formKeyQty.currentState!.fields['quantity']!.value.toString()));
-                                                Navigator.pop(context);
+                                              int currentQty = context.read<OrderProvider>().cartList[index].quantity;
+                                              if (currentQty > 1) {
+                                                context.read<OrderProvider>().updateQuantityCartList(index, currentQty - 1);
+                                              } else {
+                                                context.read<OrderProvider>().removeCartList(context.read<OrderProvider>().cartList[index]);
                                               }
                                             },
-                                            child: fluent.Text('Confirm'),
+                                            icon: fluent.Icon(fluent.FluentIcons.remove),
+                                          ),
+                                          fluent.Text(context.watch<OrderProvider>().cartList[index].quantity.toString(),
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                              )),
+                                          fluent.IconButton(
+                                            onPressed: () {
+                                              int currentQty = context.read<OrderProvider>().cartList[index].quantity;
+                                              context.read<OrderProvider>().updateQuantityCartList(index, currentQty + 1);
+                                            },
+                                            icon: fluent.Icon(fluent.FluentIcons.add),
                                           ),
                                         ],
-                                        title: fluent.Text('Edit Quantity'),
-                                        content: fluent.Container(
-                                          width: MediaQuery.of(context).size.width * 0.8,
-                                          height: 100,
-                                          child: fluent.FormBuilder(
-                                            key: _formKeyQty,
-                                            child: fluent.Column(
-                                              children: [
-                                                fluent.FormBuilderTextField(
-                                                  initialValue: context.watch<OrderProvider>().cartList[index].quantity.toString(),
-                                                  autofocus: true,
-                                                  name: 'quantity',
-                                                  decoration: InputDecoration(
-                                                    labelText: 'Quantity',
-                                                    border: OutlineInputBorder(),
-                                                  ),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      // global key for form builder
+                                      final _formKeyQty = GlobalKey<FormState>();
+                                      int qty = context.read<OrderProvider>().cartList[index].quantity;
+
+                                      await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => fluent.ContentDialog(
+                                          constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                                          title: fluent.Container(
+                                            alignment: Alignment.center,
+                                            child: const Text('Edit Quantity'),
+                                          ),
+                                          content: fluent.Column(
+                                            children: [
+                                              fluent.Form(
+                                                key: _formKeyQty,
+                                                child: fluent.NumberFormBox<int>(
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      qty = value!;
+                                                    });
+                                                  },
+                                                  value: qty,
+                                                  placeholder: 'Quantity',
+                                                  min: 0,
+                                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                                   validator: FormBuilderValidators.compose([
                                                     FormBuilderValidators.required(),
-                                                    FormBuilderValidators.numeric(),
-                                                    // check > 0
-                                                    FormBuilderValidators.min(1),
+                                                    FormBuilderValidators.integer(),
+                                                    FormBuilderValidators.min(1, errorText: 'Quantity must be greater than 0'),
                                                   ]),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
+                                          actions: [
+                                            fluent.Button(
+                                              child: const Text('Cancel'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            fluent.FilledButton(
+                                              child: const Text('Confirm'),
+                                              onPressed: () {
+                                                if (_formKeyQty.currentState!.validate()) {
+                                                  context.read<OrderProvider>().updateQuantityCartList(index, qty);
+                                                  Navigator.pop(context);
+                                                }
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       );
-                                    });*/
-                                  },
-                                  title: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
-                                  subtitle: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
-                                  trailing: fluent.Container(
-                                    child: fluent.Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        fluent.IconButton(
-                                          onPressed: () {
-                                            int currentQty = context.read<OrderProvider>().cartList[index].quantity;
-                                            if (currentQty > 1) {
-                                              context.read<OrderProvider>().updateQuantityCartList(index, currentQty - 1);
-                                            } else {
-                                              context.read<OrderProvider>().removeCartList(context.read<OrderProvider>().cartList[index]);
-                                            }
-                                          },
-                                          icon: fluent.Icon(fluent.FluentIcons.remove),
-                                        ),
-                                        fluent.Text(context.watch<OrderProvider>().cartList[index].quantity.toString(),
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                            )),
-                                        fluent.IconButton(
-                                          onPressed: () {
-                                            int currentQty = context.read<OrderProvider>().cartList[index].quantity;
-                                            context.read<OrderProvider>().updateQuantityCartList(index, currentQty + 1);
-                                          },
-                                          icon: fluent.Icon(fluent.FluentIcons.add),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
+                                    },
+                                  );
+                                }),
                           ),
-                        )
+                          fluent.Card(
+                            child: fluent.Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                fluent.Text('Total Amount'),
+                                fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                              ],
+                            ),
+                          ),
+                        ])
                       : fluent.Center(
                           child: fluent.Text(
                             'No item added\nPlease add item first',
@@ -471,6 +636,90 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                             style: TextStyle(fontSize: 20),
                           ),
                         ),
+                ),
+              ),
+
+              fluent.Container(
+                padding: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width,
+                child: fluent.Form(
+                  key: _fromKeyPayment,
+                  child: fluent.Column(
+                    children: [
+                      fluent.InfoLabel(
+                        label: 'Payment Amount:',
+                        child: fluent.NumberFormBox<double>(
+                          onChanged: (value) {
+                            setState(() {
+                              _paymentAmount = value!;
+                            });
+                          },
+                          value: _paymentAmount,
+                          placeholder: 'Payment Amount',
+                          min: 0,
+                          max: context.watch<OrderProvider>().totalAmount,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                            FormBuilderValidators.numeric(),
+                            FormBuilderValidators.min(0, errorText: 'Payment amount must be greater than 0'),
+                          ]),
+                        ),
+                      ),
+                      fluent.SizedBox(
+                        height: 20,
+                      ),
+                      fluent.Expanded(
+                        child: fluent.Column(
+                          children: [
+                            fluent.InfoLabel(
+                              label: 'Note:',
+                              child: fluent.TextFormBox(
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                                maxLength: 200,
+                                controller: _noteController,
+                                placeholder: 'Note ...',
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(),
+                                ]),
+                                minLines: 3,
+                                maxLines: 6,
+                              ),
+                            ),
+                            fluent.Container(
+                              child: fluent.RichText(
+                                text: fluent.TextSpan(
+                                  text: _noteController.text.length.toString(),
+                                  style: TextStyle(
+                                    color: _noteController.text.length > 200 ? Colors.red : Colors.black,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: '/200',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      fluent.Card(
+                        child: fluent.Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            fluent.Text('Total Amount'),
+                            fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ]),
