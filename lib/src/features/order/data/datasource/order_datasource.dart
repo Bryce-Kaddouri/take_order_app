@@ -9,8 +9,7 @@ import '../model/order_model.dart';
 class OrderDataSource {
   final _client = Supabase.instance.client;
 
-  Future<Either<DatabaseFailure, bool>> placeOrder(
-      PlaceOrderModel order) async {
+  Future<Either<DatabaseFailure, bool>> placeOrder(PlaceOrderModel order) async {
     print('create order');
     try {
       DateTime now = DateTime.now();
@@ -24,8 +23,7 @@ class OrderDataSource {
         'time': '${order.orderTime.hour}:${order.orderTime.minute}',
         'amount_paid': order.paymentAmount,
       };
-      List<Map<String, dynamic>> response =
-          await _client.from('orders').insert(orderInfo).select();
+      List<Map<String, dynamic>> response = await _client.from('orders').insert(orderInfo).select();
       print(response);
       if (response.isNotEmpty) {
         List<CartModel> cartDatas = order.cartList;
@@ -37,8 +35,7 @@ class OrderDataSource {
             'quantity': cartDatas[i].quantity,
             'is_done': cartDatas[i].isDone,
           };
-          List<Map<String, dynamic>> cartResponse =
-              await _client.from('cart').insert(cartInfo).select();
+          List<Map<String, dynamic>> cartResponse = await _client.from('cart').insert(cartInfo).select();
           print(cartResponse);
         }
 
@@ -62,20 +59,14 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(
-      DateTime date) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(DateTime date) async {
     try {
-      var response = await _client
-          .from('all_orders_view')
-          .select()
-          .eq('order_date', date.toIso8601String())
-          .order('order_time', ascending: true);
+      var response = await _client.from('all_orders_view').select().eq('order_date', date.toIso8601String()).order('order_time', ascending: true);
       print('response from getOrders');
       print(response);
 
       if (response.isNotEmpty) {
-        List<OrderModel> orderList =
-            response.map((e) => OrderModel.fromJson(e)).toList();
+        List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
         print('order list');
         print(orderList);
         return Right(orderList);
@@ -87,25 +78,21 @@ class OrderDataSource {
       print(error);
       return Left(DatabaseFailure(errorMessage: error.message));
     } catch (e) {
+      print('e');
+
       print(e);
       return Left(DatabaseFailure(errorMessage: 'Error getting orders'));
     }
   }
 
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(
-      int customerId) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(int customerId) async {
     print('getOrdersBySupplierId');
     try {
-      List<Map<String, dynamic>> response = await _client
-          .from('all_orders_view')
-          .select()
-          .eq('customer ->> customer_id', customerId)
-          .order('order_time', ascending: true);
+      List<Map<String, dynamic>> response = await _client.from('all_orders_view').select().eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
 /*
           response = response.where((element) => element['customer']['customer_id'] == supplierId).toList();
 */
-      List<OrderModel> orderList =
-          response.map((e) => OrderModel.fromJson(e)).toList();
+      List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
 
       return Right(orderList);
       /*.from('all_orders_view')

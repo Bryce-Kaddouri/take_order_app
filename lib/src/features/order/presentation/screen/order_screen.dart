@@ -66,8 +66,7 @@ class _OrderScreenState extends State<OrderScreen> {
           backgroundColor: Colors.blue,
           centerTitle: false,
           title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(DateHelper.getMonthNameAndYear(
-                context.watch<OrderProvider>().selectedDate!)),
+            Text(DateHelper.getMonthNameAndYear(context.watch<OrderProvider>().selectedDate!)),
           ]),
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
@@ -102,8 +101,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       child: GridView(
                           controller: _testController,
                           physics: NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 7,
                             childAspectRatio: 1,
                             crossAxisSpacing: 10,
@@ -111,11 +109,9 @@ class _OrderScreenState extends State<OrderScreen> {
                             mainAxisExtent: 80,
                           ),
                           children: [
-                            for (DateTime dateItem in DateHelper.getDaysInWeek(
-                                context.read<OrderProvider>().selectedDate!))
+                            for (DateTime dateItem in DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate!))
                               DateItemWidget(
-                                selectedDate:
-                                    context.read<OrderProvider>().selectedDate!,
+                                selectedDate: context.read<OrderProvider>().selectedDate!,
                                 value: 'test',
                                 dateItem: dateItem,
                               ),
@@ -126,9 +122,7 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
         FutureBuilder(
-          future: context
-              .read<OrderProvider>()
-              .getOrdersByDate(context.read<OrderProvider>().selectedDate!),
+          future: context.read<OrderProvider>().getOrdersByDate(context.read<OrderProvider>().selectedDate!),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -142,9 +136,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 double sum = 0;
                 for (var hour in lstHour) {
                   double height = 60;
-                  List<OrderModel> orderListOfTheHour = orderList
-                      .where((element) => element.time.hour == hour)
-                      .toList();
+                  List<OrderModel> orderListOfTheHour = orderList.where((element) => element.time.hour == hour).toList();
                   height = height + (orderListOfTheHour.length * height);
                   sum = sum + height;
                   Map<String, dynamic> map = {
@@ -173,24 +165,40 @@ class _OrderScreenState extends State<OrderScreen> {
                           ),
                           Expanded(
                             child: Container(
-                              constraints: BoxConstraints(
-                                minHeight: 60,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1,
+                                constraints: BoxConstraints(
+                                  minHeight: 60,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              child: Column(
-                                children: List.generate(
-                                  data['order'].length,
-                                  (index2) {
-                                    OrderModel orderModel =
-                                        data['order'][index2] as OrderModel;
-                                    return Card(
+                                child: data['order'].isNotEmpty
+                                    ? ExpansionTile(
+                                        title: Text('${data['order'].length} orders'),
+                                        children: [
+                                          for (OrderModel orderModel in data['order'])
+                                            Card(
+                                              color: Colors.red,
+                                              child: Container(
+                                                height: 80,
+                                                padding: EdgeInsets.all(8),
+                                                child: Row(
+                                                  children: [
+                                                    Text('${orderModel.time.format(context)}'),
+                                                    Text('${orderModel.customer!.fName} ${orderModel.customer!.lName}'),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      )
+                                    : null
+
+                                /*Card(
                                       color: Colors.red,
                                       child: Container(
                                         height: 80,
@@ -204,11 +212,9 @@ class _OrderScreenState extends State<OrderScreen> {
                                           ],
                                         ),
                                       ),
-                                    );
-                                  },
+                                    );*/
+
                                 ),
-                              ),
-                            ),
                           ),
                         ],
                       );
@@ -270,6 +276,5 @@ class HorizontalSliverList extends StatelessWidget {
     );
   }
 
-  Widget addDivider() =>
-      divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
+  Widget addDivider() => divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
 }
