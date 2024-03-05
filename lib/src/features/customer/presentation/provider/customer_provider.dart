@@ -86,13 +86,13 @@ class CustomerProvider with ChangeNotifier {
 
   }*/
 
-  Future<CustomerModel?> addCustomer(String fName, String lName,
-      String phoneNumber, BuildContext context) async {
+  Future<CustomerModel?> addCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
       id: null,
       fName: fName,
       lName: lName,
+      countryCode: '+62',
     );
     CustomerModel? customerModelResponse;
     final result = await customerAddCustomerUseCase.call(customerModelParam);
@@ -133,13 +133,13 @@ class CustomerProvider with ChangeNotifier {
     return customerModelResponse;
   }
 
-  Future<CustomerModel?> updateCustomer(String fName, String lName,
-      String phoneNumber, BuildContext context) async {
+  Future<CustomerModel?> updateCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
       id: _customerModel?.id,
       fName: fName,
       lName: lName,
+      countryCode: '+62',
     );
     CustomerModel? customerModelResponse;
     final result = await customerUpdateCustomerUseCase.call(customerModelParam);

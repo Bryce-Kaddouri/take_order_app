@@ -5,6 +5,7 @@ class CustomerModel {
   final String fName;
   final String lName;
   final String phoneNumber;
+  final String countryCode;
 
   CustomerModel({
     this.id,
@@ -13,6 +14,7 @@ class CustomerModel {
     required this.fName,
     required this.lName,
     required this.phoneNumber,
+    required this.countryCode,
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) => CustomerModel(
@@ -22,16 +24,18 @@ class CustomerModel {
         fName: json['customer_f_name'],
         lName: json['customer_l_name'],
         phoneNumber: json['customer_phone_number'],
+        countryCode: json['customer_country_code'],
       );
 
   factory CustomerModel.fromJsonFromTable(Map<String, dynamic> json) => CustomerModel(
-    id: json['id'],
-    createdAt: DateTime.parse(json['created_at']),
-    updatedAt: DateTime.parse(json['updated_at']),
-    fName: json['f_name'],
-    lName: json['l_name'],
-    phoneNumber: json['phone_number'],
-  );
+        id: json['id'],
+        createdAt: DateTime.parse(json['created_at']),
+        updatedAt: DateTime.parse(json['updated_at']),
+        fName: json['f_name'],
+        lName: json['l_name'],
+        phoneNumber: json['phone_number'],
+        countryCode: json['country_code'],
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,

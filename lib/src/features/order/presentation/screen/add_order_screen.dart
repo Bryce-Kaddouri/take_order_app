@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
@@ -9,6 +10,7 @@ import 'package:take_order_app/src/features/product/presentation/provider/produc
 import '../../../cart/data/model/cart_model.dart';
 import '../../../customer/data/model/customer_model.dart';
 import '../../../product/data/model/product_model.dart';
+import '../../data/model/place_order_model.dart';
 import '../provider/order_provider.dart';
 
 class AddOrderScreen extends StatefulWidget {
@@ -33,6 +35,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   DateTime selectedDate = DateTime.now();
   double numberBoxValue = 0.0;
   fluent.PageController pageController = fluent.PageController();
+  // controller for customer
+  final TextEditingController customerController = TextEditingController();
+  int selectedCustomerIndex = -1;
   // controller for payment amount
   double _paymentAmount = 0.0;
   // controller for note
@@ -111,7 +116,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                     ? null
                     : () {
                         if (currentStep > 0) {
-                          pageController.animateToPage(0, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+                          pageController.animateToPage(int.parse(pageController.page.toString()) - 1, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
                         }
                       }),
             if (currentStep == 2)
@@ -234,7 +239,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       fluent.SizedBox(
                         width: 10,
                       ),
-                      fluent.Text('Next')
+                      fluent.Text(currentStep == 4 ? 'Place Order' : 'Next')
                     ],
                   ),
                 ),
@@ -265,6 +270,48 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                         );
                       });
                     }
+                  } else if (currentStep == 3) {
+                    if (_fromKeyPayment.currentState!.validate()) {
+                      pageController.animateToPage(4, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                    }
+                  } else if (currentStep == 4) {
+                    List<CartModel> cartList = context.read<OrderProvider>().cartList;
+                    CustomerModel customer = lstCustomers.firstWhere((element) => element.id == selectedCustomerId);
+                    double paymentAmount = _paymentAmount;
+                    DateTime orderDate = selectedDate;
+                    String note = _noteController.text;
+                    print(cartList);
+                    print(customer);
+                    print(paymentAmount);
+                    print(orderDate);
+                    print(note);
+
+                    PlaceOrderModel placeOrderModel = PlaceOrderModel(
+                      cartList: cartList,
+                      customer: customer,
+                      paymentAmount: paymentAmount,
+                      orderDate: selectedDate,
+                      note: note,
+                      orderTime: TimeOfDay(hour: 9, minute: 30),
+                    );
+
+                    context.read<OrderProvider>().placeOrder(placeOrderModel).then((value) {
+                      if (value) {
+                        pageController.animateToPage(6, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                      } else {
+                        fluent.displayInfoBar(alignment: fluent.Alignment.topRight, context, builder: (context, close) {
+                          return fluent.InfoBar(
+                            title: const Text('Error!'),
+                            content: const Text('Error placing order'),
+                            severity: fluent.InfoBarSeverity.error,
+                            action: IconButton(
+                              icon: const Icon(fluent.FluentIcons.clear),
+                              onPressed: close,
+                            ),
+                          );
+                        });
+                      }
+                    });
                   }
                 }),
           ],
@@ -458,13 +505,30 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   child: fluent.Column(
                     children: [
                       fluent.AutoSuggestBox.form(
+                        controller: customerController,
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
                         ]),
+                        onSelected: (value) {
+                          setState(() {
+                            selectedCustomerId = value.value!;
+                          });
+                        },
+                        onChanged: (value, reason) {
+                          print(value);
+                          print(reason);
+                          print(customerController.text);
+
+                          /*if (reason == fluent.TextChangedReason.suggestionChosen) {
+                            setState(() {
+                              selectedCustomerId = int.parse(value);
+                            });
+                          }*/
+                        },
                         placeholder: 'Select Customer',
                         items: List.generate(
                           lstCustomers.length,
-                          (index) => fluent.AutoSuggestBoxItem<String>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: '${lstCustomers[index].id}'),
+                          (index) => fluent.AutoSuggestBoxItem<int>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: lstCustomers[index].id),
                         ),
                       ),
                     ],
@@ -479,10 +543,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                   children: [
                     fluent.DatePicker(
                       header: 'Pick a date',
-                      selected: selected,
+                      selected: selectedDate,
                       onChanged: (time) {
                         setState(() {
-                          selectedDate = time;
+                          selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
                         });
                       },
                     ),
@@ -490,10 +554,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       height: 10,
                     ),
                     fluent.TimePicker(
-                      selected: selected,
+                      selected: selectedDate,
                       onChanged: (DateTime time) {
                         setState(() {
-                          selectedDate = time;
+                          selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
                         });
                       },
                       hourFormat: fluent.HourFormat.HH,
@@ -638,7 +702,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                         ),
                 ),
               ),
-
+              // page for payment
               fluent.Container(
                 padding: EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width,
@@ -720,6 +784,125 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              // page for review
+
+              fluent.Container(
+                padding: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width,
+                child: fluent.Column(
+                  children: [
+                    if (selectedCustomerId != -1)
+                      fluent.Row(
+                        children: [
+                          fluent.Expanded(
+                            child: fluent.Row(
+                              children: [
+                                fluent.Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    // rounded rectanmgle
+                                    shape: BoxShape.rectangle,
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.blue,
+                                  ),
+                                  child: fluent.Icon(fluent.FluentIcons.contact),
+                                ),
+                                fluent.SizedBox(
+                                  width: 10,
+                                ),
+                                fluent.Expanded(
+                                  child: fluent.Text('${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).fName} ${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).lName}'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          fluent.Expanded(
+                            child: fluent.Row(
+                              children: [
+                                fluent.Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    // rounded rectanmgle
+                                    shape: BoxShape.rectangle,
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.blue,
+                                  ),
+                                  child: fluent.Icon(fluent.FluentIcons.phone),
+                                ),
+                                fluent.SizedBox(
+                                  width: 10,
+                                ),
+                                fluent.Text('${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).countryCode}${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).phoneNumber}'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    fluent.SizedBox(
+                      height: 10,
+                    ),
+                    fluent.Expanded(
+                      child: fluent.ListView.builder(
+                          itemCount: context.watch<OrderProvider>().cartList.length,
+                          itemBuilder: (context, index) {
+                            return fluent.ListTile(
+                              shape: fluent.RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              leading: fluent.Container(
+                                child: fluent.Image(
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return SizedBox();
+                                  },
+                                  image: NetworkImage(context.watch<OrderProvider>().cartList[index].product.imageUrl),
+                                  width: 50,
+                                  height: 50,
+                                ),
+                              ),
+                              title: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
+                              subtitle: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
+                              trailing: fluent.Text(context.watch<OrderProvider>().cartList[index].quantity.toString()),
+                            );
+                          }),
+                    ),
+                    fluent.Card(
+                      child: fluent.Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          fluent.Text('Total Amount'),
+                          fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // success page
+              fluent.Container(
+                padding: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width,
+                child: fluent.Column(
+                  children: [
+                    Icon(
+                      fluent.FluentIcons.check_mark,
+                      size: 100,
+                      color: Colors.green,
+                    ),
+                    fluent.Text('Order added'),
+                    fluent.Button(
+                      onPressed: () {
+                        context.go('/orders');
+                      },
+                      child: fluent.Text('Go to Orders'),
+                    ),
+                  ],
                 ),
               ),
             ]),

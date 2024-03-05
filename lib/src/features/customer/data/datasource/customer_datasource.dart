@@ -9,10 +9,7 @@ class CustomerDataSource {
 
   Future<Either<DatabaseFailure, List<CustomerModel>>> getCustomers() async {
     try {
-      List<Map<String, dynamic>> response = await _client
-          .from('customers')
-          .select()
-          .order('l_name', ascending: true);
+      List<Map<String, dynamic>> response = await _client.from('customers').select().order('l_name', ascending: true);
 
       print('response');
       print(response);
@@ -20,8 +17,10 @@ class CustomerDataSource {
           .order('l_name', ascending: true);
 */
       if (response.isNotEmpty) {
-        List<CustomerModel> customerList =
-            response.map((e) => CustomerModel.fromJsonFromTable(e)).toList();
+        List<CustomerModel> customerList = response.map((e) => CustomerModel.fromJsonFromTable(e)).toList();
+
+        print('customerList');
+        print(customerList);
         return Right(customerList);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting customers'));
@@ -37,15 +36,9 @@ class CustomerDataSource {
 
   Future<Either<DatabaseFailure, CustomerModel>> getCustomerById(int id) async {
     try {
-      List<Map<String, dynamic>> response = await _client
-          .from('customers')
-          .select()
-          .eq('id', id)
-          .limit(1)
-          .order('id', ascending: true);
+      List<Map<String, dynamic>> response = await _client.from('customers').select().eq('id', id).limit(1).order('id', ascending: true);
       if (response.isNotEmpty) {
-        CustomerModel productModel =
-            CustomerModel.fromJsonFromTable(response[0]);
+        CustomerModel productModel = CustomerModel.fromJsonFromTable(response[0]);
         return Right(productModel);
       } else {
         return Left(DatabaseFailure(errorMessage: 'Error getting customer'));
@@ -59,15 +52,13 @@ class CustomerDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, CustomerModel>> addCustomer(
-      CustomerModel customer) async {
+  Future<Either<DatabaseFailure, CustomerModel>> addCustomer(CustomerModel customer) async {
     try {
       Map<String, dynamic> mapCustomer = customer.toJson();
       mapCustomer.remove('id');
       mapCustomer.remove('created_at');
       mapCustomer.remove('updated_at');
-      Map<String, dynamic> response =
-          await _client.from('customers').insert(mapCustomer).select().single();
+      Map<String, dynamic> response = await _client.from('customers').insert(mapCustomer).select().single();
       print('response');
       print(response);
       CustomerModel customerModel = CustomerModel.fromJsonFromTable(response);
@@ -85,14 +76,9 @@ class CustomerDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, CustomerModel>> updateCustomer(
-      CustomerModel customer) async {
+  Future<Either<DatabaseFailure, CustomerModel>> updateCustomer(CustomerModel customer) async {
     try {
-      List<Map<String, dynamic>> response = await _client
-          .from('customers')
-          .update(customer.toJson())
-          .eq('id', customer.id!)
-          .select();
+      List<Map<String, dynamic>> response = await _client.from('customers').update(customer.toJson()).eq('id', customer.id!).select();
       if (response.isNotEmpty) {
         CustomerModel customerModel = CustomerModel.fromJson(response[0]);
         return Right(customerModel);
