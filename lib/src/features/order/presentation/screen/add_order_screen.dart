@@ -12,15 +12,19 @@ import '../../../customer/data/model/customer_model.dart';
 import '../../../product/data/model/product_model.dart';
 import '../../data/model/place_order_model.dart';
 import '../provider/order_provider.dart';
+import '../widget/custom_stepper_widget.dart';
 
 class AddOrderScreen extends StatefulWidget {
   @override
   State<AddOrderScreen> createState() => _AddOrderScreenState();
 }
 
-class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProviderStateMixin {
+class _AddOrderScreenState extends State<AddOrderScreen>
+    with fluent.TickerProviderStateMixin {
   late fluent.AnimationController _animationController;
   late fluent.Animation<double> _animation;
+  late fluent.AnimationController _animationControllerProgressBar;
+
   ScrollController stepScrollController = ScrollController();
   int currentStep = 0;
   final _formKeyCustomer = GlobalKey<FormState>();
@@ -48,15 +52,19 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
   @override
   void initState() {
     super.initState();
-    context.read<CustomerProvider>().getCustomers().then((value) {
-      setState(() {
-        lstCustomers = value!;
-      });
-    });
-    context.read<ProductProvider>().getProducts().then((value) {
-      setState(() {
-        lstProducts = value!;
-      });
+    fluent.WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      if (mounted) {
+        context.read<CustomerProvider>().getCustomers().then((value) {
+          setState(() {
+            lstCustomers = value!;
+          });
+        });
+        context.read<ProductProvider>().getProducts().then((value) {
+          setState(() {
+            lstProducts = value!;
+          });
+        });
+      }
     });
     pageController.addListener(() {
       setState(() {
@@ -72,6 +80,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
       parent: _animationController,
       curve: fluent.Curves.easeIn,
     );
+
+    _animationControllerProgressBar = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 11000),
+        lowerBound: 0,
+        upperBound: 11);
+    _animationControllerProgressBar.animateTo(1.5);
   }
 
   int? selectedProductId;
@@ -131,18 +146,44 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                           ? null
                           : () {
                               if (currentStep > 0) {
-                                pageController.animateToPage(int.parse(pageController.page.toString()) - 1, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+                                pageController.animateToPage(
+                                    int.parse(pageController.page.toString()) -
+                                        1,
+                                    duration: Duration(milliseconds: 500),
+                                    curve: Curves.easeIn);
+                                if (currentStep == 1) {
+                                  _animationControllerProgressBar
+                                      .animateTo(1.5);
+                                } else if (currentStep == 2) {
+                                  _animationControllerProgressBar
+                                      .animateTo(3.5);
+                                } else if (currentStep == 3) {
+                                  _animationControllerProgressBar
+                                      .animateTo(5.5);
+                                } else if (currentStep == 4) {
+                                  _animationControllerProgressBar
+                                      .animateTo(7.5);
+                                }
                               }
                             }),
                   if (currentStep == 2)
                     fluent.FilledButton(
                       onPressed: () async {
-                        List<ProductModel> filteredProducts = lstProducts.where((element) => !context.read<OrderProvider>().cartList.map((e) => e.product.id).contains(element.id)).toList();
+                        List<ProductModel> filteredProducts = lstProducts
+                            .where((element) => !context
+                                .read<OrderProvider>()
+                                .cartList
+                                .map((e) => e.product.id)
+                                .contains(element.id))
+                            .toList();
 
                         await showDialog<bool>(
                           context: context,
                           builder: (context) => fluent.ContentDialog(
-                            constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                            constraints: BoxConstraints(
+                                maxWidth: 400,
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.8),
                             title: Row(children: [
                               Expanded(
                                 child: const Text('Add Item to cart'),
@@ -162,22 +203,32 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                   itemCount: filteredProducts.length,
                                   itemBuilder: (context, index) {
                                     return fluent.ListTile.selectable(
-                                      selected: context.watch<OrderProvider>().selectedProductAddId == filteredProducts[index].id,
+                                      selected: context
+                                              .watch<OrderProvider>()
+                                              .selectedProductAddId ==
+                                          filteredProducts[index].id,
                                       leading: fluent.Container(
                                         child: fluent.Image(
-                                          errorBuilder: (context, error, stackTrace) {
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
                                             return SizedBox();
                                           },
-                                          image: NetworkImage(filteredProducts[index].imageUrl),
+                                          image: NetworkImage(
+                                              filteredProducts[index].imageUrl),
                                           width: 50,
                                           height: 50,
                                         ),
                                       ),
                                       title: Text(filteredProducts[index].name),
-                                      subtitle: Text(filteredProducts[index].price.toString()),
+                                      subtitle: Text(filteredProducts[index]
+                                          .price
+                                          .toString()),
                                       onPressed: () {
                                         setState(() {
-                                          context.read<OrderProvider>().setSelectedProductAddId(filteredProducts[index].id);
+                                          context
+                                              .read<OrderProvider>()
+                                              .setSelectedProductAddId(
+                                                  filteredProducts[index].id);
                                         });
                                       },
                                     );
@@ -192,14 +243,19 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                     fluent.Button(
                                       child: const Icon(fluent.FluentIcons.add),
                                       onPressed: () {
-                                        context.read<OrderProvider>().incrementOrderQty();
+                                        context
+                                            .read<OrderProvider>()
+                                            .incrementOrderQty();
                                       },
                                     ),
                                     SizedBox(
                                       width: 10,
                                     ),
                                     Text(
-                                      context.watch<OrderProvider>().orderQty.toString(),
+                                      context
+                                          .watch<OrderProvider>()
+                                          .orderQty
+                                          .toString(),
                                       style: const TextStyle(
                                         fontSize: 20,
                                       ),
@@ -208,9 +264,12 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                       width: 10,
                                     ),
                                     fluent.Button(
-                                      child: const Icon(fluent.FluentIcons.remove),
+                                      child:
+                                          const Icon(fluent.FluentIcons.remove),
                                       onPressed: () {
-                                        context.read<OrderProvider>().decrementOrderQty();
+                                        context
+                                            .read<OrderProvider>()
+                                            .decrementOrderQty();
                                       },
                                     ),
                                   ],
@@ -222,11 +281,20 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                   context.read<OrderProvider>().addCartList(
                                         CartModel(
                                           isDone: false,
-                                          product: lstProducts.firstWhere((element) => element.id == context.read<OrderProvider>().selectedProductAddId),
-                                          quantity: context.read<OrderProvider>().orderQty,
+                                          product: lstProducts.firstWhere(
+                                              (element) =>
+                                                  element.id ==
+                                                  context
+                                                      .read<OrderProvider>()
+                                                      .selectedProductAddId),
+                                          quantity: context
+                                              .read<OrderProvider>()
+                                              .orderQty,
                                         ),
                                       );
-                                  context.read<OrderProvider>().setSelectedProductAddId(null);
+                                  context
+                                      .read<OrderProvider>()
+                                      .setSelectedProductAddId(null);
                                   Navigator.pop(context, true);
                                 },
                               ),
@@ -254,7 +322,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                             fluent.SizedBox(
                               width: 10,
                             ),
-                            fluent.Text(currentStep == 4 ? 'Place Order' : 'Next')
+                            fluent.Text(
+                                currentStep == 4 ? 'Place Order' : 'Next')
                           ],
                         ),
                       ),
@@ -265,15 +334,29 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                             /* setState(() {
                         currentStep += 1;
                       });*/
-                            pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                            pageController.animateToPage(1,
+                                duration: Duration(milliseconds: 1000),
+                                curve: Curves.easeIn);
+                            _animationControllerProgressBar.animateTo(3.5);
                           }
                         } else if (currentStep == 1) {
-                          pageController.animateToPage(2, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                          pageController.animateToPage(2,
+                              duration: Duration(milliseconds: 1000),
+                              curve: Curves.easeIn);
+                          _animationControllerProgressBar.animateTo(5.5);
                         } else if (currentStep == 2) {
-                          if (context.read<OrderProvider>().cartList.isNotEmpty) {
-                            pageController.animateToPage(3, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                          if (context
+                              .read<OrderProvider>()
+                              .cartList
+                              .isNotEmpty) {
+                            pageController.animateToPage(3,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeIn);
+                            _animationControllerProgressBar.animateTo(7.5);
                           } else {
-                            fluent.displayInfoBar(alignment: fluent.Alignment.topRight, context, builder: (context, close) {
+                            fluent.displayInfoBar(
+                                alignment: fluent.Alignment.topRight,
+                                context, builder: (context, close) {
                               return fluent.InfoBar(
                                 title: const Text('Error!'),
                                 content: const Text('Please add item first'),
@@ -287,11 +370,16 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                           }
                         } else if (currentStep == 3) {
                           if (_fromKeyPayment.currentState!.validate()) {
-                            pageController.animateToPage(4, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                            pageController.animateToPage(4,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeIn);
+                            _animationControllerProgressBar.animateTo(9.5);
                           }
                         } else if (currentStep == 4) {
-                          List<CartModel> cartList = context.read<OrderProvider>().cartList;
-                          CustomerModel customer = lstCustomers.firstWhere((element) => element.id == selectedCustomerId);
+                          List<CartModel> cartList =
+                              context.read<OrderProvider>().cartList;
+                          CustomerModel customer = lstCustomers.firstWhere(
+                              (element) => element.id == selectedCustomerId);
                           double paymentAmount = _paymentAmount;
                           DateTime orderDate = selectedDate;
                           String note = _noteController.text;
@@ -307,14 +395,27 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                             paymentAmount: paymentAmount,
                             orderDate: selectedDate,
                             note: note.isEmpty ? null : note,
-                            orderTime: TimeOfDay(hour: selectedDate.hour, minute: selectedDate.minute),
+                            orderTime: TimeOfDay(
+                                hour: selectedDate.hour,
+                                minute: selectedDate.minute),
                           );
 
-                          context.read<OrderProvider>().placeOrder(placeOrderModel).then((value) {
+                          context
+                              .read<OrderProvider>()
+                              .placeOrder(placeOrderModel)
+                              .then((value) {
                             if (value) {
-                              pageController.animateToPage(5, duration: Duration(milliseconds: 300), curve: Curves.easeIn).whenComplete(() => _animationController.forward());
+                              _animationControllerProgressBar.animateTo(11);
+                              pageController
+                                  .animateToPage(5,
+                                      duration: Duration(milliseconds: 300),
+                                      curve: Curves.easeIn)
+                                  .whenComplete(
+                                      () => _animationController.forward());
                             } else {
-                              fluent.displayInfoBar(alignment: fluent.Alignment.topRight, context, builder: (context, close) {
+                              fluent.displayInfoBar(
+                                  alignment: fluent.Alignment.topRight,
+                                  context, builder: (context, close) {
                                 return fluent.InfoBar(
                                   title: const Text('Error!'),
                                   content: const Text('Error placing order'),
@@ -334,180 +435,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
             ),
       content: fluent.Column(
         children: [
-          fluent.Container(
-            padding: EdgeInsets.all(10),
-            height: 60,
-            width: double.infinity,
-            child: fluent.LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-              double width = constraints.maxWidth;
-              double itemWidth = (width - (40 * 6)) / 5;
-              return fluent.Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 0 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Text('1'),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 60,
-                    width: itemWidth,
-                    alignment: Alignment.centerLeft,
-                    child: fluent.Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: currentStep == 0 ? [Colors.green, Colors.green, Colors.grey, Colors.grey] : [Colors.green, Colors.green, Colors.green, Colors.green],
-                          stops: [0.0, 0.5, 0.5, 1],
-                        ),
-                      ),
-                      width: itemWidth,
-                      height: 2,
-                    ),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 1 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Text('2'),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 60,
-                    width: itemWidth,
-                    alignment: Alignment.centerLeft,
-                    child: fluent.Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: currentStep < 1
-                              ? [Colors.grey, Colors.grey, Colors.grey, Colors.grey]
-                              : currentStep == 1
-                                  ? [Colors.green, Colors.green, Colors.grey, Colors.grey]
-                                  : [Colors.green, Colors.green, Colors.green, Colors.green],
-                          stops: [0.0, 0.5, 0.5, 1],
-                        ),
-                      ),
-                      width: itemWidth,
-                      height: 2,
-                    ),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 2 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Text('3'),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 60,
-                    width: itemWidth,
-                    alignment: Alignment.centerLeft,
-                    child: fluent.Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: currentStep < 2
-                              ? [Colors.grey, Colors.grey, Colors.grey, Colors.grey]
-                              : currentStep == 2
-                                  ? [Colors.green, Colors.green, Colors.grey, Colors.grey]
-                                  : [Colors.green, Colors.green, Colors.green, Colors.green],
-                          stops: [0.0, 0.5, 0.5, 1],
-                        ),
-                      ),
-                      width: itemWidth,
-                      height: 2,
-                    ),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 3 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Text('4'),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 60,
-                    width: itemWidth,
-                    alignment: Alignment.centerLeft,
-                    child: fluent.Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: currentStep < 3
-                              ? [Colors.grey, Colors.grey, Colors.grey, Colors.grey]
-                              : currentStep == 3
-                                  ? [Colors.green, Colors.green, Colors.grey, Colors.grey]
-                                  : [Colors.green, Colors.green, Colors.green, Colors.green],
-                          stops: [0.0, 0.5, 0.5, 1],
-                        ),
-                      ),
-                      width: itemWidth,
-                      height: 2,
-                    ),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 4 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Text('5'),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 60,
-                    width: itemWidth,
-                    alignment: Alignment.centerLeft,
-                    child: fluent.Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: currentStep < 4
-                              ? [Colors.grey, Colors.grey, Colors.grey, Colors.grey]
-                              : currentStep == 4
-                                  ? [Colors.green, Colors.green, Colors.grey, Colors.grey]
-                                  : [Colors.green, Colors.green, Colors.green, Colors.green],
-                          stops: [0.0, 0.5, 0.5, 1],
-                        ),
-                      ),
-                      width: itemWidth,
-                      height: 2,
-                    ),
-                  ),
-                  fluent.Container(
-                    padding: EdgeInsets.all(0),
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: currentStep >= 5 ? Colors.green : Colors.grey,
-                    ),
-                    child: fluent.Icon(fluent.FluentIcons.check_mark),
-                  ),
-                ],
-              );
-            }),
+          CustomStepperWidget(
+            currentStep: currentStep,
+            controller: _animationControllerProgressBar,
           ),
           fluent.Expanded(
             child: fluent.PageView(controller: pageController, children: [
@@ -543,7 +473,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                         placeholder: 'Select Customer',
                         items: List.generate(
                           lstCustomers.length,
-                          (index) => fluent.AutoSuggestBoxItem<int>(label: '${lstCustomers[index].fName} ${lstCustomers[index].lName}', value: lstCustomers[index].id),
+                          (index) => fluent.AutoSuggestBoxItem<int>(
+                              label:
+                                  '${lstCustomers[index].fName} ${lstCustomers[index].lName}',
+                              value: lstCustomers[index].id),
                         ),
                       ),
                     ],
@@ -561,7 +494,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                       selected: selectedDate,
                       onChanged: (time) {
                         setState(() {
-                          selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
+                          selectedDate = selectedDate.copyWith(
+                              year: time.year,
+                              month: time.month,
+                              day: time.day);
                         });
                       },
                     ),
@@ -572,7 +508,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                       selected: selectedDate,
                       onChanged: (DateTime time) {
                         setState(() {
-                          selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
+                          selectedDate = selectedDate.copyWith(
+                              hour: time.hour, minute: time.minute);
                         });
                       },
                       hourFormat: fluent.HourFormat.HH,
@@ -589,7 +526,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                       ? fluent.Column(children: [
                           fluent.Expanded(
                             child: fluent.ListView.builder(
-                                itemCount: context.watch<OrderProvider>().cartList.length,
+                                itemCount: context
+                                    .watch<OrderProvider>()
+                                    .cartList
+                                    .length,
                                 itemBuilder: (context, index) {
                                   return fluent.ListTile(
                                     shape: fluent.RoundedRectangleBorder(
@@ -600,54 +540,94 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                     ),
                                     leading: fluent.Container(
                                       child: fluent.Image(
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           return SizedBox();
                                         },
-                                        image: NetworkImage(context.watch<OrderProvider>().cartList[index].product.imageUrl),
+                                        image: NetworkImage(context
+                                            .watch<OrderProvider>()
+                                            .cartList[index]
+                                            .product
+                                            .imageUrl),
                                         width: 50,
                                         height: 50,
                                       ),
                                     ),
-                                    title: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
-                                    subtitle: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
+                                    title: fluent.Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    subtitle: fluent.Text(
+                                        '${context.watch<OrderProvider>().cartList[index].product.price}'),
                                     trailing: fluent.Container(
                                       child: fluent.Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           fluent.IconButton(
                                             onPressed: () {
-                                              int currentQty = context.read<OrderProvider>().cartList[index].quantity;
+                                              int currentQty = context
+                                                  .read<OrderProvider>()
+                                                  .cartList[index]
+                                                  .quantity;
                                               if (currentQty > 1) {
-                                                context.read<OrderProvider>().updateQuantityCartList(index, currentQty - 1);
+                                                context
+                                                    .read<OrderProvider>()
+                                                    .updateQuantityCartList(
+                                                        index, currentQty - 1);
                                               } else {
-                                                context.read<OrderProvider>().removeCartList(context.read<OrderProvider>().cartList[index]);
+                                                context
+                                                    .read<OrderProvider>()
+                                                    .removeCartList(context
+                                                        .read<OrderProvider>()
+                                                        .cartList[index]);
                                               }
                                             },
-                                            icon: fluent.Icon(fluent.FluentIcons.remove),
+                                            icon: fluent.Icon(
+                                                fluent.FluentIcons.remove),
                                           ),
-                                          fluent.Text(context.watch<OrderProvider>().cartList[index].quantity.toString(),
+                                          fluent.Text(
+                                              context
+                                                  .watch<OrderProvider>()
+                                                  .cartList[index]
+                                                  .quantity
+                                                  .toString(),
                                               style: TextStyle(
                                                 fontSize: 20,
                                               )),
                                           fluent.IconButton(
                                             onPressed: () {
-                                              int currentQty = context.read<OrderProvider>().cartList[index].quantity;
-                                              context.read<OrderProvider>().updateQuantityCartList(index, currentQty + 1);
+                                              int currentQty = context
+                                                  .read<OrderProvider>()
+                                                  .cartList[index]
+                                                  .quantity;
+                                              context
+                                                  .read<OrderProvider>()
+                                                  .updateQuantityCartList(
+                                                      index, currentQty + 1);
                                             },
-                                            icon: fluent.Icon(fluent.FluentIcons.add),
+                                            icon: fluent.Icon(
+                                                fluent.FluentIcons.add),
                                           ),
                                         ],
                                       ),
                                     ),
                                     onPressed: () async {
                                       // global key for form builder
-                                      final _formKeyQty = GlobalKey<FormState>();
-                                      int qty = context.read<OrderProvider>().cartList[index].quantity;
+                                      final _formKeyQty =
+                                          GlobalKey<FormState>();
+                                      int qty = context
+                                          .read<OrderProvider>()
+                                          .cartList[index]
+                                          .quantity;
 
                                       await showDialog<bool>(
                                         context: context,
-                                        builder: (context) => fluent.ContentDialog(
-                                          constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                                        builder: (context) =>
+                                            fluent.ContentDialog(
+                                          constraints: BoxConstraints(
+                                              maxWidth: 400,
+                                              maxHeight: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.8),
                                           title: fluent.Container(
                                             alignment: Alignment.center,
                                             child: const Text('Edit Quantity'),
@@ -656,7 +636,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                             children: [
                                               fluent.Form(
                                                 key: _formKeyQty,
-                                                child: fluent.NumberFormBox<int>(
+                                                child:
+                                                    fluent.NumberFormBox<int>(
                                                   onChanged: (value) {
                                                     setState(() {
                                                       qty = value!;
@@ -665,11 +646,20 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                                   value: qty,
                                                   placeholder: 'Quantity',
                                                   min: 0,
-                                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                                  validator: FormBuilderValidators.compose([
-                                                    FormBuilderValidators.required(),
-                                                    FormBuilderValidators.integer(),
-                                                    FormBuilderValidators.min(1, errorText: 'Quantity must be greater than 0'),
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .digitsOnly
+                                                  ],
+                                                  validator:
+                                                      FormBuilderValidators
+                                                          .compose([
+                                                    FormBuilderValidators
+                                                        .required(),
+                                                    FormBuilderValidators
+                                                        .integer(),
+                                                    FormBuilderValidators.min(1,
+                                                        errorText:
+                                                            'Quantity must be greater than 0'),
                                                   ]),
                                                 ),
                                               ),
@@ -685,8 +675,12 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                             fluent.FilledButton(
                                               child: const Text('Confirm'),
                                               onPressed: () {
-                                                if (_formKeyQty.currentState!.validate()) {
-                                                  context.read<OrderProvider>().updateQuantityCartList(index, qty);
+                                                if (_formKeyQty.currentState!
+                                                    .validate()) {
+                                                  context
+                                                      .read<OrderProvider>()
+                                                      .updateQuantityCartList(
+                                                          index, qty);
                                                   Navigator.pop(context);
                                                 }
                                               },
@@ -703,7 +697,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 fluent.Text('Total Amount'),
-                                fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                                fluent.Text(context
+                                    .watch<OrderProvider>()
+                                    .totalAmount
+                                    .toString()),
                               ],
                             ),
                           ),
@@ -737,11 +734,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                           placeholder: 'Payment Amount',
                           min: 0,
                           max: context.watch<OrderProvider>().totalAmount,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                             FormBuilderValidators.numeric(),
-                            FormBuilderValidators.min(0, errorText: 'Payment amount must be greater than 0'),
+                            FormBuilderValidators.min(0,
+                                errorText:
+                                    'Payment amount must be greater than 0'),
                           ]),
                         ),
                       ),
@@ -769,7 +770,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                 text: fluent.TextSpan(
                                   text: _noteController.text.length.toString(),
                                   style: TextStyle(
-                                    color: _noteController.text.length > 200 ? Colors.red : Colors.black,
+                                    color: _noteController.text.length > 200
+                                        ? Colors.red
+                                        : Colors.black,
                                   ),
                                   children: [
                                     TextSpan(
@@ -790,7 +793,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             fluent.Text('Total Amount'),
-                            fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                            fluent.Text(context
+                                .watch<OrderProvider>()
+                                .totalAmount
+                                .toString()),
                           ],
                         ),
                       ),
@@ -822,7 +828,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                           width: 10,
                         ),
                         fluent.Expanded(
-                          child: fluent.Text('${DateHelper.getFormattedDateTime(selectedDate)}'),
+                          child: fluent.Text(
+                              '${DateHelper.getFormattedDateTime(selectedDate)}'),
                         ),
                       ],
                     ),
@@ -844,13 +851,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                     borderRadius: BorderRadius.circular(10),
                                     color: Colors.blue,
                                   ),
-                                  child: fluent.Icon(fluent.FluentIcons.contact),
+                                  child:
+                                      fluent.Icon(fluent.FluentIcons.contact),
                                 ),
                                 fluent.SizedBox(
                                   width: 10,
                                 ),
                                 fluent.Expanded(
-                                  child: fluent.Text('${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).fName} ${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).lName}'),
+                                  child: fluent.Text(
+                                      '${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).fName} ${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).lName}'),
                                 ),
                               ],
                             ),
@@ -872,7 +881,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                 fluent.SizedBox(
                                   width: 10,
                                 ),
-                                fluent.Text('${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).countryCode}${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).phoneNumber}'),
+                                fluent.Text(
+                                    '${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).countryCode}${lstCustomers.firstWhere((element) => element.id == selectedCustomerId).phoneNumber}'),
                               ],
                             ),
                           ),
@@ -883,7 +893,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                     ),
                     fluent.Expanded(
                       child: fluent.ListView.builder(
-                          itemCount: context.watch<OrderProvider>().cartList.length,
+                          itemCount:
+                              context.watch<OrderProvider>().cartList.length,
                           itemBuilder: (context, index) {
                             return fluent.ListTile(
                               shape: fluent.RoundedRectangleBorder(
@@ -897,14 +908,24 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                                   errorBuilder: (context, error, stackTrace) {
                                     return SizedBox();
                                   },
-                                  image: NetworkImage(context.watch<OrderProvider>().cartList[index].product.imageUrl),
+                                  image: NetworkImage(context
+                                      .watch<OrderProvider>()
+                                      .cartList[index]
+                                      .product
+                                      .imageUrl),
                                   width: 50,
                                   height: 50,
                                 ),
                               ),
-                              title: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
-                              subtitle: fluent.Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
-                              trailing: fluent.Text(context.watch<OrderProvider>().cartList[index].quantity.toString()),
+                              title: fluent.Text(
+                                  '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                              subtitle: fluent.Text(
+                                  '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                              trailing: fluent.Text(context
+                                  .watch<OrderProvider>()
+                                  .cartList[index]
+                                  .quantity
+                                  .toString()),
                             );
                           }),
                     ),
@@ -913,7 +934,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with fluent.TickerProvi
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           fluent.Text('Total Amount'),
-                          fluent.Text(context.watch<OrderProvider>().totalAmount.toString()),
+                          fluent.Text(context
+                              .watch<OrderProvider>()
+                              .totalAmount
+                              .toString()),
                         ],
                       ),
                     ),

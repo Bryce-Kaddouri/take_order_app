@@ -1,5 +1,4 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/core/helper/route_helper.dart';
@@ -104,23 +103,29 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return FluentApp.router(
       debugShowCheckedModeBanner: false,
-
-      routerDelegate: RouterHelper().getRouter(context).routerDelegate,
-      routeInformationParser: RouterHelper().getRouter(context).routeInformationParser,
-      routeInformationProvider: RouterHelper().getRouter(context).routeInformationProvider,
-
+      /* routerDelegate: RouterHelper().getRouter(context).routerDelegate,
+      routeInformationParser:
+          RouterHelper().getRouter(context).routeInformationParser,
+      routeInformationProvider:
+          RouterHelper().getRouter(context).routeInformationProvider,*/
+      routerConfig: RouterHelper().getRouter(context),
       title: 'Flutter Demo',
       theme: FluentThemeData.light(),
       darkTheme: FluentThemeData.dark(),
-      /*home: const OrderScreen(),*/
     );
   }
 }
