@@ -1,9 +1,15 @@
 //import intl
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateHelper {
   static String getFormattedDate(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  static String get24HourTime(TimeOfDay time) {
+    DateTime date = DateTime(2023, 1, 1, time.hour, time.minute);
+    return DateFormat('HH:mm').format(date);
   }
 
   // 11 Monday January 2024 at 14:00

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/date_item_widget.dart';
@@ -6,6 +7,7 @@ import 'package:take_order_app/src/features/order/presentation/widget/drawer_wid
 
 import '../../data/model/order_model.dart';
 import '../provider/order_provider.dart';
+import '../widget/order_item_view_by_status_widget.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -25,7 +27,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Future<DateTime?> selectDate() async {
     // global key for the form
-    return showDatePicker(
+    return material.showDatePicker(
         context: context,
         currentDate: context.read<OrderProvider>().selectedDate,
         initialDate: context.read<OrderProvider>().selectedDate,
@@ -36,17 +38,17 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return material.Scaffold(
       drawer: DrawerWidget(),
       body: CustomScrollView(controller: _mainScrollController, slivers: [
-        SliverAppBar(
+        material.SliverAppBar(
           actions: [
             IconButton(
               onPressed: () async {
                 DateTime now = DateTime.now();
                 context.read<OrderProvider>().setSelectedDate(now);
               },
-              icon: const Icon(Icons.calendar_today),
+              icon: const Icon(FluentIcons.goto_today, size: 30),
             ),
             IconButton(
               onPressed: () async {
@@ -56,7 +58,10 @@ class _OrderScreenState extends State<OrderScreen> {
                   }
                 });
               },
-              icon: const Icon(Icons.edit_calendar),
+              icon: const Icon(FluentIcons.event_date, size: 30),
+            ),
+            SizedBox(
+              width: 10,
             ),
           ],
           collapsedHeight: 60,
@@ -66,9 +71,10 @@ class _OrderScreenState extends State<OrderScreen> {
           backgroundColor: Colors.blue,
           centerTitle: false,
           title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(DateHelper.getMonthNameAndYear(context.watch<OrderProvider>().selectedDate!)),
+            Text(DateHelper.getMonthNameAndYear(
+                context.watch<OrderProvider>().selectedDate!)),
           ]),
-          flexibleSpace: FlexibleSpaceBar(
+          flexibleSpace: material.FlexibleSpaceBar(
             background: Container(
                 color: Colors.blue,
                 child: Column(
@@ -78,7 +84,7 @@ class _OrderScreenState extends State<OrderScreen> {
 /*
                       clipBehavior: Clip.none,
 */
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
                           stops: [
                             0.0,
@@ -89,8 +95,8 @@ class _OrderScreenState extends State<OrderScreen> {
                           colors: [
                             Colors.blue,
                             Colors.blue,
-                            Colors.white,
-                            Colors.white,
+                            FluentTheme.of(context).inactiveBackgroundColor,
+                            FluentTheme.of(context).inactiveBackgroundColor,
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -101,7 +107,8 @@ class _OrderScreenState extends State<OrderScreen> {
                       child: GridView(
                           controller: _testController,
                           physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 7,
                             childAspectRatio: 1,
                             crossAxisSpacing: 10,
@@ -109,9 +116,11 @@ class _OrderScreenState extends State<OrderScreen> {
                             mainAxisExtent: 80,
                           ),
                           children: [
-                            for (DateTime dateItem in DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate!))
+                            for (DateTime dateItem in DateHelper.getDaysInWeek(
+                                context.read<OrderProvider>().selectedDate!))
                               DateItemWidget(
-                                selectedDate: context.read<OrderProvider>().selectedDate!,
+                                selectedDate:
+                                    context.read<OrderProvider>().selectedDate!,
                                 value: 'test',
                                 dateItem: dateItem,
                               ),
@@ -122,7 +131,9 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
         FutureBuilder(
-          future: context.read<OrderProvider>().getOrdersByDate(context.read<OrderProvider>().selectedDate!),
+          future: context
+              .read<OrderProvider>()
+              .getOrdersByDate(context.read<OrderProvider>().selectedDate!),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -136,7 +147,9 @@ class _OrderScreenState extends State<OrderScreen> {
                 double sum = 0;
                 for (var hour in lstHour) {
                   double height = 60;
-                  List<OrderModel> orderListOfTheHour = orderList.where((element) => element.time.hour == hour).toList();
+                  List<OrderModel> orderListOfTheHour = orderList
+                      .where((element) => element.time.hour == hour)
+                      .toList();
                   height = height + (orderListOfTheHour.length * height);
                   sum = sum + height;
                   Map<String, dynamic> map = {
@@ -151,72 +164,54 @@ class _OrderScreenState extends State<OrderScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       Map<String, dynamic> data = lstHourMap[index];
-                      return Row(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: 60,
-                            child: Text(
-                              '${data['hour']} h',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                      return Container(
+                        color: FluentTheme.of(context).inactiveBackgroundColor,
+                        child: Row(
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              width: 60,
+                              child: Text(
+                                '${data['hour']} h',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                                constraints: BoxConstraints(
-                                  minHeight: 60,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.grey,
-                                      width: 1,
+                            Expanded(
+                              child: Container(
+                                  alignment: Alignment.center,
+                                  constraints: BoxConstraints(
+                                    minHeight: 60,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey,
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                child: data['order'].isNotEmpty
-                                    ? ExpansionTile(
-                                        title: Text('${data['order'].length} orders'),
-                                        children: [
-                                          for (OrderModel orderModel in data['order'])
-                                            Card(
-                                              color: Colors.red,
-                                              child: Container(
-                                                height: 80,
-                                                padding: EdgeInsets.all(8),
-                                                child: Row(
-                                                  children: [
-                                                    Text('${orderModel.time.format(context)}'),
-                                                    Text('${orderModel.customer!.fName} ${orderModel.customer!.lName}'),
-                                                  ],
-                                                ),
+                                  child: data['order'].isNotEmpty
+                                      ? Expander(
+                                          header: Text(
+                                              '${data['order'].length} orders'),
+                                          content: Column(
+                                            children: List.generate(
+                                              data['order'].length,
+                                              (index) => OrdersItemViewByStatus(
+                                                status: 'Pending',
+                                                order: data['order'][index],
                                               ),
                                             ),
-                                        ],
-                                      )
-                                    : null
-
-                                /*Card(
-                                      color: Colors.red,
-                                      child: Container(
-                                        height: 80,
-                                        padding: EdgeInsets.all(8),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                                '${orderModel.time.format(context)}'),
-                                            Text(
-                                                '${orderModel.customer!.fName} ${orderModel.customer!.lName}'),
-                                          ],
-                                        ),
-                                      ),
-                                    );*/
-
-                                ),
-                          ),
-                        ],
+                                          ),
+                                        )
+                                      : null),
+                            ),
+                          ],
+                        ),
                       );
                     },
                     childCount: lstHourMap.length,
@@ -236,7 +231,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   height: MediaQuery.of(context).size.height - 200,
                   width: double.infinity,
                   alignment: Alignment.center,
-                  child: CircularProgressIndicator(),
+                  child: ProgressRing(),
                 ),
               );
             }
@@ -276,5 +271,6 @@ class HorizontalSliverList extends StatelessWidget {
     );
   }
 
-  Widget addDivider() => divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
+  Widget addDivider() =>
+      divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
 }
