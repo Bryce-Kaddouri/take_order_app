@@ -64,7 +64,9 @@ class OrderDetailScreen extends StatelessWidget {
                 width: 40,
                 child: Icon(FluentIcons.edit, size: 20),
               ),
-              onPressed: () {},
+              onPressed: () {
+                context.go('/orders/${orderDate}/${orderId}/update');
+              },
             ),
             SizedBox(
               width: 5,

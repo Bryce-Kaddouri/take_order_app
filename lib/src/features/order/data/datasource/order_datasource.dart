@@ -22,6 +22,7 @@ class OrderDataSource {
         'date': order.orderDate.toIso8601String(),
         'time': '${order.orderTime.hour}:${order.orderTime.minute}',
         'amount_paid': order.paymentAmount,
+        'note': order.note,
       };
       List<Map<String, dynamic>> response = await _client.from('orders').insert(orderInfo).select();
       print(response);

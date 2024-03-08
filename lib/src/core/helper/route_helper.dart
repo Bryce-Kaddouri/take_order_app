@@ -177,6 +177,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
+import 'package:take_order_app/src/features/order_detail/screen/order_update_screen.dart';
 
 import '../../features/auth/presentation/provider/auth_provider.dart';
 import '../../features/auth/presentation/screen/signin_screen.dart';
@@ -223,6 +224,23 @@ class RouterHelper {
                   return OrderDetailScreen(orderId: orderId, orderDate: orderDate);
                 }
               },
+              routes: [
+                GoRoute(
+                  path: 'update',
+                  builder: (context, state) {
+                    if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                      return ScaffoldPage(
+                          content: Center(
+                        child: Text('Loading...'),
+                      ));
+                    } else {
+                      int orderId = int.parse(state.pathParameters['id']!);
+                      DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+                      return OrderUpdateScreen(orderId: orderId, orderDate: orderDate);
+                    }
+                  },
+                ),
+              ],
             ),
           ],
         ),
