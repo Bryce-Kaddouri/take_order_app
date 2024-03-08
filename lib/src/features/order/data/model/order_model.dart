@@ -17,6 +17,8 @@ class OrderModel {
   final UserModel user;
 
   final List<CartModel> cart;
+  final double totalAmount;
+  final paidAmount;
 
   OrderModel({
     this.id,
@@ -28,6 +30,8 @@ class OrderModel {
     required this.status,
     required this.user,
     required this.cart,
+    required this.totalAmount,
+    required this.paidAmount,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -47,20 +51,21 @@ class OrderModel {
 */
 
     return OrderModel(
-      id: json['order_id'],
-      createdAt: DateTime.parse(json['order_created_at']),
-      updatedAt: DateTime.parse(json['order_updated_at']),
-      date: DateTime.parse(json['order_date']),
-      time: TimeOfDay(
-        hour: int.parse(json['order_time'].split(':')[0]),
-        minute: int.parse(json['order_time'].split(':')[1]),
-      ),
-      /*json['order_is_paid'],*/
-      customer: CustomerModel.fromJson(json['customer']),
-      status: StatusModel.fromJson(json['status']),
-      user: UserModel.fromJson(json['user']),
-      cart: List<CartModel>.from(json['cart'].map((x) => CartModel.fromJson(x))),
-    );
+        id: json['order_id'],
+        createdAt: DateTime.parse(json['order_created_at']),
+        updatedAt: DateTime.parse(json['order_updated_at']),
+        date: DateTime.parse(json['order_date']),
+        time: TimeOfDay(
+          hour: int.parse(json['order_time'].split(':')[0]),
+          minute: int.parse(json['order_time'].split(':')[1]),
+        ),
+        /*json['order_is_paid'],*/
+        customer: CustomerModel.fromJson(json['customer']),
+        status: StatusModel.fromJson(json['status']),
+        user: UserModel.fromJson(json['user']),
+        cart: List<CartModel>.from(json['cart'].map((x) => CartModel.fromJson(x))),
+        totalAmount: double.parse(json['total_amount'].toString()),
+        paidAmount: double.parse(json['order_amount_paid'].toString()));
   }
 
   Map<String, dynamic> toJson() => {

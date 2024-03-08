@@ -174,14 +174,27 @@ class RouterHelper {
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
+import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
 
+import '../../features/auth/presentation/provider/auth_provider.dart';
 import '../../features/auth/presentation/screen/signin_screen.dart';
 import '../../features/order/presentation/screen/add_order_screen.dart';
 
 class RouterHelper {
   GoRouter getRouter(BuildContext context) {
     return GoRouter(
+      redirect: (context, state) {
+        bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
+        print('is logged in: $isLoggedIn');
+        if (isLoggedIn) {
+          print(state.path);
+          return state.path == '/' ? '/orders' : null;
+        } else {
+          return '/signin';
+        }
+      },
       routes: [
         GoRoute(
           path: '/orders',
@@ -193,6 +206,22 @@ class RouterHelper {
               path: 'add',
               builder: (context, state) {
                 return AddOrderScreen();
+              },
+            ),
+            GoRoute(
+              path: ':date/:id',
+              builder: (context, state) {
+                print(state.pathParameters);
+                if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                  return ScaffoldPage(
+                      content: Center(
+                    child: Text('Loading...'),
+                  ));
+                } else {
+                  int orderId = int.parse(state.pathParameters['id']!);
+                  DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+                  return OrderDetailScreen(orderId: orderId, orderDate: orderDate);
+                }
               },
             ),
           ],

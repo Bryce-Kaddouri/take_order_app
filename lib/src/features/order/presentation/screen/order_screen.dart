@@ -16,7 +16,8 @@ class OrderScreen extends StatefulWidget {
   State<OrderScreen> createState() => _OrderScreenState();
 }
 
-class _OrderScreenState extends State<OrderScreen> {
+// keep alive mixin
+class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClientMixin {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _testController = ScrollController();
 
@@ -71,8 +72,7 @@ class _OrderScreenState extends State<OrderScreen> {
           backgroundColor: Colors.blue,
           centerTitle: false,
           title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(DateHelper.getMonthNameAndYear(
-                context.watch<OrderProvider>().selectedDate!)),
+            Text(DateHelper.getMonthNameAndYear(context.watch<OrderProvider>().selectedDate!)),
           ]),
           flexibleSpace: material.FlexibleSpaceBar(
             background: Container(
@@ -107,8 +107,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       child: GridView(
                           controller: _testController,
                           physics: NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 7,
                             childAspectRatio: 1,
                             crossAxisSpacing: 10,
@@ -116,11 +115,9 @@ class _OrderScreenState extends State<OrderScreen> {
                             mainAxisExtent: 80,
                           ),
                           children: [
-                            for (DateTime dateItem in DateHelper.getDaysInWeek(
-                                context.read<OrderProvider>().selectedDate!))
+                            for (DateTime dateItem in DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate!))
                               DateItemWidget(
-                                selectedDate:
-                                    context.read<OrderProvider>().selectedDate!,
+                                selectedDate: context.read<OrderProvider>().selectedDate!,
                                 value: 'test',
                                 dateItem: dateItem,
                               ),
@@ -131,9 +128,7 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
         ),
         FutureBuilder(
-          future: context
-              .read<OrderProvider>()
-              .getOrdersByDate(context.read<OrderProvider>().selectedDate!),
+          future: context.read<OrderProvider>().getOrdersByDate(context.read<OrderProvider>().selectedDate!),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -147,9 +142,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 double sum = 0;
                 for (var hour in lstHour) {
                   double height = 60;
-                  List<OrderModel> orderListOfTheHour = orderList
-                      .where((element) => element.time.hour == hour)
-                      .toList();
+                  List<OrderModel> orderListOfTheHour = orderList.where((element) => element.time.hour == hour).toList();
                   height = height + (orderListOfTheHour.length * height);
                   sum = sum + height;
                   Map<String, dynamic> map = {
@@ -184,8 +177,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                   constraints: BoxConstraints(
                                     minHeight: 60,
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                                   decoration: BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
@@ -196,8 +188,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                   ),
                                   child: data['order'].isNotEmpty
                                       ? Expander(
-                                          header: Text(
-                                              '${data['order'].length} orders'),
+                                          header: Text('${data['order'].length} orders'),
                                           content: Column(
                                             children: List.generate(
                                               data['order'].length,
@@ -240,6 +231,10 @@ class _OrderScreenState extends State<OrderScreen> {
       ]),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => false;
 }
 
 class HorizontalSliverList extends StatelessWidget {
@@ -271,6 +266,5 @@ class HorizontalSliverList extends StatelessWidget {
     );
   }
 
-  Widget addDivider() =>
-      divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
+  Widget addDivider() => divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
 }

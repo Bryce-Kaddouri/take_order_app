@@ -112,4 +112,30 @@ class OrderDataSource {
       return Left(DatabaseFailure(errorMessage: 'Error getting orders'));
     }
   }
+
+  Future<Either<DatabaseFailure, OrderModel>> getOrderById(int orderId, DateTime date) async {
+    try {
+      var response = await _client.from('all_orders_view').select().eq('order_id', orderId).eq('order_date', date.toIso8601String());
+      print('response from getOrderById');
+      print(response);
+
+      if (response.isNotEmpty) {
+        OrderModel order = OrderModel.fromJson(response[0]);
+        print('order');
+        print(order);
+        return Right(order);
+      } else {
+        return Left(DatabaseFailure(errorMessage: 'Error getting order'));
+      }
+    } on PostgrestException catch (error) {
+      print('postgrest error');
+      print(error);
+      return Left(DatabaseFailure(errorMessage: error.message));
+    } catch (e) {
+      print('e');
+
+      print(e);
+      return Left(DatabaseFailure(errorMessage: 'Error getting order'));
+    }
+  }
 }

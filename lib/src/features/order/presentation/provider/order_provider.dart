@@ -7,16 +7,20 @@ import 'package:take_order_app/src/features/order/data/model/place_order_model.d
 
 import '../../../cart/data/model/cart_model.dart';
 import '../../../product/data/model/product_model.dart';
+import '../../business/get_order_by_id_param.dart';
+import '../../business/usecase/order_get_order_by_id_usecase.dart';
 
 class OrderProvider with ChangeNotifier {
   OrderGetOrdersByDateUseCase orderGetOrdersByDateUseCase;
   OrderGetOrdersByCustomerIdUseCase orderGetOrdersByCustomerIdUseCase;
   OrderPlaceOrderUseCase orderPlaceOrderUseCase;
+  OrderGetOrdersByIdUseCase orderGetOrdersByIdUseCase;
 
   OrderProvider({
     required this.orderGetOrdersByDateUseCase,
     required this.orderGetOrdersByCustomerIdUseCase,
     required this.orderPlaceOrderUseCase,
+    required this.orderGetOrdersByIdUseCase,
   });
 
   bool _isLoading = false;
@@ -154,5 +158,21 @@ class OrderProvider with ChangeNotifier {
     });
 
     return orderList;
+  }
+
+  Future<OrderModel?> getOrderDetail(int orderId, DateTime date) async {
+    OrderModel? orderModel;
+    final result = await orderGetOrdersByIdUseCase.call(GetOrderByIdParam(orderId: orderId, date: date));
+
+    await result.fold((l) async {
+      print(l.errorMessage);
+    }, (r) async {
+      print(r);
+      orderModel = r;
+    });
+
+    print('order model from provider');
+    print(orderModel);
+    return orderModel;
   }
 }

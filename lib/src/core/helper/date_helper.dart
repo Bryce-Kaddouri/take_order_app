@@ -17,6 +17,11 @@ class DateHelper {
     return "${DateFormat('dd').format(date)} ${DateFormat('EEEE').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('yyyy').format(date)} at ${DateFormat('HH:mm').format(date)}";
   }
 
+  // 11 Monday January 2024
+  static String getFormattedDateWithoutTime(DateTime date) {
+    return "${DateFormat('dd').format(date)} ${DateFormat('EEEE').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('yyyy').format(date)}";
+  }
+
   // get month name and year
   static String getMonthNameAndYear(DateTime date) {
     return DateFormat('MMMM yyyy').format(date);
