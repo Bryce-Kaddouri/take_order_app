@@ -4,6 +4,7 @@ import 'package:take_order_app/src/features/order/business/get_order_by_id_param
 import 'package:take_order_app/src/features/order/data/datasource/order_datasource.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
+import 'package:take_order_app/src/features/order_detail/business/param.dart';
 
 import '../../business/repository/order_repository.dart';
 
@@ -15,22 +16,32 @@ class OrderRepositoryImpl implements OrderRepository {
   });
 
   @override
-  Future<Either<DatabaseFailure, OrderModel>> getOrderById(GetOrderByIdParam param) async {
+  Future<Either<DatabaseFailure, OrderModel>> getOrderById(
+      GetOrderByIdParam param) async {
     return await orderDataSource.getOrderById(param.orderId, param.date);
   }
 
   @override
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(int customerId) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(
+      int customerId) async {
     return await orderDataSource.getOrdersByCustomerId(customerId);
   }
 
   @override
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(DateTime date) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(
+      DateTime date) async {
     return await orderDataSource.getOrdersByDate(date);
   }
 
   @override
-  Future<Either<DatabaseFailure, bool>> placeOrder(PlaceOrderModel placeOrderModel) async {
+  Future<Either<DatabaseFailure, bool>> placeOrder(
+      PlaceOrderModel placeOrderModel) async {
     return await orderDataSource.placeOrder(placeOrderModel);
+  }
+
+  @override
+  Future<Either<DatabaseFailure, bool>> updateOrder(
+      UpdateOrderParam updateOrderParam) async {
+    return await orderDataSource.updateOrder(updateOrderParam);
   }
 }

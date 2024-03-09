@@ -26,4 +26,6 @@ class CartModel {
         'is_done': isDone,
         'product_info': product.toJson(),
       };
+
+  // method to check if two cart models are equal by using assert
 }

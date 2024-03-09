@@ -26,6 +26,7 @@ import 'package:take_order_app/src/features/order/business/usecase/order_get_ord
 import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_customer_id_usecase.dart';
 import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_date_usecase.dart';
 import 'package:take_order_app/src/features/order/business/usecase/order_place_order_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_update_order_usecase.dart';
 import 'package:take_order_app/src/features/order/data/datasource/order_datasource.dart';
 import 'package:take_order_app/src/features/order/data/repository/order_repository_impl.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
@@ -44,46 +45,69 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://qlhzemdpzbonyqdecfxn.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsaHplbWRwemJvbnlxZGVjZnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQ4ODY4MDYsImV4cCI6MjAyMDQ2MjgwNn0.lcUJMI3dvMDT7LaO7MiudIkdxAZOZwF_hNtkQtF3OC8',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsaHplbWRwemJvbnlxZGVjZnhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDQ4ODY4MDYsImV4cCI6MjAyMDQ2MjgwNn0.lcUJMI3dvMDT7LaO7MiudIkdxAZOZwF_hNtkQtF3OC8',
   );
-  AuthRepository authRepository = AuthRepositoryImpl(dataSource: AuthDataSource());
-  CustomerRepository customerRepository = CustomerRepositoryImpl(dataSource: CustomerDataSource());
-  ProductRepository productRepository = ProductRepositoryImpl(dataSource: ProductDataSource());
-  OrderRepository orderRepository = OrderRepositoryImpl(orderDataSource: OrderDataSource());
+  AuthRepository authRepository =
+      AuthRepositoryImpl(dataSource: AuthDataSource());
+  CustomerRepository customerRepository =
+      CustomerRepositoryImpl(dataSource: CustomerDataSource());
+  ProductRepository productRepository =
+      ProductRepositoryImpl(dataSource: ProductDataSource());
+  OrderRepository orderRepository =
+      OrderRepositoryImpl(orderDataSource: OrderDataSource());
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<ProductProvider>(
           create: (context) => ProductProvider(
-            productGetProductsUseCase: ProductGetProductsUseCase(productRepository: productRepository),
-            productGetProductByIdUseCase: ProductGetProductByIdUseCase(productRepository: productRepository),
-            productGetSignedUrlUseCase: ProductGetSignedUrlUseCase(productRepository: productRepository),
+            productGetProductsUseCase:
+                ProductGetProductsUseCase(productRepository: productRepository),
+            productGetProductByIdUseCase: ProductGetProductByIdUseCase(
+                productRepository: productRepository),
+            productGetSignedUrlUseCase: ProductGetSignedUrlUseCase(
+                productRepository: productRepository),
           ),
         ),
         ChangeNotifierProvider<AuthProvider>(
           create: (context) => AuthProvider(
             authLoginUseCase: AuthLoginUseCase(authRepository: authRepository),
-            authLogoutUseCase: AuthLogoutUseCase(authRepository: authRepository),
-            authGetUserUseCase: AuthGetUserUseCase(authRepository: authRepository),
-            authIsLoggedInUseCase: AuthIsLoggedInUseCase(authRepository: authRepository),
-            authOnAuthChangeUseCase: AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
+            authLogoutUseCase:
+                AuthLogoutUseCase(authRepository: authRepository),
+            authGetUserUseCase:
+                AuthGetUserUseCase(authRepository: authRepository),
+            authIsLoggedInUseCase:
+                AuthIsLoggedInUseCase(authRepository: authRepository),
+            authOnAuthChangeUseCase:
+                AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
           ),
         ),
         ChangeNotifierProvider<CustomerProvider>(
           create: (context) => CustomerProvider(
-            customerGetCustomersUseCase: CustomerGetCustomersUseCase(customerRepository: customerRepository),
-            customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(customerRepository: customerRepository),
-            customerAddCustomerUseCase: CustomerAddCustomerUseCase(customerRepository: customerRepository),
-            customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(customerRepository: customerRepository),
+            customerGetCustomersUseCase: CustomerGetCustomersUseCase(
+                customerRepository: customerRepository),
+            customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(
+                customerRepository: customerRepository),
+            customerAddCustomerUseCase: CustomerAddCustomerUseCase(
+                customerRepository: customerRepository),
+            customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(
+                customerRepository: customerRepository),
           ),
         ),
         ChangeNotifierProvider<OrderProvider>(
           create: (context) => OrderProvider(
-            orderGetOrdersByDateUseCase: OrderGetOrdersByDateUseCase(orderRepository: orderRepository),
-            orderGetOrdersByCustomerIdUseCase: OrderGetOrdersByCustomerIdUseCase(orderRepository: orderRepository),
-            orderPlaceOrderUseCase: OrderPlaceOrderUseCase(orderRepository: orderRepository),
-            orderGetOrdersByIdUseCase: OrderGetOrdersByIdUseCase(orderRepository: orderRepository),
+            orderGetOrdersByDateUseCase:
+                OrderGetOrdersByDateUseCase(orderRepository: orderRepository),
+            orderGetOrdersByCustomerIdUseCase:
+                OrderGetOrdersByCustomerIdUseCase(
+                    orderRepository: orderRepository),
+            orderPlaceOrderUseCase:
+                OrderPlaceOrderUseCase(orderRepository: orderRepository),
+            orderGetOrdersByIdUseCase:
+                OrderGetOrdersByIdUseCase(orderRepository: orderRepository),
+            orderUpdateOrderUseCase:
+                OrderUpdateOrderUseCase(orderRepository: orderRepository),
           ),
         ),
       ],

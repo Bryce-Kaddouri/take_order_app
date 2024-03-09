@@ -22,7 +22,6 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
     return AnimatedBuilder(
         animation: widget.controller,
         builder: (context, child) {
-          print('controller value: ${widget.controller.value}');
           return Container(
             padding: EdgeInsets.all(10),
             height: 60,

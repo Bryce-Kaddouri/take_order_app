@@ -6,21 +6,25 @@ import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 
 import '../../../cart/data/model/cart_model.dart';
+import '../../../order_detail/business/param.dart';
 import '../../../product/data/model/product_model.dart';
 import '../../business/get_order_by_id_param.dart';
 import '../../business/usecase/order_get_order_by_id_usecase.dart';
+import '../../business/usecase/order_update_order_usecase.dart';
 
 class OrderProvider with ChangeNotifier {
   OrderGetOrdersByDateUseCase orderGetOrdersByDateUseCase;
   OrderGetOrdersByCustomerIdUseCase orderGetOrdersByCustomerIdUseCase;
   OrderPlaceOrderUseCase orderPlaceOrderUseCase;
   OrderGetOrdersByIdUseCase orderGetOrdersByIdUseCase;
+  OrderUpdateOrderUseCase orderUpdateOrderUseCase;
 
   OrderProvider({
     required this.orderGetOrdersByDateUseCase,
     required this.orderGetOrdersByCustomerIdUseCase,
     required this.orderPlaceOrderUseCase,
     required this.orderGetOrdersByIdUseCase,
+    required this.orderUpdateOrderUseCase,
   });
 
   bool _isLoading = false;
@@ -162,7 +166,8 @@ class OrderProvider with ChangeNotifier {
 
   Future<OrderModel?> getOrderDetail(int orderId, DateTime date) async {
     OrderModel? orderModel;
-    final result = await orderGetOrdersByIdUseCase.call(GetOrderByIdParam(orderId: orderId, date: date));
+    final result = await orderGetOrdersByIdUseCase
+        .call(GetOrderByIdParam(orderId: orderId, date: date));
 
     await result.fold((l) async {
       print(l.errorMessage);
@@ -174,5 +179,23 @@ class OrderProvider with ChangeNotifier {
     print('order model from provider');
     print(orderModel);
     return orderModel;
+  }
+
+  Future<bool> updateOrder(UpdateOrderParam updateOrderParam) async {
+    bool isSuccess = false;
+    setLoading(true);
+    final result = await orderUpdateOrderUseCase.call(updateOrderParam);
+
+    await result.fold((l) async {
+      print(l);
+      isSuccess = false;
+    }, (r) async {
+      print(r);
+      isSuccess = true;
+    });
+
+    setLoading(false);
+
+    return isSuccess;
   }
 }
