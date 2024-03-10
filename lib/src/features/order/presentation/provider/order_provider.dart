@@ -8,7 +8,7 @@ import 'package:take_order_app/src/features/order/data/model/place_order_model.d
 import '../../../cart/data/model/cart_model.dart';
 import '../../../order_detail/business/param.dart';
 import '../../../product/data/model/product_model.dart';
-import '../../business/get_order_by_id_param.dart';
+import '../../business/param/get_order_by_id_param.dart';
 import '../../business/usecase/order_get_order_by_id_usecase.dart';
 import '../../business/usecase/order_update_order_usecase.dart';
 
@@ -181,21 +181,18 @@ class OrderProvider with ChangeNotifier {
     return orderModel;
   }
 
-  Future<bool> updateOrder(UpdateOrderParam updateOrderParam) async {
-    bool isSuccess = false;
-    setLoading(true);
+  Future<GetOrderByIdParam?> updateOrder(
+      UpdateOrderParam updateOrderParam) async {
+    GetOrderByIdParam? res;
     final result = await orderUpdateOrderUseCase.call(updateOrderParam);
 
     await result.fold((l) async {
       print(l);
-      isSuccess = false;
     }, (r) async {
       print(r);
-      isSuccess = true;
+      res = r;
     });
 
-    setLoading(false);
-
-    return isSuccess;
+    return res;
   }
 }

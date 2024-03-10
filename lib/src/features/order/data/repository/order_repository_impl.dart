@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:take_order_app/src/core/data/exception/failure.dart';
-import 'package:take_order_app/src/features/order/business/get_order_by_id_param.dart';
+import 'package:take_order_app/src/features/order/business/param/get_order_by_id_param.dart';
 import 'package:take_order_app/src/features/order/data/datasource/order_datasource.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
@@ -40,7 +40,7 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Either<DatabaseFailure, bool>> updateOrder(
+  Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(
       UpdateOrderParam updateOrderParam) async {
     return await orderDataSource.updateOrder(updateOrderParam);
   }

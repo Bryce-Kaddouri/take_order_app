@@ -2,11 +2,11 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
-import 'package:take_order_app/src/features/order_detail/business/param.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
 import '../../auth/presentation/provider/auth_provider.dart';
@@ -15,12 +15,13 @@ import '../../customer/data/model/customer_model.dart';
 import '../../order/presentation/provider/order_provider.dart';
 import '../../order/presentation/widget/custom_stepper_widget.dart';
 import '../../product/data/model/product_model.dart';
+import '../business/param.dart';
 
 class OrderUpdateScreen extends StatefulWidget {
-  final int orderId;
-  final DateTime orderDate;
+  int orderId;
+  DateTime orderDate;
 
-  const OrderUpdateScreen(
+  OrderUpdateScreen(
       {super.key, required this.orderId, required this.orderDate});
   @override
   State<OrderUpdateScreen> createState() => _OrderUpdateScreenState();
@@ -117,7 +118,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
 
     _animationControllerProgressBar = AnimationController(
         vsync: this,
-        duration: Duration(milliseconds: 11000),
+        duration: Duration(milliseconds: 3300),
         lowerBound: 0,
         upperBound: 11);
     _animationControllerProgressBar.animateTo(1.5);
@@ -193,7 +194,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                           int.parse(pageController.page
                                                   .toString()) -
                                               1,
-                                          duration: Duration(milliseconds: 500),
+                                          duration: Duration(milliseconds: 300),
                                           curve: Curves.easeIn);
                                       if (currentStep == 1) {
                                         _animationControllerProgressBar
@@ -385,18 +386,15 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                               print(currentStep);
                               if (currentStep == 0) {
                                 if (_formKeyCustomer.currentState!.validate()) {
-                                  /* setState(() {
-                        currentStep += 1;
-                      });*/
                                   pageController.animateToPage(1,
-                                      duration: Duration(milliseconds: 1000),
+                                      duration: Duration(milliseconds: 300),
                                       curve: Curves.easeIn);
                                   _animationControllerProgressBar
                                       .animateTo(3.5);
                                 }
                               } else if (currentStep == 1) {
                                 pageController.animateToPage(2,
-                                    duration: Duration(milliseconds: 1000),
+                                    duration: Duration(milliseconds: 300),
                                     curve: Curves.easeIn);
                                 _animationControllerProgressBar.animateTo(5.5);
                               } else if (currentStep == 2) {
@@ -435,45 +433,6 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                       .animateTo(9.5);
                                 }
                               } else if (currentStep == 4) {
-                                /*   List<CartModel> cartList = context.read<OrderProvider>().cartList;
-                                CustomerModel customer = lstCustomers.firstWhere((element) => element.id == selectedCustomerId);
-                                double paymentAmount = _paymentAmount;
-                                DateTime orderDate = selectedDate;
-                                String note = _noteController.text;
-                                print(cartList);
-                                print(customer);
-                                print(paymentAmount);
-                                print(orderDate);
-                                print(note);
-
-                                PlaceOrderModel placeOrderModel = PlaceOrderModel(
-                                  cartList: cartList,
-                                  customer: customer,
-                                  paymentAmount: paymentAmount,
-                                  orderDate: selectedDate,
-                                  note: note.isEmpty ? null : note,
-                                  orderTime: TimeOfDay(hour: selectedDate.hour, minute: selectedDate.minute),
-                                );
-
-                                context.read<OrderProvider>().placeOrder(placeOrderModel).then((value) {
-                                  if (value) {
-                                    _animationControllerProgressBar.animateTo(11);
-                                    pageController.animateToPage(5, duration: Duration(milliseconds: 300), curve: Curves.easeIn).whenComplete(() => _animationController.forward());
-                                  } else {
-                                    fluent.displayInfoBar(alignment: fluent.Alignment.topRight, context, builder: (context, close) {
-                                      return fluent.InfoBar(
-                                        title: const Text('Error!'),
-                                        content: const Text('Error placing order'),
-                                        severity: fluent.InfoBarSeverity.error,
-                                        action: IconButton(
-                                          icon: const Icon(fluent.FluentIcons.clear),
-                                          onPressed: close,
-                                        ),
-                                      );
-                                    });
-                                  }
-                                });*/
-
                                 OrderModel? orderModelAsync = await context
                                     .read<OrderProvider>()
                                     .getOrderDetail(
@@ -489,59 +448,49 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                       .length);
 
                                   // new data
-                                  List<CartModel> newCartList =
+                                  List<CartModel> allCartList =
                                       context.read<OrderProvider>().cartList;
-                                  newCartList.sort((a, b) =>
-                                      a.product.id!.compareTo(b.product.id!));
 
                                   List<CartModel> oldCartList =
                                       orderModelAsync.cart;
-                                  oldCartList.sort((a, b) =>
-                                      a.product.id!.compareTo(b.product.id!));
 
-                                  List<CartModel> addedCartList = newCartList
+                                  List<CartModel> addedCartList = allCartList
                                       .where((element) => !oldCartList
                                           .map((e) => e.product.id)
                                           .contains(element.product.id))
                                       .toList();
 
                                   List<CartModel> removedCartList = oldCartList
-                                      .where((element) => !newCartList
+                                      .where((element) => !allCartList
                                           .map((e) => e.product.id)
                                           .contains(element.product.id))
                                       .toList();
 
-                                  List<CartModel> updatedCartList =
-                                      addedCartList;
+                                  List<CartModel> updatedCartList = allCartList
+                                      .where((element) => oldCartList
+                                          .map((e) => e.product.id)
+                                          .contains(element.product.id))
+                                      .toList();
 
+                                  // remove where old qty = new qty
+                                  updatedCartList.removeWhere((element) =>
+                                      oldCartList
+                                          .firstWhere((e) =>
+                                              e.product.id ==
+                                              element.product.id)
+                                          .quantity ==
+                                      element.quantity);
                                   print('addedCartList');
                                   print(addedCartList);
 
-                                  List<int> allProductIds = [];
-                                  for (var element2 in oldCartList) {
-                                    CartModel newCartModel =
-                                        newCartList.firstWhere((element) =>
-                                            element.product.id ==
-                                            element2.product.id);
-                                    CartModel cartModel =
-                                        oldCartList.firstWhere((element) =>
-                                            element.product.id ==
-                                            element2.product.id);
-                                    bool qtyChanged = newCartModel.quantity !=
-                                        cartModel.quantity;
-                                    if (qtyChanged) {
-                                      print('qtyChanged');
-                                      print(newCartModel);
-                                      updatedCartList.add(newCartModel);
-                                      print(cartModel);
-                                    }
-                                  }
-
-                                  for (var element in updatedCartList) {
-                                    print('updatedCartList');
-                                    print(element.toJson());
-                                  }
-
+                                  print('-' * 50);
+                                  print(
+                                      'removedCartList : ${removedCartList.length}');
+                                  print(
+                                      'addedCartList : ${addedCartList.length}');
+                                  print(
+                                      'updatedCartList : ${updatedCartList.length}');
+                                  print('-' * 50);
                                   ActionMap actionMap = ActionMap(
                                     addedCart: addedCartList,
                                     removedCart: removedCartList,
@@ -597,7 +546,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                       .read<OrderProvider>()
                                       .updateOrder(updateOrderParam)
                                       .then((value) {
-                                    if (value) {
+                                    if (value != null) {
                                       _animationControllerProgressBar
                                           .animateTo(11);
                                       pageController
@@ -605,8 +554,13 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                               duration:
                                                   Duration(milliseconds: 300),
                                               curve: Curves.easeIn)
-                                          .whenComplete(() =>
-                                              _animationController.forward());
+                                          .whenComplete(() {
+                                        _animationController.forward();
+                                        setState(() {
+                                          widget.orderDate = value.date;
+                                          widget.orderId = value.orderId!;
+                                        });
+                                      });
                                     } else {
                                       fluent.displayInfoBar(
                                           alignment: fluent.Alignment.topRight,
@@ -627,73 +581,6 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                     }
                                   });
                                 }
-
-                                /*  User? user =
-                                    context.read<AuthProvider>().getUser();
-                                String newUserId = user!.id;
-                                int newCustomerId = selectedCustomerId;
-                                DateTime newDate = selectedDate;
-                                List<CartModel> newCartList =
-                                    context.read<OrderProvider>().cartList;
-                                newCartList.sort((a, b) =>
-                                    a.product.id!.compareTo(b.product.id!));
-
-                                double newPaidAmount = _paymentAmount;
-                                String newNote = _noteController.text;
-
-                                String oldUserId = orderModel!.user.uid;
-                                int oldCustomerId = orderModel!.customer.id!;
-                                DateTime oldDate = orderModel!.date.copyWith(
-                                    hour: orderModel!.time.hour,
-                                    minute: orderModel!.time.minute,
-                                    second: 0);
-
-                                oldCartList.sort((a, b) =>
-                                    a.product.id!.compareTo(b.product.id!));
-
-                                double oldPaidAmount = orderModel!.paidAmount;
-                                String oldNote = orderModel!.orderNote;
-
-                                print(
-                                    'oldUserId: $oldUserId | newUserId: $newUserId');
-                                print(
-                                    'oldCustomerId: $oldCustomerId | newCustomerId: $newCustomerId');
-                                print('oldDate: $oldDate | newDate: $newDate');
-                                print(
-                                    'oldCartList: $oldCartList | newCartList: $newCartList');
-                                print(
-                                    'oldPaidAmount: $oldPaidAmount | newPaidAmount: $newPaidAmount');
-                                print('oldNote: $oldNote | newNote: $newNote');
-
-                                if (newUserId == oldUserId &&
-                                    newCustomerId == oldCustomerId &&
-                                    newDate == oldDate &&
-                                    newCartList == oldCartList &&
-                                    newPaidAmount == oldPaidAmount &&
-                                    newNote == oldNote) {
-                                  print('No change');
-                                } else {
-                                  UpdateOrderParam updateOrderParam =
-                                      UpdateOrderParam(
-                                    orderId: orderModel!.id!,
-                                    orderDate: orderModel!.date,
-                                    userId: newUserId,
-                                    customerId: newCustomerId,
-                                    date: newDate,
-                                    time: TimeOfDay(
-                                        hour: newDate.hour,
-                                        minute: newDate.minute),
-                                    cartList: newCartList,
-                                    paidAmount: newPaidAmount,
-                                    note: newNote,
-                                    status: 1,
-                                  );
-
-                                  print(user);
-                                }*/
-                                /*  UserModel userModel =
-                                    UserModel.fromJson(user!.toJson());
-                                OrderModel oldOrder = orderModel!;*/
                               }
                             }),
                       ],
@@ -729,12 +616,6 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                 print(value);
                                 print(reason);
                                 print(customerController.text);
-
-                                /*if (reason == fluent.TextChangedReason.suggestionChosen) {
-                            setState(() {
-                              selectedCustomerId = int.parse(value);
-                            });
-                          }*/
                               },
                               placeholder: 'Select Customer',
                               items: List.generate(
@@ -767,7 +648,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                               });
                             },
                           ),
-                          fluent.SizedBox(
+                          const fluent.SizedBox(
                             height: 10,
                           ),
                           fluent.TimePicker(
@@ -785,7 +666,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                     ),
                     // page for fill order
                     fluent.Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       width: MediaQuery.of(context).size.width,
                       child: fluent.Container(
                         child: context
@@ -808,83 +689,82 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
-                                          leading: fluent.Container(
-                                            child: fluent.Image(
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return SizedBox();
-                                              },
-                                              image: NetworkImage(context
-                                                  .watch<OrderProvider>()
-                                                  .cartList[index]
-                                                  .product
-                                                  .imageUrl),
-                                              width: 50,
-                                              height: 50,
-                                            ),
+                                          leading: fluent.Image(
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return const SizedBox();
+                                            },
+                                            image: NetworkImage(context
+                                                .watch<OrderProvider>()
+                                                .cartList[index]
+                                                .product
+                                                .imageUrl),
+                                            width: 50,
+                                            height: 50,
                                           ),
-                                          title: fluent.Text(
-                                              '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                          title: fluent.Text(context
+                                              .watch<OrderProvider>()
+                                              .cartList[index]
+                                              .product
+                                              .name),
                                           subtitle: fluent.Text(
                                               '${context.watch<OrderProvider>().cartList[index].product.price}'),
-                                          trailing: fluent.Container(
-                                            child: fluent.Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                fluent.IconButton(
-                                                  onPressed: () {
-                                                    int currentQty = context
-                                                        .read<OrderProvider>()
-                                                        .cartList[index]
-                                                        .quantity;
-                                                    if (currentQty > 1) {
-                                                      context
-                                                          .read<OrderProvider>()
-                                                          .updateQuantityCartList(
-                                                              index,
-                                                              currentQty - 1);
-                                                    } else {
-                                                      context
-                                                          .read<OrderProvider>()
-                                                          .removeCartList(context
-                                                              .read<
-                                                                  OrderProvider>()
-                                                              .cartList[index]);
-                                                    }
-                                                  },
-                                                  icon: fluent.Icon(fluent
-                                                      .FluentIcons.remove),
-                                                ),
-                                                fluent.Text(
-                                                    context
-                                                        .watch<OrderProvider>()
-                                                        .cartList[index]
-                                                        .quantity
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                    )),
-                                                fluent.IconButton(
-                                                  onPressed: () {
-                                                    int currentQty = context
-                                                        .read<OrderProvider>()
-                                                        .cartList[index]
-                                                        .quantity;
+                                          trailing: fluent.Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              fluent.IconButton(
+                                                onPressed: () {
+                                                  int currentQty = context
+                                                      .read<OrderProvider>()
+                                                      .cartList[index]
+                                                      .quantity;
+                                                  if (currentQty > 1) {
                                                     context
                                                         .read<OrderProvider>()
                                                         .updateQuantityCartList(
                                                             index,
-                                                            currentQty + 1);
-                                                  },
-                                                  icon: fluent.Icon(
-                                                      fluent.FluentIcons.add),
-                                                ),
-                                              ],
-                                            ),
+                                                            currentQty - 1);
+                                                  } else {
+                                                    context
+                                                        .read<OrderProvider>()
+                                                        .removeCartList(context
+                                                            .read<
+                                                                OrderProvider>()
+                                                            .cartList[index]);
+                                                  }
+                                                },
+                                                icon: const fluent.Icon(
+                                                    fluent.FluentIcons.remove),
+                                              ),
+                                              fluent.Text(
+                                                  context
+                                                      .watch<OrderProvider>()
+                                                      .cartList[index]
+                                                      .quantity
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                  )),
+                                              fluent.IconButton(
+                                                onPressed: () {
+                                                  int currentQty = context
+                                                      .read<OrderProvider>()
+                                                      .cartList[index]
+                                                      .quantity;
+                                                  context
+                                                      .read<OrderProvider>()
+                                                      .updateQuantityCartList(
+                                                          index,
+                                                          currentQty + 1);
+                                                },
+                                                icon: const fluent.Icon(
+                                                    fluent.FluentIcons.add),
+                                              ),
+                                            ],
                                           ),
                                           onPressed: () async {
                                             // global key for form builder
-                                            final _formKeyQty =
+                                            final formKeyQty =
                                                 GlobalKey<FormState>();
                                             int qty = context
                                                 .read<OrderProvider>()
@@ -910,7 +790,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                                 content: fluent.Column(
                                                   children: [
                                                     fluent.Form(
-                                                      key: _formKeyQty,
+                                                      key: formKeyQty,
                                                       child: fluent
                                                           .NumberFormBox<int>(
                                                         onChanged: (value) {
@@ -952,7 +832,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                                     child:
                                                         const Text('Confirm'),
                                                     onPressed: () {
-                                                      if (_formKeyQty
+                                                      if (formKeyQty
                                                           .currentState!
                                                           .validate()) {
                                                         context
@@ -976,7 +856,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      fluent.Text('Total Amount'),
+                                      const fluent.Text('Total Amount'),
                                       fluent.Text(context
                                           .watch<OrderProvider>()
                                           .totalAmount
@@ -985,7 +865,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                   ),
                                 ),
                               ])
-                            : fluent.Center(
+                            : const fluent.Center(
                                 child: fluent.Text(
                                   'No item added\nPlease add item first',
                                   textAlign: TextAlign.center,
@@ -996,7 +876,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                     ),
                     // page for payment
                     fluent.Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       width: MediaQuery.of(context).size.width,
                       child: fluent.Form(
                         key: _fromKeyPayment,
@@ -1026,7 +906,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                 ]),
                               ),
                             ),
-                            fluent.SizedBox(
+                            const fluent.SizedBox(
                               height: 20,
                             ),
                             fluent.Expanded(
@@ -1045,26 +925,23 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                       maxLines: 6,
                                     ),
                                   ),
-                                  fluent.Container(
-                                    child: fluent.RichText(
-                                      text: fluent.TextSpan(
-                                        text: _noteController.text.length
-                                            .toString(),
-                                        style: TextStyle(
-                                          color:
-                                              _noteController.text.length > 200
-                                                  ? Colors.red
-                                                  : Colors.black,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: '/200',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
+                                  fluent.RichText(
+                                    text: fluent.TextSpan(
+                                      text: _noteController.text.length
+                                          .toString(),
+                                      style: TextStyle(
+                                        color: _noteController.text.length > 200
+                                            ? Colors.red
+                                            : Colors.black,
                                       ),
+                                      children: const [
+                                        TextSpan(
+                                          text: '/200',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -1075,7 +952,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  fluent.Text('Total Amount'),
+                                  const fluent.Text('Total Amount'),
                                   fluent.Text(context
                                       .watch<OrderProvider>()
                                       .totalAmount
@@ -1105,19 +982,20 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                   borderRadius: BorderRadius.circular(10),
                                   color: Colors.blue,
                                 ),
-                                child:
-                                    fluent.Icon(fluent.FluentIcons.date_time),
+                                child: const fluent.Icon(
+                                    fluent.FluentIcons.date_time),
                               ),
-                              fluent.SizedBox(
+                              const fluent.SizedBox(
                                 width: 10,
                               ),
                               fluent.Expanded(
                                 child: fluent.Text(
-                                    '${DateHelper.getFormattedDateTime(selectedDate)}'),
+                                    DateHelper.getFormattedDateTime(
+                                        selectedDate)),
                               ),
                             ],
                           ),
-                          fluent.SizedBox(
+                          const fluent.SizedBox(
                             height: 10,
                           ),
                           if (selectedCustomerId != -1)
@@ -1136,10 +1014,10 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                               BorderRadius.circular(10),
                                           color: Colors.blue,
                                         ),
-                                        child: fluent.Icon(
+                                        child: const fluent.Icon(
                                             fluent.FluentIcons.contact),
                                       ),
-                                      fluent.SizedBox(
+                                      const fluent.SizedBox(
                                         width: 10,
                                       ),
                                       fluent.Expanded(
@@ -1162,10 +1040,10 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                               BorderRadius.circular(10),
                                           color: Colors.blue,
                                         ),
-                                        child: fluent.Icon(
+                                        child: const fluent.Icon(
                                             fluent.FluentIcons.phone),
                                       ),
-                                      fluent.SizedBox(
+                                      const fluent.SizedBox(
                                         width: 10,
                                       ),
                                       fluent.Text(
@@ -1175,7 +1053,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                 ),
                               ],
                             ),
-                          fluent.SizedBox(
+                          const fluent.SizedBox(
                             height: 10,
                           ),
                           fluent.Expanded(
@@ -1187,28 +1065,29 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                                 itemBuilder: (context, index) {
                                   return fluent.ListTile(
                                     shape: fluent.RoundedRectangleBorder(
-                                      side: BorderSide(
+                                      side: const BorderSide(
                                         color: Colors.grey,
                                       ),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    leading: fluent.Container(
-                                      child: fluent.Image(
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return SizedBox();
-                                        },
-                                        image: NetworkImage(context
-                                            .watch<OrderProvider>()
-                                            .cartList[index]
-                                            .product
-                                            .imageUrl),
-                                        width: 50,
-                                        height: 50,
-                                      ),
+                                    leading: fluent.Image(
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return SizedBox();
+                                      },
+                                      image: NetworkImage(context
+                                          .watch<OrderProvider>()
+                                          .cartList[index]
+                                          .product
+                                          .imageUrl),
+                                      width: 50,
+                                      height: 50,
                                     ),
-                                    title: fluent.Text(
-                                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                                    title: fluent.Text(context
+                                        .watch<OrderProvider>()
+                                        .cartList[index]
+                                        .product
+                                        .name),
                                     subtitle: fluent.Text(
                                         '${context.watch<OrderProvider>().cartList[index].product.price}'),
                                     trailing: fluent.Text(context
@@ -1223,7 +1102,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                             child: fluent.Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                fluent.Text('Total Amount'),
+                                const fluent.Text('Total Amount'),
                                 fluent.Text(context
                                     .watch<OrderProvider>()
                                     .totalAmount
@@ -1244,7 +1123,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                           // animated icon
                           AnimatedBuilder(
                             animation: _animation,
-                            child: fluent.Icon(
+                            child: const fluent.Icon(
                               fluent.FluentIcons.skype_circle_check,
                               size: 200,
                               color: Colors.green,
@@ -1256,7 +1135,7 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                               );
                             },
                           ),
-                          Text(
+                          const Text(
                             'Order has been placed successfully',
                             style: TextStyle(fontSize: 16),
                           ),
@@ -1265,10 +1144,11 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
                             height: 50,
                             child: fluent.FilledButton(
                               onPressed: () {
-                                /*context.go('/orders');*/
-                                Navigator.pop(context);
+                                String date = DateHelper.getFormattedDate(
+                                    widget.orderDate);
+                                context.go('/orders/$date/${widget.orderId}');
                               },
-                              child: fluent.Text('Go to Orders'),
+                              child: const fluent.Text('Go to Orders'),
                             ),
                           ),
                         ],

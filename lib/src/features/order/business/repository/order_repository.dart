@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:take_order_app/src/features/order/business/get_order_by_id_param.dart';
+import 'package:take_order_app/src/features/order/business/param/get_order_by_id_param.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order_detail/business/param.dart';
 
@@ -19,6 +19,6 @@ abstract class OrderRepository {
   Future<Either<DatabaseFailure, bool>> placeOrder(
       PlaceOrderModel placeOrderModel);
 
-  Future<Either<DatabaseFailure, bool>> updateOrder(
+  Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(
       UpdateOrderParam updateOrderParam);
 }

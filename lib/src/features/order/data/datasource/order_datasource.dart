@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
+import 'package:take_order_app/src/features/order/business/param/get_order_by_id_param.dart';
 import 'package:take_order_app/src/features/order/data/model/place_order_model.dart';
 import 'package:take_order_app/src/features/order_detail/business/param.dart';
 
@@ -162,7 +163,7 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, bool>> updateOrder(
+  Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(
       UpdateOrderParam updateOrderParam) async {
     print('update order');
     int orderId = updateOrderParam.orderId;
@@ -204,6 +205,13 @@ class OrderDataSource {
     List<CartModel> removedCart = updateOrderParam.actionMap?.removedCart ?? [];
     List<CartModel> updatedCart = updateOrderParam.actionMap?.updatedCart ?? [];
 
+    print('addedCart');
+    print(addedCart);
+    print('removedCart');
+    print(removedCart);
+    print('updatedCart');
+    print(updatedCart);
+
     print('orderInfo');
     print(orderInfo);
     try {
@@ -214,12 +222,20 @@ class OrderDataSource {
           .eq('date', updateOrderParam.orderDate.toIso8601String())
           .select()
           .single();
+
+      print('response from updateOrder');
+      print(response);
+
       DateTime date = DateTime.parse(response['date']);
+      int id = response['id'];
+      print('newDate : $date');
+      GetOrderByIdParam getOrderByIdParam =
+          GetOrderByIdParam(orderId: id, date: date);
 
       if (addedCart.isNotEmpty) {
         for (int i = 0; i < addedCart.length; i++) {
           Map<String, dynamic> cartInfo = {
-            'id': orderId,
+            'id': id,
             'date': date.toIso8601String(),
             'product_id': addedCart[i].product.id,
             'quantity': addedCart[i].quantity,
@@ -235,7 +251,7 @@ class OrderDataSource {
           List<Map<String, dynamic>> cartResponse = await _client
               .from('cart')
               .delete()
-              .eq('id', orderId)
+              .eq('id', id)
               .eq('date', date.toIso8601String())
               .eq('product_id', removedCart[i].product.id)
               .select();
@@ -249,15 +265,14 @@ class OrderDataSource {
               .update({
                 'quantity': updatedCart[i].quantity,
               })
-              .eq('id', orderId)
+              .eq('id', id)
               .eq('date', date.toIso8601String())
               .eq('product_id', updatedCart[i].product.id)
               .select();
           print(cartResponse);
         }
       }
-      print(response);
-      return const Right(true);
+      return Right(getOrderByIdParam);
       /*CategoryModel categoryModel = CategoryModel.fromJson(response[0]);
         print(categoryModel.toJson());
         return Right(categoryModel);*/
