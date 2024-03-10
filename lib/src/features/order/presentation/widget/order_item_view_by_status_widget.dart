@@ -61,7 +61,12 @@ class StatusWidget extends StatelessWidget {
 class OrdersItemViewByStatus extends StatelessWidget {
   final String status;
   final OrderModel order;
-  const OrdersItemViewByStatus({super.key, required this.status, required this.order});
+  final bool isTrackOrder;
+  const OrdersItemViewByStatus(
+      {super.key,
+      required this.status,
+      required this.order,
+      this.isTrackOrder = false});
 
   double getTotal(int index) {
     double total = 0;
@@ -83,7 +88,11 @@ class OrdersItemViewByStatus extends StatelessWidget {
           print(orderId);
           print(orderDate);
           String date = DateHelper.getFormattedDate(orderDate);
-          context.go('/orders/$date/$orderId');
+          if (isTrackOrder) {
+            context.go('/track-order/$date/$orderId');
+          } else {
+            context.go('/orders/$date/$orderId');
+          }
         },
         child: Row(
           children: [
@@ -107,7 +116,8 @@ class OrdersItemViewByStatus extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Text('${order.customer.lName} ${order.customer.fName}'),
+                      child: Text(
+                          '${order.customer.lName} ${order.customer.fName}'),
                     ),
                   ),
                   Expanded(

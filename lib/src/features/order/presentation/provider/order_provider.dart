@@ -139,6 +139,7 @@ class OrderProvider with ChangeNotifier {
     await result.fold((l) async {
       print(l.errorMessage);
     }, (r) async {
+      print('error from provider');
       print(r);
       orderList = r;
     });

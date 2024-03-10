@@ -2,8 +2,11 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/helper/date_helper.dart';
+
 class DrawerWidget extends StatefulWidget {
-  const DrawerWidget({super.key});
+  final DateTime orderDate;
+  const DrawerWidget({super.key, required this.orderDate});
 
   @override
   State<DrawerWidget> createState() => _DrawerWidgetState();
@@ -81,7 +84,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
             ),
             onPressed: () {
               print('add order');
-              context.go('/orders/add');
+              String date = DateHelper.getFormattedDate(widget.orderDate);
+              context.go('/track-order/$date');
             },
           ),
           fluent.ListTile.selectable(

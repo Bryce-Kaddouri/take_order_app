@@ -178,10 +178,12 @@ import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_update_screen.dart';
+import 'package:take_order_app/src/features/track_order/presentation/screen/track_order_screen.dart';
 
 import '../../features/auth/presentation/provider/auth_provider.dart';
 import '../../features/auth/presentation/screen/signin_screen.dart';
 import '../../features/order/presentation/screen/add_order_screen.dart';
+import '../../features/track_order/presentation/screen/order_track_detail_screen.dart';
 
 class RouterHelper {
   GoRouter getRouter(BuildContext context) {
@@ -198,6 +200,23 @@ class RouterHelper {
       },
       routes: [
         GoRoute(
+          path: '/track-order/:date',
+          builder: (context, state) {
+            DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+            orderDate.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+            return TrackOrderScreen(orderDate: orderDate);
+          },
+          routes: [
+            GoRoute(
+              path: ':id',
+              builder: (context, state) {
+                int orderId = int.parse(state.pathParameters['id']!);
+                return OrderTrackDetailScreen(orderId: orderId);
+              },
+            ),
+          ],
+        ),
+        GoRoute(
           path: '/orders',
           builder: (context, state) {
             return OrderScreen();
@@ -213,30 +232,38 @@ class RouterHelper {
               path: ':date/:id',
               builder: (context, state) {
                 print(state.pathParameters);
-                if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                if (state.pathParameters.isEmpty ||
+                    state.pathParameters['id'] == null ||
+                    state.pathParameters['date'] == null) {
                   return ScaffoldPage(
                       content: Center(
                     child: Text('Loading...'),
                   ));
                 } else {
                   int orderId = int.parse(state.pathParameters['id']!);
-                  DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-                  return OrderDetailScreen(orderId: orderId, orderDate: orderDate);
+                  DateTime orderDate =
+                      DateTime.parse(state.pathParameters['date']!);
+                  return OrderDetailScreen(
+                      orderId: orderId, orderDate: orderDate);
                 }
               },
               routes: [
                 GoRoute(
                   path: 'update',
                   builder: (context, state) {
-                    if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                    if (state.pathParameters.isEmpty ||
+                        state.pathParameters['id'] == null ||
+                        state.pathParameters['date'] == null) {
                       return ScaffoldPage(
                           content: Center(
                         child: Text('Loading...'),
                       ));
                     } else {
                       int orderId = int.parse(state.pathParameters['id']!);
-                      DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-                      return OrderUpdateScreen(orderId: orderId, orderDate: orderDate);
+                      DateTime orderDate =
+                          DateTime.parse(state.pathParameters['date']!);
+                      return OrderUpdateScreen(
+                          orderId: orderId, orderDate: orderDate);
                     }
                   },
                 ),
