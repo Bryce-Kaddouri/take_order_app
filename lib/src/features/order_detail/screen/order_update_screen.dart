@@ -163,8 +163,42 @@ class _OrderUpdateScreenState extends State<OrderUpdateScreen>
             ),
           )
         : fluent.ScaffoldPage(
+            padding: EdgeInsets.all(0),
             header: fluent.PageHeader(
-              title: Text(getTitle(currentStep)),
+              leading: currentStep != 0
+                  ? null
+                  : fluent.Row(
+                      children: [
+                        fluent.SizedBox(
+                          width: 10,
+                        ),
+                        fluent.FilledButton(
+                          style: fluent.ButtonStyle(
+                            padding: fluent.ButtonState.all(EdgeInsets.all(0)),
+                          ),
+                          onPressed: () {
+                            String date =
+                                DateHelper.getFormattedDate(widget.orderDate);
+                            context.go('/orders/$date/${widget.orderId}');
+                          },
+                          child: fluent.Container(
+                            padding: EdgeInsets.all(0),
+                            height: 40,
+                            width: 40,
+                            child: fluent.Icon(
+                              fluent.FluentIcons.back,
+                              size: 30,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              title: fluent.Container(
+                height: 40,
+                alignment: Alignment.center,
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Text(getTitle(currentStep)),
+              ),
             ),
             bottomBar: currentStep >= 5
                 ? null
