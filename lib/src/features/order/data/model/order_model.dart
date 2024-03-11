@@ -9,6 +9,9 @@ class OrderModel {
   final int? id;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DateTime? cookingAt;
+  final DateTime? readyAt;
+  final DateTime? collectedAt;
   final DateTime date;
   final TimeOfDay time;
 
@@ -34,6 +37,9 @@ class OrderModel {
     required this.totalAmount,
     required this.paidAmount,
     required this.orderNote,
+    this.cookingAt,
+    this.readyAt,
+    this.collectedAt,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -69,6 +75,9 @@ class OrderModel {
       totalAmount: double.parse(json['total_amount'].toString()),
       paidAmount: double.parse(json['order_amount_paid'].toString()),
       orderNote: json['order_note'] ?? '',
+      cookingAt: json['cooking_at'] != null ? DateTime.parse(json['cooking_at']) : null,
+      readyAt: json['ready_at'] != null ? DateTime.parse(json['ready_at']) : null,
+      collectedAt: json['collected_at'] != null ? DateTime.parse(json['collected_at']) : null,
     );
   }
 
