@@ -7,6 +7,7 @@ import 'package:take_order_app/src/core/helper/responsive_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/order_item_view_by_status_widget.dart';
 
+import '../../../../core/constant/app_color.dart';
 import '../../../order/data/model/order_model.dart';
 
 class TrackOrderScreen extends StatefulWidget {
@@ -150,7 +151,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
             final orders = snapshot.data as List<OrderModel>;
             List<OrderModel> pendingOrders = orders.where((element) => element.status.name == 'Pending').toList();
             List<OrderModel> cookingOrders = orders.where((element) => element.status.name == 'Cooking').toList();
-            List<OrderModel> readyOrders = orders.where((element) => element.status.name == 'Ready').toList();
+            List<OrderModel> readyOrders = orders.where((element) => element.status.name == 'Completed').toList();
             List<OrderModel> collectedOrders = orders.where((element) => element.status.name == 'Collected').toList();
             return !ResponsiveHelper.isMobile(context)
                 ? LayoutBuilder(
@@ -305,12 +306,12 @@ class PendingListViewWidget extends StatelessWidget {
               alignment: Alignment.center,
               margin: EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: AppColor.pendingForegroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${pendingOrders.length}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
           ],
@@ -385,12 +386,12 @@ class CookingListViewWidget extends StatelessWidget {
               alignment: Alignment.center,
               margin: EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
-                color: Colors.orange,
+                color: AppColor.cookingForegroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${cookingOrders.length}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
           ],
@@ -453,7 +454,7 @@ class ReadyListViewWidget extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              'Ready',
+              'Completed',
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -465,12 +466,12 @@ class ReadyListViewWidget extends StatelessWidget {
               alignment: Alignment.center,
               margin: EdgeInsets.only(left: 8),
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: AppColor.completedForegroundColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${readyOrders.length}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
           ],
@@ -493,7 +494,7 @@ class ReadyListViewWidget extends StatelessWidget {
                 physics: isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
                 itemCount: readyOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Ready', order: readyOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: readyOrders[index].status.name, order: readyOrders[index]);
                 },
               ),
       ),

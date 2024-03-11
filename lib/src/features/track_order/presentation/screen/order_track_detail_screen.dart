@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
+import 'package:take_order_app/src/features/order_detail/business/param.dart';
 
 import '../../../../core/constant/app_color.dart';
 import '../../../../core/helper/responsive_helper.dart';
@@ -46,7 +47,7 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                   padding: ButtonState.all(EdgeInsets.all(0)),
                 ),
                 onPressed: () {
-                  context.go('/orders');
+                  context.go('/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
                 },
                 child: Container(
                   height: 40,
@@ -93,21 +94,27 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                 );
               } else {
                 OrderModel order = snapshot.data as OrderModel;
+                print(order.status.step);
+                print(order.createdAt);
+                print(order.cookingAt);
+                print(order.readyAt);
+                print(order.collectedAt);
+
                 return Row(
                   children: [
                     Expanded(
                       child: ProductsItemListView(
-                        order: order!,
+                        order: order,
                       ),
                     ),
                     Expanded(
                       child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
                         CustomerHourWidget(
-                          order: order!,
+                          order: order,
                         ),
                         Spacer(),
                         StatusWithButtonWidget(
-                          order: order!,
+                          order: order,
                         ),
                       ]),
                     ),
@@ -296,10 +303,56 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                   ],
                 ),
               ),
+            if (widget.order.status.step >= 3)
+              Container(
+                child: Column(
+                  children: [
+                    Container(
+                        child: Row(
+                      children: [
+                        if (widget.order.status.step >= 4)
+                          Container(
+                            height: 40,
+                            width: 40,
+                            child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
+                          )
+                        else
+                          Container(
+                            height: 40,
+                            width: 40,
+                            child: CircleAvatar(
+                              backgroundColor: widget.order.status.step >= 4 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                              child: Text(
+                                '3',
+                              ),
+                            ),
+                          ),
+                        SizedBox(width: 10),
+                        StatusWidget(
+                          status: 'Collected',
+                        ),
+                      ],
+                    )),
+                    if (widget.order.status.step >= 4)
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                            ),
+                            SizedBox(width: 10),
+                            Text('${DateHelper.getFormattedDateTime(widget.order.collectedAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
           ],
         ),
       )),
-      if ((widget.order.status.step == 1 || widget.order.status.step == 2) && !ResponsiveHelper.isMobile(context))
+      if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context))
         StatusButton(
           order: widget.order,
         ),
@@ -318,7 +371,22 @@ class StatusButton extends StatefulWidget {
 class _StatusButtonState extends State<StatusButton> {
   @override
   Widget build(BuildContext context) {
-    return FilledButton(child: Text('Collected'), onPressed: () {});
+    return FilledButton(
+      child: Container(
+        height: 30,
+        width: double.infinity,
+        alignment: Alignment.center,
+        child: Text('Collected'),
+      ),
+      onPressed: () {
+        UpdateOrderParam param = UpdateOrderParam(
+          orderId: widget.order.id!,
+          orderDate: widget.order.date,
+          status: 6,
+        );
+        context.read<OrderProvider>().updateOrder(param);
+      },
+    );
   }
 }
 
@@ -593,16 +661,14 @@ class StatusWithButtonWidget extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
       constraints: BoxConstraints(
-        maxHeight: order.status.step * 90 + 90,
+        maxHeight: order.status.step * 100 + 120,
       ),
       decoration: BoxDecoration(
-/*
-        color: Theme.of(context).cardColor,
-*/
+        color: FluentTheme.of(context).menuColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: StatusStepWidget(
-        order: order!,
+        order: order,
       ),
     );
   }

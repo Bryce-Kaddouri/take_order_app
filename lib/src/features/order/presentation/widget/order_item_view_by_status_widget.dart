@@ -19,6 +19,8 @@ class StatusWidget extends StatelessWidget {
         return AppColor.cookingBackgroundColor;
       case 'Completed':
         return AppColor.completedBackgroundColor;
+      case 'Collected':
+        return AppColor.completedForegroundColor;
       default:
         return Colors.grey;
     }
@@ -34,6 +36,8 @@ class StatusWidget extends StatelessWidget {
         return AppColor.cookingForegroundColor;
       case 'Completed':
         return AppColor.completedForegroundColor;
+      case 'Collected':
+        return Colors.white;
       default:
         return Colors.grey;
     }
@@ -62,11 +66,7 @@ class OrdersItemViewByStatus extends StatelessWidget {
   final String status;
   final OrderModel order;
   final bool isTrackOrder;
-  const OrdersItemViewByStatus(
-      {super.key,
-      required this.status,
-      required this.order,
-      this.isTrackOrder = false});
+  const OrdersItemViewByStatus({super.key, required this.status, required this.order, this.isTrackOrder = false});
 
   double getTotal(int index) {
     double total = 0;
@@ -116,8 +116,7 @@ class OrdersItemViewByStatus extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Text(
-                          '${order.customer.lName} ${order.customer.fName}'),
+                      child: Text('${order.customer.lName} ${order.customer.fName}'),
                     ),
                   ),
                   Expanded(

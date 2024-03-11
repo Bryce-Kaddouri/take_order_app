@@ -75,9 +75,9 @@ class OrderModel {
       totalAmount: double.parse(json['total_amount'].toString()),
       paidAmount: double.parse(json['order_amount_paid'].toString()),
       orderNote: json['order_note'] ?? '',
-      cookingAt: json['cooking_at'] != null ? DateTime.parse(json['cooking_at']) : null,
-      readyAt: json['ready_at'] != null ? DateTime.parse(json['ready_at']) : null,
-      collectedAt: json['collected_at'] != null ? DateTime.parse(json['collected_at']) : null,
+      cookingAt: json['order_cooking_date'] != null ? DateTime.parse(json['order_cooking_date']) : null,
+      readyAt: json['order_ready_date'] != null ? DateTime.parse(json['order_ready_date']) : null,
+      collectedAt: json['order_collected_date'] != null ? DateTime.parse(json['order_collected_date']) : null,
     );
   }
 
