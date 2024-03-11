@@ -11,6 +11,7 @@ import '../../../product/data/model/product_model.dart';
 import '../../business/param/get_order_by_id_param.dart';
 import '../../business/usecase/order_get_order_by_id_usecase.dart';
 import '../../business/usecase/order_update_order_usecase.dart';
+import '../../business/usecase/order_update_to_collected_usecase.dart';
 
 class OrderProvider with ChangeNotifier {
   OrderGetOrdersByDateUseCase orderGetOrdersByDateUseCase;
@@ -18,6 +19,7 @@ class OrderProvider with ChangeNotifier {
   OrderPlaceOrderUseCase orderPlaceOrderUseCase;
   OrderGetOrdersByIdUseCase orderGetOrdersByIdUseCase;
   OrderUpdateOrderUseCase orderUpdateOrderUseCase;
+  OrderUpdateToCollectedUseCase orderUpdateToCollectedUseCase;
 
   OrderProvider({
     required this.orderGetOrdersByDateUseCase,
@@ -25,6 +27,7 @@ class OrderProvider with ChangeNotifier {
     required this.orderPlaceOrderUseCase,
     required this.orderGetOrdersByIdUseCase,
     required this.orderUpdateOrderUseCase,
+    required this.orderUpdateToCollectedUseCase,
   });
 
   bool _isLoading = false;
@@ -195,5 +198,23 @@ class OrderProvider with ChangeNotifier {
     });
 
     return res;
+  }
+
+  Future<bool> updateToCollectedOrder(GetOrderByIdParam param) async {
+    bool isSuccess = false;
+    setLoading(true);
+    final result = await orderUpdateToCollectedUseCase.call(param);
+
+    await result.fold((l) async {
+      print(l);
+      isSuccess = false;
+    }, (r) async {
+      print(r);
+      isSuccess = true;
+    });
+
+    setLoading(false);
+
+    return isSuccess;
   }
 }

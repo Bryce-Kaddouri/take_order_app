@@ -288,4 +288,35 @@ class OrderDataSource {
       /*return Left(DatabaseFailure(errorMessage: 'Error adding category'));*/
     }
   }
+
+  Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(
+      GetOrderByIdParam param) async {
+    try {
+      var status = await _client.from('status').select().eq('step', 4).single();
+      int statusId = status['id'];
+
+      await _client
+          .from('orders')
+          .update({
+            'status_id': statusId,
+            'updated_at': DateTime.now().toIso8601String(),
+            'collected_date': DateTime.now().toIso8601String(),
+          })
+          .eq('id', param.orderId)
+          .eq('date', param.date.toIso8601String())
+          .select()
+          .single();
+      print('response from updateToCollectedOrder');
+
+      return const Right(true);
+    } on PostgrestException catch (error) {
+      print('postgrest error');
+      print(error);
+      return Left(DatabaseFailure(errorMessage: error.message));
+    } catch (e) {
+      print('error');
+      print(e);
+      return Left(DatabaseFailure(errorMessage: 'Error updating order'));
+    }
+  }
 }

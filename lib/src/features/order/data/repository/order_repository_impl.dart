@@ -44,4 +44,10 @@ class OrderRepositoryImpl implements OrderRepository {
       UpdateOrderParam updateOrderParam) async {
     return await orderDataSource.updateOrder(updateOrderParam);
   }
+
+  @override
+  Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(
+      GetOrderByIdParam param) async {
+    return await orderDataSource.updateToCollectedOrder(param);
+  }
 }

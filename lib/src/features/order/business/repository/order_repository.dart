@@ -21,4 +21,7 @@ abstract class OrderRepository {
 
   Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(
       UpdateOrderParam updateOrderParam);
+
+  Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(
+      GetOrderByIdParam param);
 }

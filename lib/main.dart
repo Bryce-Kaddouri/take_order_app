@@ -27,6 +27,7 @@ import 'package:take_order_app/src/features/order/business/usecase/order_get_ord
 import 'package:take_order_app/src/features/order/business/usecase/order_get_orders_by_date_usecase.dart';
 import 'package:take_order_app/src/features/order/business/usecase/order_place_order_usecase.dart';
 import 'package:take_order_app/src/features/order/business/usecase/order_update_order_usecase.dart';
+import 'package:take_order_app/src/features/order/business/usecase/order_update_to_collected_usecase.dart';
 import 'package:take_order_app/src/features/order/data/datasource/order_datasource.dart';
 import 'package:take_order_app/src/features/order/data/repository/order_repository_impl.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
@@ -108,6 +109,8 @@ Future<void> main() async {
                 OrderGetOrdersByIdUseCase(orderRepository: orderRepository),
             orderUpdateOrderUseCase:
                 OrderUpdateOrderUseCase(orderRepository: orderRepository),
+            orderUpdateToCollectedUseCase:
+                OrderUpdateToCollectedUseCase(orderRepository: orderRepository),
           ),
         ),
       ],
