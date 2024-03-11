@@ -18,8 +18,8 @@ class DateHelper {
   }
 
   // 11 Monday January 2024
-  static String getFormattedDateWithoutTime(DateTime date) {
-    return "${DateFormat('dd').format(date)} ${DateFormat('EEEE').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('yyyy').format(date)}";
+  static String getFormattedDateWithoutTime(DateTime date, {bool isShort = false}) {
+    return "${DateFormat('dd').format(date)} ${DateFormat(isShort ? 'E' : 'EEEE').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('yyyy').format(date)}";
   }
 
   // get month name and year

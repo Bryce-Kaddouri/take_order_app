@@ -211,7 +211,8 @@ class RouterHelper {
               path: ':id',
               builder: (context, state) {
                 int orderId = int.parse(state.pathParameters['id']!);
-                return OrderTrackDetailScreen(orderId: orderId);
+                DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+                return OrderTrackDetailScreen(orderId: orderId, orderDate: orderDate);
               },
             ),
           ],
@@ -232,38 +233,30 @@ class RouterHelper {
               path: ':date/:id',
               builder: (context, state) {
                 print(state.pathParameters);
-                if (state.pathParameters.isEmpty ||
-                    state.pathParameters['id'] == null ||
-                    state.pathParameters['date'] == null) {
+                if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
                   return ScaffoldPage(
                       content: Center(
                     child: Text('Loading...'),
                   ));
                 } else {
                   int orderId = int.parse(state.pathParameters['id']!);
-                  DateTime orderDate =
-                      DateTime.parse(state.pathParameters['date']!);
-                  return OrderDetailScreen(
-                      orderId: orderId, orderDate: orderDate);
+                  DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+                  return OrderDetailScreen(orderId: orderId, orderDate: orderDate);
                 }
               },
               routes: [
                 GoRoute(
                   path: 'update',
                   builder: (context, state) {
-                    if (state.pathParameters.isEmpty ||
-                        state.pathParameters['id'] == null ||
-                        state.pathParameters['date'] == null) {
+                    if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
                       return ScaffoldPage(
                           content: Center(
                         child: Text('Loading...'),
                       ));
                     } else {
                       int orderId = int.parse(state.pathParameters['id']!);
-                      DateTime orderDate =
-                          DateTime.parse(state.pathParameters['date']!);
-                      return OrderUpdateScreen(
-                          orderId: orderId, orderDate: orderDate);
+                      DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+                      return OrderUpdateScreen(orderId: orderId, orderDate: orderDate);
                     }
                   },
                 ),
