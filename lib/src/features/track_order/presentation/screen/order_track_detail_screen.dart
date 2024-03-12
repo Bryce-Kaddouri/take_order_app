@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
+import 'package:take_order_app/src/core/helper/price_helper.dart';
 import 'package:take_order_app/src/features/order/business/param/get_order_by_id_param.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
 
@@ -503,7 +504,7 @@ class ProductsItemListView extends StatelessWidget {
                             ),
                           ),
                           title: Text('${order!.cart[index].product.name}'),
-                          subtitle: Text('${order!.cart[index].product.price}'),
+                          subtitle: Text('${PriceHelper.getFormattedPrice(order!.cart[index].product.price)}'),
                           trailing: Text(order!.cart[index].quantity.toString()),
                         ));
                   },
@@ -634,9 +635,9 @@ class CustomerHourWidget extends StatelessWidget {
                                   children: [
                                     RichText(
                                         text: TextSpan(children: [
-                                      TextSpan(text: '${order.paidAmount}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold)),
                                       TextSpan(text: ' / '),
-                                      TextSpan(text: '${order.totalAmount}'),
+                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.totalAmount)}'),
                                     ])),
                                     SizedBox(
                                       width: 10,
@@ -661,7 +662,7 @@ class CustomerHourWidget extends StatelessWidget {
                                     TextSpan(
                                       text: '(${order.paidAmount == order.totalAmount ? 'Paid' : 'Unpaid: '}',
                                     ),
-                                    if (order.paidAmount != order.totalAmount) TextSpan(text: '${order.totalAmount - order.paidAmount}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    if (order.paidAmount != order.totalAmount) TextSpan(text: '${PriceHelper.getFormattedPrice(order.totalAmount - order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold)),
                                     TextSpan(text: ' left)'),
                                   ])),
                                 ),

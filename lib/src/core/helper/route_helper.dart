@@ -175,6 +175,7 @@ class RouterHelper {
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_update_screen.dart';
@@ -269,6 +270,32 @@ class RouterHelper {
             builder: (context, state) {
               return SignInScreen();
             }),
+        GoRoute(
+          path: '/customers',
+          builder: (context, state) {
+            return CustomerListScreen();
+          },
+          routes: [
+            GoRoute(
+              path: 'add',
+              builder: (context, state) {
+                return ScaffoldPage(
+                    content: Center(
+                  child: Text('Add Customer'),
+                ));
+              },
+            ),
+            GoRoute(
+              path: ':id',
+              builder: (context, state) {
+                return ScaffoldPage(
+                    content: Center(
+                  child: Text('Customer Details'),
+                ));
+              },
+            ),
+          ],
+        ),
       ],
     );
   }

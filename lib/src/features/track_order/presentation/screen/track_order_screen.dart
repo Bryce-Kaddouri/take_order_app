@@ -295,7 +295,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         pendingOrders: pendingOrders,
                         calculatedHeight: 300,
                         isMobile: true,
-                        isOpen: pendingOpen,
+                        isOpen: true,
                       ),
                       SizedBox(
                         height: 8,
@@ -306,7 +306,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         cookingOrders: cookingOrders,
                         calculatedHeight: 300,
                         isMobile: true,
-                        isOpen: cookingOpen,
+                        isOpen: true,
                       ),
                       SizedBox(
                         height: 8,
@@ -317,7 +317,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         readyOrders: readyOrders,
                         calculatedHeight: 300,
                         isMobile: true,
-                        isOpen: readyOpen,
+                        isOpen: true,
                       ),
                       SizedBox(
                         height: 8,
@@ -328,7 +328,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         collectedOrders: collectedOrders,
                         calculatedHeight: 300,
                         isMobile: true,
-                        isOpen: collectedOpen,
+                        isOpen: true,
                       ),
                     ],
                   );
@@ -395,7 +395,11 @@ class _PendingListViewWidgetState extends State<PendingListViewWidget> {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        height: widget.isOpen ? widget.calculatedHeight : 0,
+        height: widget.isMobile
+            ? null
+            : widget.isOpen
+                ? widget.calculatedHeight
+                : 0,
         constraints: widget.isMobile
             ? null
             : BoxConstraints(
@@ -484,7 +488,11 @@ class _CookingListViewWidgetState extends State<CookingListViewWidget> {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        height: widget.isOpen ? widget.calculatedHeight : 0,
+        height: widget.isMobile
+            ? null
+            : widget.isOpen
+                ? widget.calculatedHeight
+                : 0,
         constraints: widget.isMobile
             ? null
             : BoxConstraints(
@@ -573,7 +581,11 @@ class _ReadyListViewWidgetState extends State<ReadyListViewWidget> {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        height: widget.isOpen ? widget.calculatedHeight : 0,
+        height: widget.isMobile
+            ? null
+            : widget.isOpen
+                ? widget.calculatedHeight
+                : 0,
         constraints: widget.isMobile
             ? null
             : BoxConstraints(
@@ -663,7 +675,11 @@ class _CollectedListViewWidgetState extends State<CollectedListViewWidget> {
         ),
       ),
       content: Container(
-        height: widget.isOpen ? widget.calculatedHeight : 0,
+        height: widget.isMobile
+            ? null
+            : widget.isOpen
+                ? widget.calculatedHeight
+                : 0,
         padding: EdgeInsets.all(16),
         constraints: widget.isMobile
             ? null
