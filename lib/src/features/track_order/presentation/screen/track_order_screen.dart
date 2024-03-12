@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/core/helper/responsive_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
@@ -23,9 +24,13 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
   late AnimationController _controllerRight;
 
   final expanderKeyPending = GlobalKey<ExpanderState>(debugLabel: 'Pending');
+  bool pendingOpen = false;
   final expanderKeyCooking = GlobalKey<ExpanderState>(debugLabel: 'Cooking');
+  bool cookingOpen = true;
   final expanderKeyReady = GlobalKey<ExpanderState>(debugLabel: 'Ready');
+  bool readyOpen = true;
   final expanderKeyCollected = GlobalKey<ExpanderState>(debugLabel: 'Collected');
+  bool collectedOpen = false;
 
   void toggle(GlobalKey<ExpanderState> key) {
     final open = key.currentState!.isExpanded;
@@ -46,6 +51,63 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    /* WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        expanderKeyPending.currentState!.isExpanded = false;
+        expanderKeyCooking.currentState!.isExpanded = false;
+        expanderKeyReady.currentState!.isExpanded = false;
+        expanderKeyCollected.currentState!.isExpanded = false;
+      }
+    });*/
+
+    Supabase.instance.client
+        .channel('all_orders_view')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'orders',
+            callback: (payload) async {
+              print(' ------------------- payload order-------------------');
+              print(payload);
+              print(' ------------------- payload -------------------');
+
+              if (DateTime.parse(payload.newRecord['date']) == widget.orderDate) {
+                setState(() {});
+              }
+
+              /*initData();*/
+
+              /* if(payload.eventType == PostgresChangeEvent.insert) {
+            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
+              setState(() {});
+              ElegantNotification.info(title: Text('New Order'),
+                description: Text('Order #${payload.newRecord['id']} has been added'),
+                width: 360,
+                position: Alignment.topRight,
+                animation: AnimationType.fromRight,).show(context);
+            }
+          }else if(payload.eventType == PostgresChangeEvent.update) {
+            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
+              setState(() {});
+              ElegantNotification.info(title: Text('Order Updated'),
+                description: Text('Order #${payload.newRecord['id']} has been updated'),
+                width: 360,
+                position: Alignment.topRight,
+                animation: AnimationType.fromRight,).show(context);
+            }
+          }else if(payload.eventType == PostgresChangeEvent.delete) {
+            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
+              setState(() {});
+              ElegantNotification.info(title: Text('Order Deleted'),
+                description: Text('Order #${payload.newRecord['id']} has been deleted'),
+                width: 360,
+                position: Alignment.topRight,
+                animation: AnimationType.fromRight,).show(context);
+            }
+          }*/
+            })
+        .subscribe();
   }
 
   @override
@@ -172,6 +234,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                                       expanderKeyCooking: expanderKeyCooking,
                                       pendingOrders: pendingOrders,
                                       calculatedHeight: calculatedHeight,
+                                      isOpen: pendingOpen,
                                     ),
                                     SizedBox(
                                       height: 8,
@@ -181,6 +244,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                                       expanderKeyPending: expanderKeyPending,
                                       cookingOrders: cookingOrders,
                                       calculatedHeight: calculatedHeight,
+                                      isOpen: cookingOpen,
                                     ),
                                   ],
                                 ),
@@ -200,6 +264,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                                       expanderKeyCollected: expanderKeyCollected,
                                       readyOrders: readyOrders,
                                       calculatedHeight: calculatedHeight,
+                                      isOpen: readyOpen,
                                     ),
                                     SizedBox(
                                       height: 8,
@@ -209,6 +274,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                                       expanderKeyReady: expanderKeyReady,
                                       collectedOrders: collectedOrders,
                                       calculatedHeight: calculatedHeight,
+                                      isOpen: collectedOpen,
                                     ),
                                   ],
                                 ),
@@ -229,6 +295,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         pendingOrders: pendingOrders,
                         calculatedHeight: 300,
                         isMobile: true,
+                        isOpen: pendingOpen,
                       ),
                       SizedBox(
                         height: 8,
@@ -239,6 +306,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         cookingOrders: cookingOrders,
                         calculatedHeight: 300,
                         isMobile: true,
+                        isOpen: cookingOpen,
                       ),
                       SizedBox(
                         height: 8,
@@ -249,6 +317,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         readyOrders: readyOrders,
                         calculatedHeight: 300,
                         isMobile: true,
+                        isOpen: readyOpen,
                       ),
                       SizedBox(
                         height: 8,
@@ -259,6 +328,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
                         collectedOrders: collectedOrders,
                         calculatedHeight: 300,
                         isMobile: true,
+                        isOpen: collectedOpen,
                       ),
                     ],
                   );
@@ -269,14 +339,20 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
   }
 }
 
-class PendingListViewWidget extends StatelessWidget {
+class PendingListViewWidget extends StatefulWidget {
   final GlobalKey<ExpanderState> expanderKeyPending;
   final GlobalKey<ExpanderState> expanderKeyCooking;
   final List<OrderModel> pendingOrders;
   final double calculatedHeight;
   final bool isMobile;
-  const PendingListViewWidget({super.key, required this.expanderKeyPending, required this.expanderKeyCooking, required this.pendingOrders, required this.calculatedHeight, this.isMobile = false});
+  bool isOpen;
+  PendingListViewWidget({super.key, required this.expanderKeyPending, required this.expanderKeyCooking, required this.pendingOrders, required this.calculatedHeight, this.isMobile = false, required this.isOpen});
 
+  @override
+  State<PendingListViewWidget> createState() => _PendingListViewWidgetState();
+}
+
+class _PendingListViewWidgetState extends State<PendingListViewWidget> {
   @override
   Widget build(BuildContext context) {
     return Expander(
@@ -285,7 +361,7 @@ class PendingListViewWidget extends StatelessWidget {
       ),
       contentPadding: EdgeInsets.all(0),
       animationDuration: Duration(milliseconds: 300),
-      key: expanderKeyPending,
+      key: widget.expanderKeyPending,
       initiallyExpanded: false,
       direction: ExpanderDirection.down,
       header: Container(
@@ -310,7 +386,7 @@ class PendingListViewWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${pendingOrders.length}',
+                '${widget.pendingOrders.length}',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
@@ -319,52 +395,61 @@ class PendingListViewWidget extends StatelessWidget {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        constraints: isMobile
+        height: widget.isOpen ? widget.calculatedHeight : 0,
+        constraints: widget.isMobile
             ? null
             : BoxConstraints(
-                minHeight: calculatedHeight,
-                maxHeight: calculatedHeight,
+                maxHeight: widget.calculatedHeight,
               ),
-        child: pendingOrders.isEmpty
+        child: widget.pendingOrders.isEmpty
             ? Center(
                 child: Text('No Pending Orders'),
               )
             : ListView.builder(
                 shrinkWrap: true,
-                physics: isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                itemCount: pendingOrders.length,
+                physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                itemCount: widget.pendingOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Pending', order: pendingOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Pending', order: widget.pendingOrders[index]);
                 },
               ),
       ),
       onStateChanged: (open) {
         print('state for cooking changed to open=$open');
-        if (!isMobile) {
-          expanderKeyCooking.currentState!.isExpanded = !open;
+        if (!widget.isMobile) {
+          widget.expanderKeyCooking.currentState!.isExpanded = !open;
+          setState(() {
+            widget.isOpen = open;
+          });
         }
       },
     );
   }
 }
 
-class CookingListViewWidget extends StatelessWidget {
+class CookingListViewWidget extends StatefulWidget {
   final GlobalKey<ExpanderState> expanderKeyCooking;
   final GlobalKey<ExpanderState> expanderKeyPending;
   final List<OrderModel> cookingOrders;
   final double calculatedHeight;
   final bool isMobile;
+  bool isOpen;
 
-  const CookingListViewWidget({super.key, required this.expanderKeyCooking, required this.expanderKeyPending, required this.cookingOrders, required this.calculatedHeight, this.isMobile = false});
+  CookingListViewWidget({super.key, required this.expanderKeyCooking, required this.expanderKeyPending, required this.cookingOrders, required this.calculatedHeight, this.isMobile = false, required this.isOpen});
 
+  @override
+  State<CookingListViewWidget> createState() => _CookingListViewWidgetState();
+}
+
+class _CookingListViewWidgetState extends State<CookingListViewWidget> {
   @override
   Widget build(BuildContext context) {
     return Expander(
       headerBackgroundColor: ButtonState.all(
         FluentTheme.of(context).menuColor,
       ),
-      key: expanderKeyCooking,
-      initiallyExpanded: isMobile ? false : true,
+      key: widget.expanderKeyCooking,
+      initiallyExpanded: widget.isMobile ? false : true,
       contentPadding: EdgeInsets.all(0),
       animationDuration: Duration(milliseconds: 300),
       direction: ExpanderDirection.down,
@@ -390,7 +475,7 @@ class CookingListViewWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${cookingOrders.length}',
+                '${widget.cookingOrders.length}',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
@@ -399,44 +484,53 @@ class CookingListViewWidget extends StatelessWidget {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        constraints: isMobile
+        height: widget.isOpen ? widget.calculatedHeight : 0,
+        constraints: widget.isMobile
             ? null
             : BoxConstraints(
-                minHeight: calculatedHeight,
-                maxHeight: calculatedHeight,
+                maxHeight: widget.calculatedHeight,
               ),
-        child: cookingOrders.isEmpty
+        child: widget.cookingOrders.isEmpty
             ? Center(
                 child: Text('No Cooking Orders'),
               )
             : ListView.builder(
                 shrinkWrap: true,
-                physics: isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                itemCount: cookingOrders.length,
+                physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                itemCount: widget.cookingOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Cooking', order: cookingOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Cooking', order: widget.cookingOrders[index]);
                 },
               ),
       ),
       onStateChanged: (open) {
         print('state for cooking changed to open=$open');
-        if (!isMobile) {
-          expanderKeyPending.currentState!.isExpanded = !open;
+        if (!widget.isMobile) {
+          widget.expanderKeyPending.currentState!.isExpanded = !open;
+          setState(() {
+            widget.isOpen = open;
+          });
         }
       },
     );
   }
 }
 
-class ReadyListViewWidget extends StatelessWidget {
+class ReadyListViewWidget extends StatefulWidget {
   final GlobalKey<ExpanderState> expanderKeyReady;
   final GlobalKey<ExpanderState> expanderKeyCollected;
   final List<OrderModel> readyOrders;
   final double calculatedHeight;
   final bool isMobile;
+  bool isOpen;
 
-  const ReadyListViewWidget({super.key, required this.expanderKeyReady, required this.expanderKeyCollected, required this.readyOrders, required this.calculatedHeight, this.isMobile = false});
+  ReadyListViewWidget({super.key, required this.expanderKeyReady, required this.expanderKeyCollected, required this.readyOrders, required this.calculatedHeight, this.isMobile = false, required this.isOpen});
 
+  @override
+  State<ReadyListViewWidget> createState() => _ReadyListViewWidgetState();
+}
+
+class _ReadyListViewWidgetState extends State<ReadyListViewWidget> {
   @override
   Widget build(BuildContext context) {
     return Expander(
@@ -445,8 +539,8 @@ class ReadyListViewWidget extends StatelessWidget {
       ),
       contentPadding: EdgeInsets.all(0),
       animationDuration: Duration(milliseconds: 300),
-      key: expanderKeyReady,
-      initiallyExpanded: isMobile ? false : true,
+      key: widget.expanderKeyReady,
+      initiallyExpanded: widget.isMobile ? false : true,
       direction: ExpanderDirection.down,
       header: Container(
         alignment: Alignment.center,
@@ -470,7 +564,7 @@ class ReadyListViewWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${readyOrders.length}',
+                '${widget.readyOrders.length}',
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
@@ -479,52 +573,64 @@ class ReadyListViewWidget extends StatelessWidget {
       ),
       content: Container(
         padding: EdgeInsets.all(16),
-        constraints: isMobile
+        height: widget.isOpen ? widget.calculatedHeight : 0,
+        constraints: widget.isMobile
             ? null
             : BoxConstraints(
-                minHeight: calculatedHeight,
-                maxHeight: calculatedHeight,
+                maxHeight: widget.calculatedHeight,
               ),
-        child: readyOrders.isEmpty
+        child: widget.readyOrders.isEmpty
             ? Center(
                 child: Text('No Ready Orders'),
               )
             : ListView.builder(
                 shrinkWrap: true,
-                physics: isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                itemCount: readyOrders.length,
+                physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                itemCount: widget.readyOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: readyOrders[index].status.name, order: readyOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: widget.readyOrders[index].status.name, order: widget.readyOrders[index]);
                 },
               ),
       ),
       onStateChanged: (open) {
         print('state for cooking changed to open=$open');
-        if (!isMobile) {
-          expanderKeyCollected.currentState!.isExpanded = !open;
+        if (!widget.isMobile) {
+          widget.expanderKeyCollected.currentState!.isExpanded = !open;
+          setState(() {
+            widget.isOpen = open;
+          });
         }
       },
     );
   }
 }
 
-class CollectedListViewWidget extends StatelessWidget {
+class CollectedListViewWidget extends StatefulWidget {
   final GlobalKey<ExpanderState> expanderKeyCollected;
   final GlobalKey<ExpanderState> expanderKeyReady;
   final List<OrderModel> collectedOrders;
   final double calculatedHeight;
   final bool isMobile;
+  bool isOpen;
 
-  const CollectedListViewWidget({super.key, required this.expanderKeyCollected, required this.expanderKeyReady, required this.collectedOrders, required this.calculatedHeight, this.isMobile = false});
+  CollectedListViewWidget({super.key, required this.expanderKeyCollected, required this.expanderKeyReady, required this.collectedOrders, required this.calculatedHeight, this.isMobile = false, required this.isOpen});
 
+  @override
+  State<CollectedListViewWidget> createState() => _CollectedListViewWidgetState();
+}
+
+class _CollectedListViewWidgetState extends State<CollectedListViewWidget> {
   @override
   Widget build(BuildContext context) {
     return Expander(
       headerBackgroundColor: ButtonState.all(
         FluentTheme.of(context).menuColor,
       ),
-      key: expanderKeyCollected,
       initiallyExpanded: false,
+      key: widget.expanderKeyCollected,
+/*
+      initiallyExpanded: false,
+*/
       contentPadding: EdgeInsets.all(0),
       animationDuration: Duration(milliseconds: 300),
       header: Container(
@@ -549,7 +655,7 @@ class CollectedListViewWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${collectedOrders.length}',
+                '${widget.collectedOrders.length}',
                 style: TextStyle(fontSize: 20),
               ),
             ),
@@ -557,30 +663,33 @@ class CollectedListViewWidget extends StatelessWidget {
         ),
       ),
       content: Container(
+        height: widget.isOpen ? widget.calculatedHeight : 0,
         padding: EdgeInsets.all(16),
-        constraints: isMobile
+        constraints: widget.isMobile
             ? null
             : BoxConstraints(
-                minHeight: calculatedHeight,
-                maxHeight: calculatedHeight,
+                maxHeight: widget.calculatedHeight,
               ),
-        child: collectedOrders.isEmpty
+        child: widget.collectedOrders.isEmpty
             ? Center(
                 child: Text('No Collected Orders'),
               )
             : ListView.builder(
                 shrinkWrap: true,
-                physics: isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
-                itemCount: collectedOrders.length,
+                physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
+                itemCount: widget.collectedOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Collected', order: collectedOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Collected', order: widget.collectedOrders[index]);
                 },
               ),
       ),
       onStateChanged: (open) {
         print('state for cooking changed to open=$open');
-        if (!isMobile) {
-          expanderKeyReady.currentState!.isExpanded = !open;
+        if (!widget.isMobile) {
+          widget.expanderKeyReady.currentState!.isExpanded = !open;
+          setState(() {
+            widget.isOpen = open;
+          });
         }
       },
     );

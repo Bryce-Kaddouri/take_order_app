@@ -13,14 +13,18 @@ import '../../../order/presentation/widget/order_item_view_by_status_widget.dart
 class OrderTrackDetailScreen extends StatefulWidget {
   final int orderId;
   final DateTime orderDate;
-  const OrderTrackDetailScreen(
-      {super.key, required this.orderId, required this.orderDate});
+  const OrderTrackDetailScreen({super.key, required this.orderId, required this.orderDate});
 
   @override
   State<OrderTrackDetailScreen> createState() => _OrderTrackDetailScreenState();
 }
 
 class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldPage(
@@ -40,28 +44,29 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
           height: 60,
           child: Row(
             children: [
-              SizedBox(
-                width: 8,
-              ),
-              FilledButton(
-                style: ButtonStyle(
-                  padding: ButtonState.all(EdgeInsets.all(0)),
+              Container(
+                height: 60,
+                width: 44,
+                margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: FilledButton(
+                  style: ButtonStyle(
+                    padding: ButtonState.all(EdgeInsets.all(0)),
+                  ),
+                  onPressed: () {
+                    context.go('/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    child: Icon(FluentIcons.back),
+                  ),
                 ),
-                onPressed: () {
-                  context.go(
-                      '/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
-                },
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  child: Icon(FluentIcons.back),
-                ),
-              ),
-              SizedBox(
-                width: 8,
               ),
               Expanded(
                 child: Container(
+                  margin: EdgeInsets.only(
+                    right: 60,
+                  ),
                   alignment: Alignment.center,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -71,7 +76,7 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                         width: 8,
                       ),
                       Text(
-                        'Order #${widget.orderId} - ${DateHelper.getFormattedDate(widget.orderDate)}',
+                        '${DateHelper.getFormattedDate(widget.orderDate)} - #${widget.orderId}',
                         style: TextStyle(fontSize: 20),
                       ),
                     ],
@@ -87,10 +92,9 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
         content: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.only(top: 10),
           child: FutureBuilder(
-            future: context
-                .read<OrderProvider>()
-                .getOrderDetail(widget.orderId, widget.orderDate),
+            future: context.read<OrderProvider>().getOrderDetail(widget.orderId, widget.orderDate),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -104,28 +108,60 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                 print(order.readyAt);
                 print(order.collectedAt);
 
-                return Row(
-                  children: [
-                    Expanded(
-                      child: ProductsItemListView(
-                        order: order,
+                if (ResponsiveHelper.isMobile(context)) {
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              CustomerHourWidget(
+                                order: order,
+                              ),
+                              ProductsItemListView(
+                                order: order,
+                              ),
+                              StatusWithButtonWidget(
+                                order: order,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomerHourWidget(
+                      if (order.status.step == 3)
+                        Card(
+                          padding: EdgeInsets.all(8),
+                          child: Container(
+                            height: 50,
+                            child: StatusButton(
                               order: order,
                             ),
-                            Spacer(),
-                            StatusWithButtonWidget(
-                              order: order,
-                            ),
-                          ]),
-                    ),
-                  ],
-                );
+                          ),
+                        ),
+                    ],
+                  );
+                } else {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: ProductsItemListView(
+                          order: order,
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                          CustomerHourWidget(
+                            order: order,
+                          ),
+                          Spacer(),
+                          StatusWithButtonWidget(
+                            order: order,
+                          ),
+                        ]),
+                      ),
+                    ],
+                  );
+                }
               }
             },
           ),
@@ -161,9 +197,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                         Container(
                           height: 40,
                           width: 40,
-                          child: Icon(FluentIcons.check_mark,
-                              color: AppColor.completedForegroundColor,
-                              size: 40),
+                          child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
                         )
                       else
                         Container(
@@ -194,9 +228,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                               Container(
                             width: 2,
                             height: 30,
-                            color: widget.order.status.step > 1
-                                ? AppColor.completedForegroundColor
-                                : AppColor.lightCardColor,
+                            color: widget.order.status.step > 1 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
                           ),
                         ),
                         SizedBox(width: 10),
@@ -221,18 +253,14 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                         Container(
                           height: 40,
                           width: 40,
-                          child: Icon(FluentIcons.check_mark,
-                              color: AppColor.completedForegroundColor,
-                              size: 40),
+                          child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
                         )
                       else
                         Container(
                           height: 40,
                           width: 40,
                           child: CircleAvatar(
-                            backgroundColor: widget.order.status.step >= 2
-                                ? AppColor.cookingForegroundColor
-                                : AppColor.lightCardColor,
+                            backgroundColor: widget.order.status.step >= 2 ? AppColor.cookingForegroundColor : AppColor.lightCardColor,
                             child: Text(
                               '2',
                               /*style: AppTextStyle.boldTextStyle(fontSize: 20, color: widget.order.status.step >= 2 ? Theme.of(context).primaryColor : AppColor.lightGreyTextColor),*/
@@ -258,9 +286,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                                 Container(
                               width: 2,
                               height: 30,
-                              color: widget.order.status.step > 2
-                                  ? AppColor.completedForegroundColor
-                                  : AppColor.lightCardColor,
+                              color: widget.order.status.step > 2 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
                             ),
                           ),
                           SizedBox(width: 10),
@@ -284,18 +310,14 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                           Container(
                             height: 40,
                             width: 40,
-                            child: Icon(FluentIcons.check_mark,
-                                color: AppColor.completedForegroundColor,
-                                size: 40),
+                            child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
                           )
                         else
                           Container(
                             height: 40,
                             width: 40,
                             child: CircleAvatar(
-                              backgroundColor: widget.order.status.step >= 3
-                                  ? AppColor.completedForegroundColor
-                                  : AppColor.lightCardColor,
+                              backgroundColor: widget.order.status.step >= 3 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
                               child: Text(
                                 '3',
                               ),
@@ -316,8 +338,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                               width: 40,
                             ),
                             SizedBox(width: 10),
-                            Text(
-                                '${DateHelper.getFormattedDateTime(widget.order.readyAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                            Text('${DateHelper.getFormattedDateTime(widget.order.readyAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
                           ],
                         ),
                       ),
@@ -335,18 +356,14 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                           Container(
                             height: 40,
                             width: 40,
-                            child: Icon(FluentIcons.check_mark,
-                                color: AppColor.completedForegroundColor,
-                                size: 40),
+                            child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
                           )
                         else
                           Container(
                             height: 40,
                             width: 40,
                             child: CircleAvatar(
-                              backgroundColor: widget.order.status.step >= 4
-                                  ? AppColor.completedForegroundColor
-                                  : AppColor.lightCardColor,
+                              backgroundColor: widget.order.status.step >= 4 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
                               child: Text(
                                 '3',
                               ),
@@ -367,8 +384,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                               width: 40,
                             ),
                             SizedBox(width: 10),
-                            Text(
-                                '${DateHelper.getFormattedDateTime(widget.order.collectedAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                            Text('${DateHelper.getFormattedDateTime(widget.order.collectedAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
                           ],
                         ),
                       ),
@@ -378,8 +394,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
           ],
         ),
       )),
-      if ((widget.order.status.step == 3) &&
-          !ResponsiveHelper.isMobile(context))
+      if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context))
         StatusButton(
           order: widget.order,
         ),
@@ -406,20 +421,15 @@ class _StatusButtonState extends State<StatusButton> {
         child: Text('Collected'),
       ),
       onPressed: () {
-        GetOrderByIdParam param = GetOrderByIdParam(
-            orderId: widget.order.id!, date: widget.order.createdAt);
-        context
-            .read<OrderProvider>()
-            .updateToCollectedOrder(param)
-            .then((value) async {
+        GetOrderByIdParam param = GetOrderByIdParam(orderId: widget.order.id!, date: widget.order.createdAt);
+        context.read<OrderProvider>().updateToCollectedOrder(param).then((value) async {
           if (value) {
             await displayInfoBar(
               context,
               builder: (context, close) {
                 return InfoBar(
                   title: const Text('Order Collected'),
-                  content: const Text(
-                      'The order has been successfully collected by the customer.'),
+                  content: const Text('The order has been successfully collected by the customer.'),
                   action: IconButton(
                     icon: const Icon(FluentIcons.clear),
                     onPressed: close,
@@ -429,8 +439,7 @@ class _StatusButtonState extends State<StatusButton> {
               },
               alignment: Alignment.topRight,
             );
-            context.go(
-                '/track-order/${DateHelper.getFormattedDate(widget.order.createdAt)}');
+            context.go('/track-order/${DateHelper.getFormattedDate(widget.order.createdAt)}');
           }
         });
       },
@@ -444,15 +453,10 @@ class ProductsItemListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int nbItems = order.cart
-        .fold(0, (previousValue, element) => previousValue + element.quantity);
+    int nbItems = order.cart.fold(0, (previousValue, element) => previousValue + element.quantity);
     return Container(
-        margin: !ResponsiveHelper.isMobile(context)
-            ? const EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20)
-            : EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-        height: !ResponsiveHelper.isMobile(context)
-            ? MediaQuery.of(context).size.height
-            : null,
+        margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20) : EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        height: !ResponsiveHelper.isMobile(context) ? MediaQuery.of(context).size.height : null,
         decoration: BoxDecoration(
           color: FluentTheme.of(context).menuColor,
           borderRadius: BorderRadius.circular(16),
@@ -481,151 +485,50 @@ class ProductsItemListView extends StatelessWidget {
             if (!ResponsiveHelper.isMobile(context))
               Expanded(
                 child: ListView.builder(
+                  padding: EdgeInsets.all(10),
                   shrinkWrap: true,
                   itemCount: order!.cart.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            title: Row(children: [
-                              Container(
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      height: 60,
-                                      width: 60,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Image.network(
-                                        order!.cart[index].product.imageUrl ??
-                                            '',
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Icon(FluentIcons.eat_drink,
-                                                    size: 40),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          '${order!.cart[index].quantity}',
-                                          /*style: */ /*AppTextStyle.boldTextStyle(
-                                            fontSize: 24),*/ /*
-                                          Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge!
-                                              .copyWith(fontSize: 24),*/
-                                        ),
-                                      ),
-                                    ),
-                                    Text(
-                                      'x',
-                                      /*style: */ /*AppTextStyle.lightTextStyle(
-                                          fontSize: 14)*/ /*
-                                      Theme.of(context)
-                                          .textTheme
-                                          .bodySmall!
-                                          .copyWith(fontSize: 14),*/
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  '${order!.cart[index].product.name}',
-                                  /*style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(fontSize: 20)*/
-                                ),
-                              ),
-                              /*  AppTextStyle.boldTextStyle(fontSize: 16)),*/
-                            ]),
+                    return Card(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        child: ListTile(
+                          leading: Container(
+                            child: Image(
+                              errorBuilder: (context, error, stackTrace) {
+                                return SizedBox();
+                              },
+                              image: NetworkImage(order!.cart[index].product.imageUrl),
+                              width: 50,
+                              height: 50,
+                            ),
                           ),
-                          Divider()
-                        ],
-                      ),
-                    );
+                          title: Text('${order!.cart[index].product.name}'),
+                          subtitle: Text('${order!.cart[index].product.price}'),
+                          trailing: Text(order!.cart[index].quantity.toString()),
+                        ));
                   },
                 ),
               )
             else
               Column(
                 children: List.generate(order.cart.length, (index) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          title: Row(children: [
-                            Container(
-                              width: 100,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 60,
-                                    width: 60,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Image.network(
-                                      order!.cart[index].product.imageUrl ?? '',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Icon(FluentIcons.eat_drink, size: 40),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        '${order!.cart[index].quantity}',
-                                        /* style: */ /*AppTextStyle.boldTextStyle(
-                                            fontSize: 24),*/ /*
-                                        Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge!
-                                            .copyWith(fontSize: 24),*/
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    'x',
-                                    /*  style: */ /*AppTextStyle.lightTextStyle(
-                                          fontSize: 14)*/ /*
-                                    Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(fontSize: 14),*/
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                '${order!.cart[index].product.name}',
-                                /* style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(fontSize: 20)*/
-                              ),
-                            ),
-                            /*  AppTextStyle.boldTextStyle(fontSize: 16)),*/
-                          ]),
+                  return Card(
+                      margin: EdgeInsets.all(10),
+                      child: ListTile(
+                        leading: Container(
+                          child: Image(
+                            errorBuilder: (context, error, stackTrace) {
+                              return SizedBox();
+                            },
+                            image: NetworkImage(order!.cart[index].product.imageUrl),
+                            width: 50,
+                            height: 50,
+                          ),
                         ),
-                        Divider()
-                      ],
-                    ),
-                  );
+                        title: Text('${order!.cart[index].product.name}'),
+                        subtitle: Text('${order!.cart[index].product.price}'),
+                        trailing: Text(order!.cart[index].quantity.toString()),
+                      ));
                 }),
               )
           ],
@@ -648,68 +551,142 @@ class CustomerHourWidget extends StatelessWidget {
               right: 10,
             ),
       decoration: BoxDecoration(
+        color: FluentTheme.of(context).menuColor,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(children: [
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                const Icon(FluentIcons.contact, size: 50),
-                Expanded(
-                  child: Container(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Customer',
-                            /* style: */ /*AppTextStyle.lightTextStyle(fontSize: 12)*/ /*
-                            Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 12),*/
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 60,
+                        alignment: Alignment.center,
+                        child: const Icon(FluentIcons.contact, size: 32),
+                      ),
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          height: 60,
+                          child: Text(
+                            '${order!.customer.lName} ${order!.customer.fName}',
+                            style: FluentTheme.of(context).typography.bodyLarge!.copyWith(fontSize: 20),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          Container(
-                            child: Text(
-                              '${order!.customer.lName} ${order!.customer.fName}',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-/*
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 20),
-*/
-                            ),
-                          ),
-                        ]),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Icon(FluentIcons.clock, size: 50),
-                Container(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hour',
-                          /*style: */ /*AppTextStyle.lightTextStyle(fontSize: 12)),*/ /*
-                            Theme.of(context).textTheme.bodySmall*/
-                        ),
-                        Text(
-                          '${order!.time.hour < 10 ? '0${order!.time.hour}' : order!.time.hour} : ${order!.time.minute < 10 ? '0${order!.time.minute}' : order!.time.minute}',
+              ),
+              Expanded(
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        height: 60,
+                        child: Icon(FluentIcons.clock, size: 32),
+                      ),
+                      Container(
+                        height: 60,
+                        alignment: Alignment.center,
+                        child: Text(
+                          DateHelper.get24HourTime(order.time),
+                          style: FluentTheme.of(context).typography.bodyLarge!.copyWith(fontSize: 24),
                           /* style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 20),*/
                         ),
-                      ]),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
-      ]),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: Icon(
+                                FluentIcons.circle_dollar,
+                                size: 32,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    RichText(
+                                        text: TextSpan(children: [
+                                      TextSpan(text: '${order.paidAmount}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      TextSpan(text: ' / '),
+                                      TextSpan(text: '${order.totalAmount}'),
+                                    ])),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Container(
+                                      height: 16,
+                                      width: 16,
+                                      decoration: BoxDecoration(
+                                        // rounded rectanmgle
+                                        shape: BoxShape.circle,
+                                        color: order.paidAmount == order.totalAmount ? Colors.green : Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: /*Text(
+                                          '(${orderModel.paidAmount == orderModel.totalAmount ? 'Paid' : 'Unpaid: ${orderModel.totalAmount - orderModel.paidAmount} left'})'),*/
+                                      RichText(
+                                          text: TextSpan(children: [
+                                    TextSpan(
+                                      text: '(${order.paidAmount == order.totalAmount ? 'Paid' : 'Unpaid: '}',
+                                    ),
+                                    if (order.paidAmount != order.totalAmount) TextSpan(text: '${order.totalAmount - order.paidAmount}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    TextSpan(text: ' left)'),
+                                  ])),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.only(right: 20, bottom: 5),
+                  height: 40,
+                  child: StatusWidget(
+                    status: order.status.name,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -722,9 +699,7 @@ class StatusWithButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      margin: !ResponsiveHelper.isMobile(context)
-          ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20)
-          : EdgeInsets.only(left: 10, right: 10, bottom: 20),
+      margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
       constraints: BoxConstraints(
         maxHeight: order.status.step * 100 + 120,
       ),
