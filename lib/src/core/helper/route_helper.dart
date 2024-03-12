@@ -175,6 +175,7 @@ class RouterHelper {
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
@@ -189,6 +190,25 @@ import '../../features/track_order/presentation/screen/order_track_detail_screen
 class RouterHelper {
   GoRouter getRouter(BuildContext context) {
     return GoRouter(
+      errorBuilder: (context, state) {
+        return ScaffoldPage(
+          content: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Page not found'),
+              SizedBox(height: 10),
+              FilledButton(
+                onPressed: () {
+                  DateTime date = DateTime.now();
+                  String formattedDate = DateHelper.getFormattedDate(date);
+                  context.go('/orders/$formattedDate');
+                },
+                child: Text('Go to home'),
+              ),
+            ],
+          ),
+        );
+      },
       redirect: (context, state) {
         bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
         print('is logged in: $isLoggedIn');
@@ -219,9 +239,12 @@ class RouterHelper {
           ],
         ),
         GoRoute(
-          path: '/orders',
+          path: '/orders/:date',
           builder: (context, state) {
-            return OrderScreen();
+            DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
+            return OrderScreen(
+              selectedDate: orderDate,
+            );
           },
           routes: [
             GoRoute(
@@ -231,7 +254,7 @@ class RouterHelper {
               },
             ),
             GoRoute(
-              path: ':date/:id',
+              path: ':id',
               builder: (context, state) {
                 print(state.pathParameters);
                 if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {

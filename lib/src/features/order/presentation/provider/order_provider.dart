@@ -37,13 +37,13 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  DateTime _selectedDate = DateTime.now();
+  /*DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
 
   void setSelectedDate(DateTime value) {
     _selectedDate = value;
     notifyListeners();
-  }
+  }*/
 
   int _orderQty = 1;
   int get orderQty => _orderQty;
@@ -170,8 +170,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<OrderModel?> getOrderDetail(int orderId, DateTime date) async {
     OrderModel? orderModel;
-    final result = await orderGetOrdersByIdUseCase
-        .call(GetOrderByIdParam(orderId: orderId, date: date));
+    final result = await orderGetOrdersByIdUseCase.call(GetOrderByIdParam(orderId: orderId, date: date));
 
     await result.fold((l) async {
       print(l.errorMessage);
@@ -185,8 +184,7 @@ class OrderProvider with ChangeNotifier {
     return orderModel;
   }
 
-  Future<GetOrderByIdParam?> updateOrder(
-      UpdateOrderParam updateOrderParam) async {
+  Future<GetOrderByIdParam?> updateOrder(UpdateOrderParam updateOrderParam) async {
     GetOrderByIdParam? res;
     final result = await orderUpdateOrderUseCase.call(updateOrderParam);
 

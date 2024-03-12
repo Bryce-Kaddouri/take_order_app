@@ -1,42 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/helper/date_helper.dart';
-import '../provider/order_provider.dart';
 
-class DateItemWidget extends StatelessWidget {
+class DateItemWidget extends StatefulWidget {
   DateTime selectedDate;
-  String value;
   DateTime dateItem;
-  DateItemWidget(
-      {super.key,
-      required this.selectedDate,
-      required this.value,
-      required this.dateItem});
+  bool isToday;
+  DateItemWidget({super.key, required this.selectedDate, required this.dateItem, required this.isToday});
 
   @override
-  Widget build(BuildContext context) {
-    bool isToday = selectedDate.isAtSameMomentAs(dateItem);
+  State<DateItemWidget> createState() => _DateItemWidgetState();
+}
 
+class _DateItemWidgetState extends State<DateItemWidget> {
+  @override
+  Widget build(BuildContext context) {
+    print('*' * 50);
+    print('selectedDate: ${widget.selectedDate}');
+    print('dateItem: ${widget.dateItem}');
+    print('isToday: ${widget.isToday}');
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      elevation: isToday ? 5 : 0,
-      color: isToday ? Colors.white : Colors.transparent,
+      elevation: widget.isToday ? 5 : 0,
+      color: widget.isToday ? Colors.white : Colors.transparent,
       child: InkWell(
         onTap: () {
-          context.read<OrderProvider>().setSelectedDate(dateItem);
+          print('DateItemWidget: onTap');
+          context.go('/orders/${DateHelper.getFormattedDate(widget.dateItem)}');
         },
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
           ),
-          height: isToday ? 70 : 60,
+          height: widget.isToday ? 70 : 60,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (isToday)
+              if (widget.isToday)
                 Container(
                   width: 6,
                   height: 6,
@@ -46,17 +49,16 @@ class DateItemWidget extends StatelessWidget {
                   ),
                 ),
               Text(
-                dateItem.day.toString(),
+                widget.dateItem.day.toString(),
                 style: TextStyle(
-                  color: isToday ? Colors.black : Colors.grey,
+                  color: widget.isToday ? Colors.black : Colors.grey,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),
               ),
               Text(
-                DateHelper.getDayInLetter(dateItem),
-                style: TextStyle(
-                    color: isToday ? Colors.black : Colors.grey, fontSize: 16),
+                DateHelper.getDayInLetter(widget.dateItem),
+                style: TextStyle(color: widget.isToday ? Colors.black : Colors.grey, fontSize: 16),
               ),
             ],
           ),
