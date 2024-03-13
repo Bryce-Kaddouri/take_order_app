@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/helper/date_helper.dart';
+import '../provider/order_provider.dart';
 
 class DateItemWidget extends StatefulWidget {
   DateTime selectedDate;
   DateTime dateItem;
   bool isToday;
-  DateItemWidget({super.key, required this.selectedDate, required this.dateItem, required this.isToday});
+  DateItemWidget(
+      {super.key,
+      required this.selectedDate,
+      required this.dateItem,
+      required this.isToday});
 
   @override
   State<DateItemWidget> createState() => _DateItemWidgetState();
@@ -29,7 +34,7 @@ class _DateItemWidgetState extends State<DateItemWidget> {
       child: InkWell(
         onTap: () {
           print('DateItemWidget: onTap');
-          context.go('/orders/${DateHelper.getFormattedDate(widget.dateItem)}');
+          context.read<OrderProvider>().setSelectedDate(widget.dateItem);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -58,7 +63,9 @@ class _DateItemWidgetState extends State<DateItemWidget> {
               ),
               Text(
                 DateHelper.getDayInLetter(widget.dateItem),
-                style: TextStyle(color: widget.isToday ? Colors.black : Colors.grey, fontSize: 16),
+                style: TextStyle(
+                    color: widget.isToday ? Colors.black : Colors.grey,
+                    fontSize: 16),
               ),
             ],
           ),

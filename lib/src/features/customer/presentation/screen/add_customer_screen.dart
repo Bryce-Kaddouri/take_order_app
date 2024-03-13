@@ -1,19 +1,32 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
-import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 
-import '../../data/model/customer_model.dart';
+import '../provider/customer_provider.dart';
 
-class AddCustomerScreen extends StatelessWidget {
+class AddCustomerScreen extends StatefulWidget {
   AddCustomerScreen({super.key});
 
-  final _formKey = GlobalKey<FormBuilderState>();
+  @override
+  State<AddCustomerScreen> createState() => _AddCustomerScreenState();
+}
 
-  FormBuilderTextField buildTextField(
+class _AddCustomerScreenState extends State<AddCustomerScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // controllers for text fields
+  final TextEditingController _firstNameController = TextEditingController();
+
+  final TextEditingController _lastNameController = TextEditingController();
+
+  final TextEditingController _phoneNumberController = TextEditingController();
+
+  final TextEditingController _countryCodeController = TextEditingController();
+
+/*  FormBuilderTextField buildTextField(
       String name,
       String label,
       String hintText,
@@ -111,15 +124,19 @@ class AddCustomerScreen extends StatelessWidget {
       ),
       validator: validator,
     );
-  }
-
+  }*/
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
+    return material.Scaffold(
+      appBar: material.AppBar(
+        leading: material.BackButton(
+          onPressed: () {
+            context.go('/orders');
+          },
+        ),
         title: const Text('Add Customer'),
       ),
-      body: SingleChildScrollView(
+      body: /*SingleChildScrollView(
         child: FormBuilder(
           key: _formKey,
           child: Container(
@@ -227,9 +244,9 @@ class AddCustomerScreen extends StatelessWidget {
                           ],
                         ),
                       );
-/*
+*/ /*
                       context.go('/customers');
-*/
+*/ /*
                     }
                   });
 
@@ -249,6 +266,137 @@ class AddCustomerScreen extends StatelessWidget {
               ),
             ],
           ),
+          ),
+        ),
+      ),*/
+
+          Container(
+        child: Form(
+          child: Column(
+            children: [
+              InfoLabel(
+                label: 'First Name',
+                child: TextFormBox(
+                  controller: _firstNameController,
+                  placeholder: 'Enter your first name',
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    // check if is text
+                  ]),
+                ),
+              ),
+              InfoLabel(
+                label: 'Last Name',
+                child: TextFormBox(
+                  controller: _lastNameController,
+                  placeholder: 'Enter your last name',
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    // check if is text
+                  ]),
+                ),
+              ),
+              InfoLabel(
+                label: 'Phone Number',
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 100,
+                  constraints: BoxConstraints(maxWidth: 500, maxHeight: 100),
+                  child: material.Card(
+                    color: Colors.transparent,
+                    elevation: 0,
+                    child: IntlPhoneField(
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Please enter phone number';
+                        } else if (value.isValidNumber() == false) {
+                          return 'Please enter valid phone number';
+                        }
+                        return null;
+                      },
+                      flagsButtonPadding: EdgeInsets.all(10),
+                      decoration: material.InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.all(10),
+                        constraints: BoxConstraints(
+                            maxWidth: 500, maxHeight: 100, minHeight: 100),
+                        labelText: 'Phone Number',
+                        border: material.OutlineInputBorder(),
+                        enabledBorder: material.OutlineInputBorder(),
+                        focusedBorder: material.OutlineInputBorder(),
+                      ),
+                      initialCountryCode: 'IE',
+                      controller: _phoneNumberController,
+                      onCountryChanged: (phone) {
+                        setState(() {
+                          print(phone.code);
+                          print(phone.dialCode);
+
+                          _countryCodeController.text = phone.dialCode;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    String firstName = _firstNameController.text;
+                    String lastName = _lastNameController.text;
+                    String countryCode = '+${_countryCodeController.text}';
+                    String phoneNumber = _phoneNumberController.text;
+                    print('firstName: $firstName');
+                    print('lastName: $lastName');
+                    print('countryCode: $countryCode');
+                    print('phoneNumber: $phoneNumber');
+
+                    /*await context
+                        .read<CustomerProvider>()
+                        .addCustomer(
+                            firstName, lastName, phoneNumber, countryCode)
+                        .then((value) {
+                      if (value) {
+                        displayInfoBar(alignment: Alignment.topRight, context,
+                            builder: (context, close) {
+                          return InfoBar(
+                            title: const Text('Success!'),
+                            content: const Text('Customer added successfully'),
+                            severity: InfoBarSeverity.success,
+                            action: IconButton(
+                              icon: const Icon(FluentIcons.clear),
+                              onPressed: close,
+                            ),
+                          );
+                        });
+                      } else {
+                        displayInfoBar(alignment: Alignment.topRight, context,
+                            builder: (context, close) {
+                          return InfoBar(
+                            title: const Text('Error!'),
+                            content: const Text('Please add item first'),
+                            severity: InfoBarSeverity.error,
+                            action: IconButton(
+                              icon: const Icon(FluentIcons.clear),
+                              onPressed: close,
+                            ),
+                          );
+                        });
+                      }
+                    });
+                    
+                     */
+                  }
+                },
+                child: context.watch<CustomerProvider>().isLoading
+                    ? const ProgressRing()
+                    : const Text(
+                        'Sign In',
+                        style: TextStyle(color: Colors.white),
+                      ),
+              ),
+            ],
           ),
         ),
       ),

@@ -56,6 +56,13 @@ class CustomerProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _searchIsVisible = false;
+  bool get searchIsVisible => _searchIsVisible;
+  void setSearchIsVisible(bool value) {
+    _searchIsVisible = value;
+    notifyListeners();
+  }
+
   Future<CustomerModel?> getCustomerById(int id) async {
     CustomerModel? customerModel;
     final result = await customerGetCustomersByIdUseCase.call(id);
@@ -86,20 +93,21 @@ class CustomerProvider with ChangeNotifier {
 
   }*/
 
-  Future<CustomerModel?> addCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+  Future<bool> addCustomer(String fName, String lName, String phoneNumber,
+      String countryCode) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
       id: null,
       fName: fName,
       lName: lName,
-      countryCode: '+62',
+      countryCode: countryCode,
     );
-    CustomerModel? customerModelResponse;
+    bool isSuccess = false;
     final result = await customerAddCustomerUseCase.call(customerModelParam);
 
     await result.fold((l) async {
       print(l.errorMessage);
-      ScaffoldMessenger.of(context).showMaterialBanner(
+      /*ScaffoldMessenger.of(context).showMaterialBanner(
         MaterialBanner(
           onVisible: () {
             Future.delayed(const Duration(seconds: 2), () {
@@ -124,16 +132,17 @@ class CustomerProvider with ChangeNotifier {
             ),
           ],
         ),
-      );
+      );*/
     }, (CustomerModel r) async {
       print(r.toJson());
-      customerModelResponse = r;
+      isSuccess = true;
     });
 
-    return customerModelResponse;
+    return isSuccess;
   }
 
-  Future<CustomerModel?> updateCustomer(String fName, String lName, String phoneNumber, BuildContext context) async {
+  Future<CustomerModel?> updateCustomer(String fName, String lName,
+      String phoneNumber, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
       id: _customerModel?.id,

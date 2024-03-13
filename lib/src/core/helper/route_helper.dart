@@ -175,7 +175,7 @@ class RouterHelper {
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:take_order_app/src/core/helper/date_helper.dart';
+import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
@@ -184,13 +184,14 @@ import 'package:take_order_app/src/features/track_order/presentation/screen/trac
 
 import '../../features/auth/presentation/provider/auth_provider.dart';
 import '../../features/auth/presentation/screen/signin_screen.dart';
+import '../../features/customer/presentation/screen/customer_detail_screen.dart';
 import '../../features/order/presentation/screen/add_order_screen.dart';
 import '../../features/track_order/presentation/screen/order_track_detail_screen.dart';
 
 class RouterHelper {
   GoRouter getRouter(BuildContext context) {
     return GoRouter(
-      errorBuilder: (context, state) {
+      /* errorBuilder: (context, state) {
         return ScaffoldPage(
           content: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -199,22 +200,23 @@ class RouterHelper {
               SizedBox(height: 10),
               FilledButton(
                 onPressed: () {
-                  DateTime date = DateTime.now();
-                  String formattedDate = DateHelper.getFormattedDate(date);
-                  context.go('/orders/$formattedDate');
+                  context.go('/orders');
                 },
                 child: Text('Go to home'),
               ),
             ],
           ),
         );
-      },
+      },*/
+      initialLocation: context.read<AuthProvider>().checkIsLoggedIn()
+          ? '/orders'
+          : '/signin',
       redirect: (context, state) {
         bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
         print('is logged in: $isLoggedIn');
         if (isLoggedIn) {
           print(state.path);
-          return state.path == '/' ? '/orders' : null;
+          return null;
         } else {
           return '/signin';
         }
@@ -232,19 +234,18 @@ class RouterHelper {
               path: ':id',
               builder: (context, state) {
                 int orderId = int.parse(state.pathParameters['id']!);
-                DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-                return OrderTrackDetailScreen(orderId: orderId, orderDate: orderDate);
+                DateTime orderDate =
+                    DateTime.parse(state.pathParameters['date']!);
+                return OrderTrackDetailScreen(
+                    orderId: orderId, orderDate: orderDate);
               },
             ),
           ],
         ),
         GoRoute(
-          path: '/orders/:date',
+          path: '/orders',
           builder: (context, state) {
-            DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-            return OrderScreen(
-              selectedDate: orderDate,
-            );
+            return const OrderScreen();
           },
           routes: [
             GoRoute(
@@ -254,33 +255,41 @@ class RouterHelper {
               },
             ),
             GoRoute(
-              path: ':id',
+              path: ':date/:id',
               builder: (context, state) {
                 print(state.pathParameters);
-                if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                if (state.pathParameters.isEmpty ||
+                    state.pathParameters['id'] == null ||
+                    state.pathParameters['date'] == null) {
                   return ScaffoldPage(
                       content: Center(
                     child: Text('Loading...'),
                   ));
                 } else {
                   int orderId = int.parse(state.pathParameters['id']!);
-                  DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-                  return OrderDetailScreen(orderId: orderId, orderDate: orderDate);
+                  DateTime orderDate =
+                      DateTime.parse(state.pathParameters['date']!);
+                  return OrderDetailScreen(
+                      orderId: orderId, orderDate: orderDate);
                 }
               },
               routes: [
                 GoRoute(
                   path: 'update',
                   builder: (context, state) {
-                    if (state.pathParameters.isEmpty || state.pathParameters['id'] == null || state.pathParameters['date'] == null) {
+                    if (state.pathParameters.isEmpty ||
+                        state.pathParameters['id'] == null ||
+                        state.pathParameters['date'] == null) {
                       return ScaffoldPage(
                           content: Center(
                         child: Text('Loading...'),
                       ));
                     } else {
                       int orderId = int.parse(state.pathParameters['id']!);
-                      DateTime orderDate = DateTime.parse(state.pathParameters['date']!);
-                      return OrderUpdateScreen(orderId: orderId, orderDate: orderDate);
+                      DateTime orderDate =
+                          DateTime.parse(state.pathParameters['date']!);
+                      return OrderUpdateScreen(
+                          orderId: orderId, orderDate: orderDate);
                     }
                   },
                 ),
@@ -302,19 +311,15 @@ class RouterHelper {
             GoRoute(
               path: 'add',
               builder: (context, state) {
-                return ScaffoldPage(
-                    content: Center(
-                  child: Text('Add Customer'),
-                ));
+                return AddCustomerScreen();
               },
             ),
             GoRoute(
               path: ':id',
               builder: (context, state) {
-                return ScaffoldPage(
-                    content: Center(
-                  child: Text('Customer Details'),
-                ));
+                return CustomerDetailScreen(
+                  id: int.parse(state.pathParameters['id']!),
+                );
               },
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -10,124 +11,112 @@ class CustomerListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-      padding: EdgeInsets.all(0),
-      header: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: Offset(0, 1), // changes position of shadow
-            ),
-          ],
+    return material.Scaffold(
+      appBar: material.AppBar(
+        elevation: 4,
+        shadowColor: Colors.black,
+        automaticallyImplyLeading: false,
+        leading: material.BackButton(
+          onPressed: () {
+            context.go('/orders');
+          },
         ),
-        height: 60,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 8,
-            ),
-            FilledButton(
+        centerTitle: true,
+        title: context.watch<CustomerProvider>().searchIsVisible
+            ? Container(
+                height: 40,
+                child: TextBox(
+                  controller: context.read<CustomerProvider>().searchController,
+                  placeholder: 'Search Customer ...',
+                  prefix: Container(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(FluentIcons.search),
+                  ),
+                  suffix: IconButton(
+                    icon: Container(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(FluentIcons.clear),
+                    ),
+                    onPressed: () {
+                      context.read<CustomerProvider>().searchController.clear();
+                      context.read<CustomerProvider>().setSearchText('');
+                    },
+                  ),
+                  onChanged: (value) {
+                    context.read<CustomerProvider>().setSearchText(value);
+                  },
+                ),
+              )
+            : const Text('Customers'),
+        actions: [
+          Container(
+            child: FilledButton(
               style: ButtonStyle(
                 padding: ButtonState.all(EdgeInsets.all(0)),
               ),
               onPressed: () {
-                context.go('/orders');
+                context.read<CustomerProvider>().setSearchIsVisible(
+                    !context.read<CustomerProvider>().searchIsVisible);
               },
               child: Container(
                 height: 40,
                 width: 40,
-                child: Icon(FluentIcons.back),
+                child: context.read<CustomerProvider>().searchIsVisible
+                    ? Icon(FluentIcons.clear)
+                    : Icon(FluentIcons.search),
               ),
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(right: 60),
-                alignment: Alignment.center,
-                child: Text(
-                  'Customers',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      content: CustomScrollView(
-        slivers: [
-          SliverPersistentHeader(
-              floating: true,
-              delegate: SearchBarDelegate(
-                child: Container(
-                  color: Colors.white,
-                  padding: EdgeInsets.all(8),
-                  child: TextBox(
-                    controller: context.read<CustomerProvider>().searchController,
-                    placeholder: 'Search Customer ...',
-                    prefix: Icon(FluentIcons.search),
-                    suffix: IconButton(
-                      icon: Icon(FluentIcons.clear),
-                      onPressed: () {
-                        context.read<CustomerProvider>().searchController.clear();
-                        context.read<CustomerProvider>().setSearchText('');
-                      },
-                    ),
-                    onChanged: (value) {
-                      context.read<CustomerProvider>().setSearchText(value);
-                    },
-                  ),
-                ),
-              )),
-          SliverToBoxAdapter(
-            child: FutureBuilder<List<CustomerModel>?>(
-              future: context.read<CustomerProvider>().getCustomers(),
-              builder: (context, snapshot) {
-                print(snapshot.connectionState);
-                print('data');
-                print(snapshot.data);
-                if (snapshot.hasData) {
-                  List<CustomerModel>? customerList = snapshot.data;
-                  customerList = customerList?.where((element) {
-                    String fullName = '${element.fName!} ${element.lName!}';
-                    return fullName.toLowerCase().contains(context.watch<CustomerProvider>().searchText.toLowerCase());
-                  }).toList();
-                  print('customerList');
-                  if (customerList?.isEmpty ?? true) {
-                    return const Center(child: Text('No Customers'));
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: customerList?.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        padding: EdgeInsets.all(0),
-                        margin: EdgeInsets.all(8),
-                        child: ListTile(
-                          onPressed: () {
-                            context.go('/customers/${snapshot.data![index].id}');
-                          },
-                          leading: CircleAvatar(backgroundColor: Colors.blue, foregroundColor: Colors.white, child: Text(snapshot.data?[index].fName?[0] ?? '')),
-                          title: Text(snapshot.data?[index].fName ?? ''),
-                          subtitle: Text(snapshot.data?[index].lName ?? ''),
-                        ),
-                      );
-                    },
-                  );
-                }
-                return const Center(child: ProgressRing());
-              },
             ),
           ),
+          SizedBox(
+            width: 8,
+          ),
         ],
+      ),
+      body: Container(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: FutureBuilder<List<CustomerModel>?>(
+          future: context.read<CustomerProvider>().getCustomers(),
+          builder: (context, snapshot) {
+            print(snapshot.connectionState);
+            print('data');
+            print(snapshot.data);
+            if (snapshot.hasData) {
+              List<CustomerModel>? customerList = snapshot.data;
+              customerList = customerList?.where((element) {
+                String fullName = '${element.fName!} ${element.lName!}';
+                return fullName.toLowerCase().contains(
+                    context.watch<CustomerProvider>().searchText.toLowerCase());
+              }).toList();
+              print('customerList');
+              if (customerList?.isEmpty ?? true) {
+                return const Center(child: Text('No Customers'));
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: customerList?.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    padding: EdgeInsets.all(8),
+                    margin: EdgeInsets.all(8),
+                    child: ListTile(
+                      onPressed: () {
+                        context.go('/customers/${snapshot.data![index].id}');
+                      },
+                      leading: CircleAvatar(
+                          /*  backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,*/
+                          child: Text(snapshot.data?[index].fName?[0] ?? '')),
+                      title: Text(snapshot.data?[index].fName ?? ''),
+                      subtitle: Text(snapshot.data?[index].lName ?? ''),
+                      trailing: Icon(FluentIcons.chevron_right),
+                    ),
+                  );
+                },
+              );
+            }
+            return const Center(child: ProgressRing());
+          },
+        ),
       ),
     );
     /*Scaffold(
@@ -254,7 +243,8 @@ class SearchBarDelegate extends SliverPersistentHeaderDelegate {
   SearchBarDelegate({required this.child});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return child;
   }
 

@@ -1,6 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/drawer_widget.dart';
@@ -11,29 +10,34 @@ import '../widget/date_item_widget.dart';
 import '../widget/order_item_view_by_status_widget.dart';
 
 class OrderScreen extends StatefulWidget {
-  final DateTime selectedDate;
-  const OrderScreen({super.key, required this.selectedDate});
+  const OrderScreen({super.key});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
 }
 
 // keep alive mixin
-class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClientMixin {
+class _OrderScreenState extends State<OrderScreen>
+    with AutomaticKeepAliveClientMixin {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _testController = ScrollController();
+  List<DateTime> lstWeedDays = [];
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      lstWeedDays =
+          DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate);
+    });
   }
 
   Future<DateTime?> selectDate() async {
     // global key for the form
     return material.showDatePicker(
         context: context,
-        currentDate: widget.selectedDate,
-        initialDate: widget.selectedDate,
+        currentDate: context.read<OrderProvider>().selectedDate,
+        initialDate: context.read<OrderProvider>().selectedDate,
         // first date of the year
         firstDate: DateTime.now().subtract(Duration(days: 365)),
         lastDate: DateTime.now().add(Duration(days: 365)));
@@ -42,7 +46,6 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
   @override
   Widget build(BuildContext context) {
     print('order screen');
-    print(widget.selectedDate);
     return material.Scaffold(
       appBar: material.AppBar(
         surfaceTintColor: FluentTheme.of(context).inactiveBackgroundColor,
@@ -50,15 +53,15 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(DateHelper.getMonthNameAndYear(widget.selectedDate)),
+            Text(DateHelper.getMonthNameAndYear(
+                context.watch<OrderProvider>().selectedDate)),
           ],
         ),
         actions: [
           IconButton(
             onPressed: () async {
               DateTime now = DateTime.now();
-              String date = DateHelper.getFormattedDate(now);
-              context.go('/orders/$date');
+              context.read<OrderProvider>().setSelectedDate(now);
             },
             icon: const Icon(FluentIcons.goto_today, size: 30),
           ),
@@ -66,7 +69,10 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
             onPressed: () async {
               await selectDate().then((value) {
                 if (value != null) {
-                  context.go('/orders/${DateHelper.getFormattedDate(value)}');
+                  context.read<OrderProvider>().setSelectedDate(value);
+                  setState(() {
+                    lstWeedDays = DateHelper.getDaysInWeek(value);
+                  });
                 }
               });
             },
@@ -78,7 +84,7 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
         ],
       ),
       drawer: DrawerWidget(
-        orderDate: widget.selectedDate,
+        orderDate: context.watch<OrderProvider>().selectedDate,
       ),
       body: CustomScrollView(controller: _mainScrollController, slivers: [
         material.SliverPersistentHeader(
@@ -104,42 +110,31 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
                 ),
               ),
               width: double.infinity,
-              child: Row(
-                children: List.generate(
-                  DateHelper.getDaysInWeek(widget.selectedDate).length,
-                  (index) {
-                    DateTime dateItem = DateHelper.getDaysInWeek(widget.selectedDate)[index];
-                    print('test: ' + index.toString());
-                    print(dateItem);
-                    bool isToday = widget.selectedDate.year == dateItem.year && widget.selectedDate.month == dateItem.month && widget.selectedDate.day == dateItem.day;
-
-                    return Expanded(
-                      child: DateItemWidget(
-                        selectedDate: widget.selectedDate,
-                        dateItem: dateItem,
-                        isToday: isToday,
-                      ),
-                    );
-                  },
-                ),
+              child: DateListWidget(
+                lstWeedDays: lstWeedDays,
               ),
             ),
           ),
         ),
         FutureBuilder(
-          future: context.read<OrderProvider>().getOrdersByDate(widget.selectedDate),
+          future: context
+              .read<OrderProvider>()
+              .getOrdersByDate(context.watch<OrderProvider>().selectedDate),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
                 List<Map<String, dynamic>> lstHourMap = [];
 
                 List<OrderModel> orderList = snapshot.data as List<OrderModel>;
-                List<int> lstHourDistinct = orderList.map((e) => e.time.hour).toSet().toList();
+                List<int> lstHourDistinct =
+                    orderList.map((e) => e.time.hour).toSet().toList();
                 print('order list length');
                 print(orderList.length);
 
                 for (var hour in lstHourDistinct) {
-                  List<OrderModel> orderListOfTheHour = orderList.where((element) => element.time.hour == hour).toList();
+                  List<OrderModel> orderListOfTheHour = orderList
+                      .where((element) => element.time.hour == hour)
+                      .toList();
 
                   Map<String, dynamic> map = {
                     'hour': hour,
@@ -165,32 +160,35 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
                       return Container(
                         padding: EdgeInsets.all(8),
                         child: Expander(
-                          header: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${DateHelper.get24HourTime(material.TimeOfDay(hour: data['hour'], minute: 0))}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                          header: Container(
+                            height: 60,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${DateHelper.get24HourTime(material.TimeOfDay(hour: data['hour'], minute: 0))}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
                                 ),
-                              ),
-                              RichText(
-                                  text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${data['order'].length}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                RichText(
+                                    text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '${data['order'].length}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: ' orders',
-                                  ),
-                                ],
-                              ))
-                            ],
+                                    TextSpan(
+                                      text: ' orders',
+                                    ),
+                                  ],
+                                ))
+                              ],
+                            ),
                           ),
                           content: Column(
                             children: List.generate(
@@ -265,7 +263,8 @@ class HorizontalSliverList extends StatelessWidget {
     );
   }
 
-  Widget addDivider() => divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
+  Widget addDivider() =>
+      divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
 }
 
 class HeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -278,7 +277,8 @@ class HeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(child: child);
   }
 
@@ -291,5 +291,39 @@ class HeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
     return false;
+  }
+}
+
+class DateListWidget extends StatelessWidget {
+  final List<DateTime> lstWeedDays;
+
+  DateListWidget({
+    super.key,
+    required this.lstWeedDays,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(
+        7,
+        (index) {
+          DateTime dateItem = lstWeedDays[index];
+          print('test: ' + index.toString());
+          print(dateItem);
+
+          print(dateItem.day);
+
+          return Expanded(
+            child: DateItemWidget(
+              selectedDate: context.watch<OrderProvider>().selectedDate,
+              dateItem: dateItem,
+              isToday: dateItem.day ==
+                  context.watch<OrderProvider>().selectedDate.day,
+            ),
+          );
+        },
+      ),
+    );
   }
 }
