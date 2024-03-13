@@ -121,6 +121,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return FluentApp.router(
+      // hide keyboard when tap outside
       debugShowCheckedModeBanner: false,
       /* routerDelegate: RouterHelper().getRouter(context).routerDelegate,
       routeInformationParser:
@@ -131,6 +132,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: FluentThemeData.light(),
       darkTheme: FluentThemeData.dark(),
+      themeMode: ThemeMode.light,
     );
   }
 }

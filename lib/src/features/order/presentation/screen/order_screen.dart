@@ -17,8 +17,7 @@ class OrderScreen extends StatefulWidget {
 }
 
 // keep alive mixin
-class _OrderScreenState extends State<OrderScreen>
-    with AutomaticKeepAliveClientMixin {
+class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClientMixin {
   ScrollController _mainScrollController = ScrollController();
   ScrollController _testController = ScrollController();
   List<DateTime> lstWeedDays = [];
@@ -27,8 +26,7 @@ class _OrderScreenState extends State<OrderScreen>
   void initState() {
     super.initState();
     setState(() {
-      lstWeedDays =
-          DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate);
+      lstWeedDays = DateHelper.getDaysInWeek(context.read<OrderProvider>().selectedDate);
     });
   }
 
@@ -45,16 +43,17 @@ class _OrderScreenState extends State<OrderScreen>
 
   @override
   Widget build(BuildContext context) {
-    print('order screen');
     return material.Scaffold(
+      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: material.AppBar(
-        surfaceTintColor: FluentTheme.of(context).inactiveBackgroundColor,
-        backgroundColor: FluentTheme.of(context).inactiveBackgroundColor,
+        shadowColor: FluentTheme.of(context).shadowColor,
+        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(DateHelper.getMonthNameAndYear(
-                context.watch<OrderProvider>().selectedDate)),
+            Text(DateHelper.getMonthNameAndYear(context.watch<OrderProvider>().selectedDate)),
           ],
         ),
         actions: [
@@ -91,8 +90,39 @@ class _OrderScreenState extends State<OrderScreen>
           floating: true,
           delegate: HeaderDelegate(
             child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
+              child: Stack(
+                children: [
+                  /*Container(
+                    height: 70,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: FluentTheme.of(context).shadowColor,
+                          offset: Offset(0, 1),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                        ),
+                      ],
+                    ),
+                  ),*/
+                  material.Card(
+                    shadowColor: FluentTheme.of(context).shadowColor,
+                    margin: EdgeInsets.all(0),
+                    shape: material.RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    elevation: 2,
+                    child: Container(
+                      color: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+                      height: 70,
+                      width: double.infinity,
+                    ),
+                  ),
+                  Container(
+                    height: 80,
+                    /*gradient: LinearGradient(
                   stops: [
                     0.0,
                     0.9,
@@ -100,41 +130,39 @@ class _OrderScreenState extends State<OrderScreen>
                     1.0,
                   ],
                   colors: [
-                    FluentTheme.of(context).inactiveBackgroundColor,
-                    FluentTheme.of(context).inactiveBackgroundColor,
+                    FluentTheme.of(context).navigationPaneTheme.backgroundColor!,
+                    FluentTheme.of(context).navigationPaneTheme.backgroundColor!,
                     Colors.transparent,
                     Colors.transparent,
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                ),
-              ),
-              width: double.infinity,
-              child: DateListWidget(
-                lstWeedDays: lstWeedDays,
+                ),*/
+
+                    width: double.infinity,
+                    child: DateListWidget(
+                      lstWeedDays: lstWeedDays,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
         FutureBuilder(
-          future: context
-              .read<OrderProvider>()
-              .getOrdersByDate(context.watch<OrderProvider>().selectedDate),
+          future: context.read<OrderProvider>().getOrdersByDate(context.watch<OrderProvider>().selectedDate),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
                 List<Map<String, dynamic>> lstHourMap = [];
 
                 List<OrderModel> orderList = snapshot.data as List<OrderModel>;
-                List<int> lstHourDistinct =
-                    orderList.map((e) => e.time.hour).toSet().toList();
+                List<int> lstHourDistinct = orderList.map((e) => e.time.hour).toSet().toList();
                 print('order list length');
                 print(orderList.length);
 
                 for (var hour in lstHourDistinct) {
-                  List<OrderModel> orderListOfTheHour = orderList
-                      .where((element) => element.time.hour == hour)
-                      .toList();
+                  List<OrderModel> orderListOfTheHour = orderList.where((element) => element.time.hour == hour).toList();
 
                   Map<String, dynamic> map = {
                     'hour': hour,
@@ -146,7 +174,7 @@ class _OrderScreenState extends State<OrderScreen>
                 if (lstHourMap.isEmpty) {
                   return SliverToBoxAdapter(
                     child: Container(
-                      height: double.infinity,
+                      height: MediaQuery.of(context).size.height - 200,
                       alignment: Alignment.center,
                       child: Text("No order found for this date"),
                     ),
@@ -263,8 +291,7 @@ class HorizontalSliverList extends StatelessWidget {
     );
   }
 
-  Widget addDivider() =>
-      divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
+  Widget addDivider() => divider ?? Padding(padding: const EdgeInsets.symmetric(horizontal: 8));
 }
 
 class HeaderDelegate extends SliverPersistentHeaderDelegate {
@@ -277,8 +304,7 @@ class HeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(child: child);
   }
 
@@ -318,8 +344,7 @@ class DateListWidget extends StatelessWidget {
             child: DateItemWidget(
               selectedDate: context.watch<OrderProvider>().selectedDate,
               dateItem: dateItem,
-              isToday: dateItem.day ==
-                  context.watch<OrderProvider>().selectedDate.day,
+              isToday: dateItem.day == context.watch<OrderProvider>().selectedDate.day,
             ),
           );
         },
