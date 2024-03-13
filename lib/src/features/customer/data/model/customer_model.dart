@@ -44,5 +44,6 @@ class CustomerModel {
         'f_name': fName,
         'l_name': lName,
         'phone_number': phoneNumber,
+        'country_code': countryCode,
       };
 }

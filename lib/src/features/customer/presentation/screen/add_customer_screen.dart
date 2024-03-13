@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 
@@ -24,107 +25,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
   final TextEditingController _phoneNumberController = TextEditingController();
 
-  final TextEditingController _countryCodeController = TextEditingController();
+  final TextEditingController _countryCodeController = TextEditingController(text: '353');
 
-/*  FormBuilderTextField buildTextField(
-      String name,
-      String label,
-      String hintText,
-      String? Function(String?)? validator,
-      bool isInt,
-      bool isPhone) {
-    return FormBuilderTextField(
-      keyboardType: isInt
-          ? TextInputType.number
-          : isPhone
-              ? TextInputType.phone
-              : TextInputType.text,
-      inputFormatters: isInt
-          ? [FilteringTextInputFormatter.digitsOnly]
-          : isPhone
-      // only numbers and 10 digits
-              ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),LengthLimitingTextInputFormatter(10)]
-              : [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]'))],
-      style: TextStyle(
-        fontSize: 20,
-      ),
-      name: name,
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        hintText: hintText,
-        hintStyle: TextStyle(
-          color: Colors.grey[700],
-          fontSize: 20,
-        ),
-        constraints: BoxConstraints(
-          maxWidth: 500,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        label: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 5,
-          ),
-          child: RichText(
-            text: TextSpan(
-              text: label,
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-              ),
-              children: [
-                TextSpan(
-                  text: '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: Colors.grey[300]!,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            width: 2,
-            color: Colors.blueAccent,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: Colors.redAccent,
-          ),
-        ),
-      ),
-      validator: validator,
-    );
-  }*/
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
@@ -272,6 +174,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
 
           Container(
         child: Form(
+          key: _formKey,
           child: Column(
             children: [
               InfoLabel(
@@ -306,25 +209,18 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     color: Colors.transparent,
                     elevation: 0,
                     child: IntlPhoneField(
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Please enter phone number';
-                        } else if (value.isValidNumber() == false) {
-                          return 'Please enter valid phone number';
-                        }
-                        return null;
-                      },
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+
+                        FormBuilderValidators.minLength(9),
+                        FormBuilderValidators.maxLength(9),
+                        // check if is text
+                      ]),
                       flagsButtonPadding: EdgeInsets.all(10),
                       decoration: material.InputDecoration(
                         filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.all(10),
-                        constraints: BoxConstraints(
-                            maxWidth: 500, maxHeight: 100, minHeight: 100),
-                        labelText: 'Phone Number',
-                        border: material.OutlineInputBorder(),
-                        enabledBorder: material.OutlineInputBorder(),
-                        focusedBorder: material.OutlineInputBorder(),
+                        fillColor: FluentTheme.of(context).inactiveBackgroundColor,
+                        hintText: 'Phone Number',
                       ),
                       initialCountryCode: 'IE',
                       controller: _phoneNumberController,
@@ -336,6 +232,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           _countryCodeController.text = phone.dialCode;
                         });
                       },
+                      pickerDialogStyle: PickerDialogStyle(
+                        backgroundColor: FluentTheme.of(context).inactiveBackgroundColor,
+                      ),
                     ),
                   ),
                 ),
@@ -352,41 +251,11 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     print('countryCode: $countryCode');
                     print('phoneNumber: $phoneNumber');
 
-                    /*await context
-                        .read<CustomerProvider>()
-                        .addCustomer(
-                            firstName, lastName, phoneNumber, countryCode)
-                        .then((value) {
+                    await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, countryCode, context).then((value) {
                       if (value) {
-                        displayInfoBar(alignment: Alignment.topRight, context,
-                            builder: (context, close) {
-                          return InfoBar(
-                            title: const Text('Success!'),
-                            content: const Text('Customer added successfully'),
-                            severity: InfoBarSeverity.success,
-                            action: IconButton(
-                              icon: const Icon(FluentIcons.clear),
-                              onPressed: close,
-                            ),
-                          );
-                        });
-                      } else {
-                        displayInfoBar(alignment: Alignment.topRight, context,
-                            builder: (context, close) {
-                          return InfoBar(
-                            title: const Text('Error!'),
-                            content: const Text('Please add item first'),
-                            severity: InfoBarSeverity.error,
-                            action: IconButton(
-                              icon: const Icon(FluentIcons.clear),
-                              onPressed: close,
-                            ),
-                          );
-                        });
+                        _formKey.currentState?.reset();
                       }
                     });
-                    
-                     */
                   }
                 },
                 child: context.watch<CustomerProvider>().isLoading

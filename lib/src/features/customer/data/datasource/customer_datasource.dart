@@ -76,20 +76,24 @@ class CustomerDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, CustomerModel>> updateCustomer(CustomerModel customer) async {
+  Future<Either<DatabaseFailure, bool>> updateCustomer(CustomerModel customer) async {
     try {
-      List<Map<String, dynamic>> response = await _client.from('customers').update(customer.toJson()).eq('id', customer.id!).select();
-      if (response.isNotEmpty) {
-        CustomerModel customerModel = CustomerModel.fromJson(response[0]);
-        return Right(customerModel);
-      } else {
-        return Left(DatabaseFailure(errorMessage: 'Error updating customer'));
-      }
+      Map<String, dynamic> mapCustomer = customer.toJson();
+      mapCustomer.remove('created_at');
+      mapCustomer.remove('updated_at');
+      mapCustomer.remove('id');
+      print('mapCustomer');
+      print(mapCustomer);
+
+      await _client.from('customers').update(mapCustomer).eq('id', customer.id!).select().single();
+
+      return Right(true);
     } on PostgrestException catch (error) {
       print('postgrest error');
       print(error);
-      return Left(DatabaseFailure(errorMessage: 'Error updating customer'));
+      return Left(DatabaseFailure(errorMessage: error.message));
     } catch (e) {
+      print(e);
       return Left(DatabaseFailure(errorMessage: 'Error updating customer'));
     }
   }

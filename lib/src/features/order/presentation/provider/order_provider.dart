@@ -155,7 +155,6 @@ class OrderProvider with ChangeNotifier {
 
   Future<List<OrderModel>> getOrdersByCustomerId(int customerId) async {
     List<OrderModel> orderList = [];
-    setLoading(true);
     final result = await orderGetOrdersByCustomerIdUseCase.call(customerId);
 
     await result.fold((l) async {
@@ -170,8 +169,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<OrderModel?> getOrderDetail(int orderId, DateTime date) async {
     OrderModel? orderModel;
-    final result = await orderGetOrdersByIdUseCase
-        .call(GetOrderByIdParam(orderId: orderId, date: date));
+    final result = await orderGetOrdersByIdUseCase.call(GetOrderByIdParam(orderId: orderId, date: date));
 
     await result.fold((l) async {
       print(l.errorMessage);
@@ -185,8 +183,7 @@ class OrderProvider with ChangeNotifier {
     return orderModel;
   }
 
-  Future<GetOrderByIdParam?> updateOrder(
-      UpdateOrderParam updateOrderParam) async {
+  Future<GetOrderByIdParam?> updateOrder(UpdateOrderParam updateOrderParam) async {
     GetOrderByIdParam? res;
     final result = await orderUpdateOrderUseCase.call(updateOrderParam);
 

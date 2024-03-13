@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_add_customer_usecase.dart';
 import 'package:take_order_app/src/features/customer/business/usecase/customer_update_customer_usecase.dart';
 
@@ -63,6 +63,13 @@ class CustomerProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isEditingCustomer = false;
+  bool get isEditingCustomer => _isEditingCustomer;
+  void setIsEditingCustomer(bool value) {
+    _isEditingCustomer = value;
+    notifyListeners();
+  }
+
   Future<CustomerModel?> getCustomerById(int id) async {
     CustomerModel? customerModel;
     final result = await customerGetCustomersByIdUseCase.call(id);
@@ -93,8 +100,7 @@ class CustomerProvider with ChangeNotifier {
 
   }*/
 
-  Future<bool> addCustomer(String fName, String lName, String phoneNumber,
-      String countryCode) async {
+  Future<bool> addCustomer(String fName, String lName, String phoneNumber, String countryCode, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
       id: null,
@@ -107,86 +113,94 @@ class CustomerProvider with ChangeNotifier {
 
     await result.fold((l) async {
       print(l.errorMessage);
-      /*ScaffoldMessenger.of(context).showMaterialBanner(
-        MaterialBanner(
-          onVisible: () {
-            Future.delayed(const Duration(seconds: 2), () {
-              // dismiss banner
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-            });
-          },
-          content: Text(
-            l.errorMessage,
-            style: const TextStyle(color: Colors.white),
+      displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+        return InfoBar(
+          title: const Text('Error!'),
+          content: Container(
+            width: 200.0,
+            child: Text(l.errorMessage),
           ),
-          backgroundColor: Colors.red,
-          actions: [
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-              },
-              child: const Text(
-                'OK',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      );*/
+          severity: InfoBarSeverity.error,
+          isLong: false,
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+        );
+      });
     }, (CustomerModel r) async {
       print(r.toJson());
+      displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+        return InfoBar(
+          title: const Text('Success!'),
+          content: Container(
+            width: 150.0,
+            child: const Text('Customer added successfully'),
+          ),
+          severity: InfoBarSeverity.success,
+          isLong: false,
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+        );
+      });
       isSuccess = true;
     });
 
     return isSuccess;
   }
 
-  Future<CustomerModel?> updateCustomer(String fName, String lName,
-      String phoneNumber, BuildContext context) async {
+  Future<bool> updateCustomer(int customerId, String fName, String lName, String phoneNumber, String countryCode, BuildContext context) async {
     CustomerModel customerModelParam = CustomerModel(
       phoneNumber: phoneNumber,
-      id: _customerModel?.id,
+      id: customerId,
       fName: fName,
       lName: lName,
-      countryCode: '+62',
+      countryCode: countryCode,
     );
-    CustomerModel? customerModelResponse;
+    bool isSuccess = false;
     final result = await customerUpdateCustomerUseCase.call(customerModelParam);
 
     await result.fold((l) async {
+      print('failed');
       print(l.errorMessage);
-      ScaffoldMessenger.of(context).showMaterialBanner(
-        MaterialBanner(
-          onVisible: () {
-            Future.delayed(const Duration(seconds: 2), () {
-              // dismiss banner
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-            });
-          },
-          content: Text(
-            l.errorMessage,
-            style: const TextStyle(color: Colors.white),
+      displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+        return InfoBar(
+          title: const Text('Error!'),
+          content: Container(
+            width: 200.0,
+            child: Text(l.errorMessage),
           ),
-          backgroundColor: Colors.red,
-          actions: [
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-              },
-              child: const Text(
-                'OK',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      );
-    }, (CustomerModel r) async {
-      print(r.toJson());
-      customerModelResponse = r;
+          severity: InfoBarSeverity.error,
+          isLong: false,
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+        );
+      });
+    }, (bool r) async {
+      print('success');
+      displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+        return InfoBar(
+          title: const Text('Success!'),
+          content: Container(
+            width: 150.0,
+            child: const Text('Customer updated successfully'),
+          ),
+          severity: InfoBarSeverity.success,
+          isLong: false,
+          action: IconButton(
+            icon: const Icon(FluentIcons.clear),
+            onPressed: close,
+          ),
+        );
+      });
+      isSuccess = true;
     });
 
-    return customerModelResponse;
+    return isSuccess;
   }
 
   Future<List<CustomerModel>?> getCustomers() async {
