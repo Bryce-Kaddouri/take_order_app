@@ -3,15 +3,13 @@ import 'package:fluent_ui/fluent_ui.dart';
 class CustomStepperWidget extends StatefulWidget {
   int currentStep = 0;
   AnimationController controller;
-  CustomStepperWidget(
-      {super.key, required this.currentStep, required this.controller});
+  CustomStepperWidget({super.key, required this.currentStep, required this.controller});
 
   @override
   State<CustomStepperWidget> createState() => _CustomStepperWidgetState();
 }
 
-class _CustomStepperWidgetState extends State<CustomStepperWidget>
-    with SingleTickerProviderStateMixin {
+class _CustomStepperWidgetState extends State<CustomStepperWidget> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
@@ -26,8 +24,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
             padding: EdgeInsets.all(10),
             height: 60,
             width: double.infinity,
-            child: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
+            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
               double width = constraints.maxWidth;
               double itemWidth = (width - (40 * 6)) / 5;
               return Row(
@@ -41,25 +38,11 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
-                        stops: [
-                          0.0,
-                          widget.controller.value < 1
-                              ? widget.controller.value
-                              : 1,
-                          widget.controller.value < 1
-                              ? widget.controller.value
-                              : 1,
-                          1
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
+                        stops: [0.0, widget.controller.value < 1 ? widget.controller.value : 1, widget.controller.value < 1 ? widget.controller.value : 1, 1],
                       ),
                     ),
-                    child: Text('1'),
+                    child: Text('1', style: TextStyle(color: Colors.white)),
                   ),
                   Container(
                     padding: EdgeInsets.all(0),
@@ -69,12 +52,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.green,
-                            Colors.green,
-                            Colors.grey,
-                            Colors.grey
-                          ],
+                          colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                           stops: [
                             0.0,
                             widget.controller.value > 1
@@ -103,12 +81,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                         stops: [
                           0.0,
                           widget.controller.value > 2
@@ -125,7 +98,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                         ],
                       ),
                     ),
-                    child: Text('2'),
+                    child: Text('2', style: TextStyle(color: Colors.white)),
                   ),
                   Container(
                     padding: EdgeInsets.all(0),
@@ -135,12 +108,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.green,
-                            Colors.green,
-                            Colors.grey,
-                            Colors.grey
-                          ],
+                          colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                           stops: [
                             0.0,
                             widget.controller.value > 3
@@ -169,12 +137,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                         stops: [
                           0.0,
                           widget.controller.value > 4
@@ -191,7 +154,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                         ],
                       ),
                     ),
-                    child: Text('3'),
+                    child: Text('3', style: TextStyle(color: Colors.white)),
                   ),
                   Container(
                     padding: EdgeInsets.all(0),
@@ -201,12 +164,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.green,
-                            Colors.green,
-                            Colors.grey,
-                            Colors.grey
-                          ],
+                          colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                           stops: [
                             0.0,
                             widget.controller.value > 5
@@ -235,12 +193,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                         stops: [
                           0.0,
                           widget.controller.value > 6
@@ -257,7 +210,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                         ],
                       ),
                     ),
-                    child: Text('4'),
+                    child: Text('4', style: TextStyle(color: Colors.white)),
                   ),
                   Container(
                     padding: EdgeInsets.all(0),
@@ -267,12 +220,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.green,
-                            Colors.green,
-                            Colors.grey,
-                            Colors.grey
-                          ],
+                          colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                           stops: [
                             0.0,
                             widget.controller.value > 7
@@ -301,12 +249,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                         stops: [
                           0.0,
                           widget.controller.value > 8
@@ -323,7 +266,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                         ],
                       ),
                     ),
-                    child: Text('5'),
+                    child: Text('5', style: TextStyle(color: Colors.white)),
                   ),
                   Container(
                     padding: EdgeInsets.all(0),
@@ -333,12 +276,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.green,
-                            Colors.green,
-                            Colors.grey,
-                            Colors.grey
-                          ],
+                          colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                           stops: [
                             0.0,
                             widget.controller.value > 9
@@ -366,12 +304,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.green,
-                          Colors.grey,
-                          Colors.grey
-                        ],
+                        colors: [Colors.green, Colors.green, Colors.grey, Colors.grey],
                         stops: [
                           0.0,
                           widget.controller.value > 10
@@ -388,7 +321,7 @@ class _CustomStepperWidgetState extends State<CustomStepperWidget>
                         ],
                       ),
                     ),
-                    child: Icon(FluentIcons.check_mark),
+                    child: Icon(FluentIcons.check_mark, color: Colors.white),
                   ),
                 ],
               );
