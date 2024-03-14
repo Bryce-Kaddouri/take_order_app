@@ -2,9 +2,12 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
 
+import '../../../auth/presentation/provider/auth_provider.dart';
 import '../../../cart/data/model/cart_model.dart';
 import '../../../customer/data/model/customer_model.dart';
+import '../../../order_detail/business/param.dart';
 import '../../../product/data/model/product_model.dart';
+import '../../data/model/order_model.dart';
 import '../../data/model/place_order_model.dart';
 import '../provider/order_provider.dart';
 
@@ -21,8 +24,12 @@ class AddOrderBottomBar extends StatefulWidget {
   final DateTime selectedDate;
   final int selectedCustomerId;
   final List<CustomerModel> lstCustomers;
+  final bool isUpdate;
+  final OrderModel? orderModel;
+  final int? orderId;
+  final DateTime? orderDate;
 
-  const AddOrderBottomBar({super.key, required this.currentStep, required this.pageController, required this.animationControllerProgressBar, required this.formKeyCustomer, required this.lstProducts, required this.formKeyPayment, required this.paymentAmount, required this.noteController, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers, required this.animationController});
+  const AddOrderBottomBar({super.key, required this.currentStep, required this.pageController, required this.animationControllerProgressBar, required this.formKeyCustomer, required this.lstProducts, required this.formKeyPayment, required this.paymentAmount, required this.noteController, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers, required this.animationController, this.isUpdate = false, this.orderModel, this.orderId, this.orderDate});
 
   @override
   State<AddOrderBottomBar> createState() => _AddOrderBottomBarState();
@@ -176,54 +183,55 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
               ),
             ),
           Button(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                height: 30,
-                child: Row(
-                  children: [
-                    Icon(FluentIcons.forward),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(widget.currentStep == 4 ? 'Place Order' : 'Next')
-                  ],
-                ),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              height: 30,
+              child: Row(
+                children: [
+                  Icon(FluentIcons.forward),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(widget.currentStep == 4 ? 'Place Order' : 'Next')
+                ],
               ),
-              onPressed: () {
-                if (widget.currentStep == 0) {
-                  if (widget.formKeyCustomer.currentState!.validate()) {
-                    /* setState(() {
+            ),
+            onPressed: () async {
+              if (widget.currentStep == 0) {
+                if (widget.formKeyCustomer.currentState!.validate()) {
+                  /* setState(() {
                         currentStep += 1;
                       });*/
-                    widget.pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-                    widget.animationControllerProgressBar.animateTo(3.5);
-                  }
-                } else if (widget.currentStep == 1) {
-                  widget.pageController.animateToPage(2, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-                  widget.animationControllerProgressBar.animateTo(5.5);
-                } else if (widget.currentStep == 2) {
-                  if (context.read<OrderProvider>().cartList.isNotEmpty) {
-                    widget.pageController.animateToPage(3, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-                    widget.animationControllerProgressBar.animateTo(7.5);
-                  } else {
-                    displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
-                      return InfoBar(
-                        title: const Text('Error!'),
-                        content: const Text('Please add item first'),
-                        severity: InfoBarSeverity.error,
-                        action: IconButton(
-                          icon: const Icon(FluentIcons.clear),
-                          onPressed: close,
-                        ),
-                      );
-                    });
-                  }
-                } else if (widget.currentStep == 3) {
-                  if (widget.formKeyPayment.currentState!.validate()) {
-                    widget.pageController.animateToPage(4, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-                    widget.animationControllerProgressBar.animateTo(9.5);
-                  }
-                } else if (widget.currentStep == 4) {
+                  widget.pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.animationControllerProgressBar.animateTo(3.5);
+                }
+              } else if (widget.currentStep == 1) {
+                widget.pageController.animateToPage(2, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                widget.animationControllerProgressBar.animateTo(5.5);
+              } else if (widget.currentStep == 2) {
+                if (context.read<OrderProvider>().cartList.isNotEmpty) {
+                  widget.pageController.animateToPage(3, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.animationControllerProgressBar.animateTo(7.5);
+                } else {
+                  displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+                    return InfoBar(
+                      title: const Text('Error!'),
+                      content: const Text('Please add item first'),
+                      severity: InfoBarSeverity.error,
+                      action: IconButton(
+                        icon: const Icon(FluentIcons.clear),
+                        onPressed: close,
+                      ),
+                    );
+                  });
+                }
+              } else if (widget.currentStep == 3) {
+                if (widget.formKeyPayment.currentState!.validate()) {
+                  widget.pageController.animateToPage(4, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.animationControllerProgressBar.animateTo(9.5);
+                }
+              } else if (widget.currentStep == 4) {
+                if (widget.isUpdate == false) {
                   List<CartModel> cartList = context.read<OrderProvider>().cartList;
                   CustomerModel customer = widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId);
                   double paymentAmount = widget.paymentAmount;
@@ -257,8 +265,89 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                       });
                     }
                   });
+                } else {
+                  OrderModel? orderModelAsync = await context.read<OrderProvider>().getOrderDetail(widget.orderId!, widget.orderDate!);
+                  if (widget.orderModel != null) {
+                    print('oldCartList.length');
+                    print(orderModelAsync!.cart.length);
+                    print('context.read<OrderProvider>().cartList.length');
+                    print(context.read<OrderProvider>().cartList.length);
+
+                    // new data
+                    List<CartModel> allCartList = context.read<OrderProvider>().cartList;
+
+                    List<CartModel> oldCartList = orderModelAsync.cart;
+
+                    List<CartModel> addedCartList = allCartList.where((element) => !oldCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+
+                    List<CartModel> removedCartList = oldCartList.where((element) => !allCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+
+                    List<CartModel> updatedCartList = allCartList.where((element) => oldCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+
+                    // remove where old qty = new qty
+                    updatedCartList.removeWhere((element) => oldCartList.firstWhere((e) => e.product.id == element.product.id).quantity == element.quantity);
+                    print('addedCartList');
+                    print(addedCartList);
+
+                    print('-' * 50);
+                    print('removedCartList : ${removedCartList.length}');
+                    print('addedCartList : ${addedCartList.length}');
+                    print('updatedCartList : ${updatedCartList.length}');
+                    print('-' * 50);
+                    ActionMap actionMap = ActionMap(
+                      addedCart: addedCartList,
+                      removedCart: removedCartList,
+                      updatedCart: updatedCartList,
+                    );
+
+                    String newUserId = context.read<AuthProvider>().getUser()!.id;
+
+                    int newCustomerId = widget.selectedCustomerId;
+                    DateTime newDate = widget.selectedDate;
+                    double newPaidAmount = widget.paymentAmount;
+                    String newNote = widget.noteController.text;
+
+                    UpdateOrderParam updateOrderParam = UpdateOrderParam(
+                      orderId: orderModelAsync.id!,
+                      orderDate: orderModelAsync.date,
+                      userId: orderModelAsync.user.uid != newUserId ? newUserId : null,
+                      customerId: orderModelAsync.customer.id != newCustomerId ? newCustomerId : null,
+                      date: orderModelAsync.date.copyWith(hour: 0, minute: 0) != newDate.copyWith(hour: 0, minute: 0) ? newDate.copyWith(hour: 0, minute: 0) : null,
+                      time: orderModelAsync.time.hour != newDate.hour || orderModelAsync.time.minute != newDate.minute ? material.TimeOfDay(hour: newDate.hour, minute: newDate.minute) : null,
+                      actionMap: actionMap,
+                      paidAmount: orderModelAsync.paidAmount != newPaidAmount ? newPaidAmount : null,
+                      note: orderModelAsync.orderNote != newNote ? newNote : null,
+                    );
+
+                    context.read<OrderProvider>().updateOrder(updateOrderParam).then((value) {
+                      if (value != null) {
+                        widget.animationControllerProgressBar.animateTo(11);
+                        widget.pageController.animateToPage(5, duration: Duration(milliseconds: 300), curve: Curves.easeIn).whenComplete(() {
+                          widget.animationController.forward();
+                          /*setState(() {
+    widget.orderDate = value.date;
+    widget.orderId = value.orderId!;
+    });*/
+                        });
+                      } else {
+                        displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+                          return InfoBar(
+                            title: const Text('Error!'),
+                            content: const Text('Error updating order'),
+                            severity: InfoBarSeverity.error,
+                            action: IconButton(
+                              icon: const Icon(FluentIcons.clear),
+                              onPressed: close,
+                            ),
+                          );
+                        });
+                      }
+                    });
+                  }
                 }
-              }),
+              }
+            },
+          )
         ],
       ),
     );
