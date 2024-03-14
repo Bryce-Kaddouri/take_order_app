@@ -30,153 +30,92 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
+      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: material.AppBar(
+        centerTitle: true,
+        shadowColor: FluentTheme.of(context).shadowColor,
+        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        elevation: 4,
         leading: material.BackButton(
-          onPressed: () {
-            context.go('/orders');
+          onPressed: () async {
+            bool? isConfirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => ContentDialog(
+                constraints: BoxConstraints(maxWidth: 350, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                title: Row(children: [
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: const Text('Confirmation'),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                    icon: const Icon(FluentIcons.clear),
+                  ),
+                ]),
+                content: Container(
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Icon(
+                        FluentIcons.warning,
+                        size: 80,
+                        color: Colors.red,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      const Text('Are you sure you want to cancel?'),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  Button(
+                    child: const Text('No'),
+                    onPressed: () {
+                      Navigator.pop(context, false);
+                    },
+                  ),
+                  FilledButton(
+                    child: const Text('Yes'),
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                    },
+                  ),
+                ],
+              ),
+            );
+
+            if (isConfirmed != null && isConfirmed) {
+              context.go('/orders');
+            }
           },
         ),
         title: const Text('Add Customer'),
       ),
-      body: /*SingleChildScrollView(
-        child: FormBuilder(
-          key: _formKey,
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: double.infinity,
-            child:Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Container(child:Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:[
-              // text field for first name
-              buildTextField(
-                'first_name',
-                'First Name',
-                'Enter your first name',
-                FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  // check if is text
-                ]),
-                false,
-                false,
-              ),
-              SizedBox(height: 50,),
-              buildTextField(
-                'last_name',
-                'Last Name',
-                'Enter your last name',
-                FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-
-                  // check if is text
-                ]),
-                false,
-                false,
-              ),
-              SizedBox(height: 50,),
-              buildTextField(
-                'phone_number',
-                'Phone Number',
-                '0858845144',
-                FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.numeric(),
-                  FormBuilderValidators.minLength(10),
-                  FormBuilderValidators.maxLength(10),
-                  // check if is text
-                ]),
-                false,
-                true,
-              ),
-            ],),),
-              Container(
-                constraints: BoxConstraints(
-                  maxWidth: 500,
-                ),
-                child:
-              MaterialButton(
-                  color: Theme.of(context).colorScheme.secondary,
-
-                  onPressed: () async{
-
-                if (_formKey.currentState!.saveAndValidate()) {
-                  debugPrint(_formKey.currentState?.value.toString());
-                  String firstName = _formKey.currentState?.value['first_name'];
-                  String lastName = _formKey.currentState?.value['last_name'];
-                  String phoneNumber = _formKey.currentState?.value['phone_number'];
-
-                  await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, context).then((value) {
-                    if(value != null){
-                      Animation<double> animation = Tween<double>(begin: 1, end: 0).animate(
-                        CurvedAnimation(
-                          parent: ModalRoute.of(context)!.animation!,
-                          curve: Curves.easeIn,
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showMaterialBanner(
-                        MaterialBanner(
-                          animation: animation,
-                          content: Text(
-                            'Customer added successfully',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          onVisible: () {
-                            Future.delayed(const Duration(seconds: 2), () {
-                              // dismiss banner
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentMaterialBanner();
-                              context.go('/customers');
-                            });
-                          },
-                          backgroundColor: Colors.green,
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .hideCurrentMaterialBanner();
-                              },
-                              child: const Text(
-                                'OK',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-*/ /*
-                      context.go('/customers');
-*/ /*
-                    }
-                  });
-
-                }
-              },   minWidth: double.infinity,
-
-                height: 50,
-                child: context.watch<CustomerProvider>().isLoading
-                    ? const CircularProgressIndicator(
-                  color: Colors.white,
-                )
-                    : const Text(
-                  'Sign In',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              ),
-            ],
-          ),
-          ),
-        ),
-      ),*/
-
-          Container(
+      body: Container(
+        padding: EdgeInsets.all(20),
+        height: double.infinity,
+        width: double.infinity,
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+              SizedBox(
+                height: 50,
+              ),
               InfoLabel(
                 label: 'First Name',
                 child: TextFormBox(
@@ -188,6 +127,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   ]),
                 ),
               ),
+              SizedBox(
+                height: 30,
+              ),
               InfoLabel(
                 label: 'Last Name',
                 child: TextFormBox(
@@ -198,6 +140,9 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     // check if is text
                   ]),
                 ),
+              ),
+              SizedBox(
+                height: 30,
               ),
               InfoLabel(
                 label: 'Phone Number',
@@ -239,31 +184,38 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                   ),
                 ),
               ),
-              FilledButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    String firstName = _firstNameController.text;
-                    String lastName = _lastNameController.text;
-                    String countryCode = '+${_countryCodeController.text}';
-                    String phoneNumber = _phoneNumberController.text;
-                    print('firstName: $firstName');
-                    print('lastName: $lastName');
-                    print('countryCode: $countryCode');
-                    print('phoneNumber: $phoneNumber');
+              SizedBox(
+                height: 60,
+              ),
+              Container(
+                height: 50,
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      String firstName = _firstNameController.text;
+                      String lastName = _lastNameController.text;
+                      String countryCode = '+${_countryCodeController.text}';
+                      String phoneNumber = _phoneNumberController.text;
+                      print('firstName: $firstName');
+                      print('lastName: $lastName');
+                      print('countryCode: $countryCode');
+                      print('phoneNumber: $phoneNumber');
 
-                    await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, countryCode, context).then((value) {
-                      if (value) {
-                        _formKey.currentState?.reset();
-                      }
-                    });
-                  }
-                },
-                child: context.watch<CustomerProvider>().isLoading
-                    ? const ProgressRing()
-                    : const Text(
-                        'Sign In',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, countryCode, context).then((value) {
+                        if (value) {
+                          _formKey.currentState?.reset();
+                        }
+                      });
+                    }
+                  },
+                  child: context.watch<CustomerProvider>().isLoading
+                      ? const ProgressRing()
+                      : const Text(
+                          'Sign In',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                ),
               ),
             ],
           ),

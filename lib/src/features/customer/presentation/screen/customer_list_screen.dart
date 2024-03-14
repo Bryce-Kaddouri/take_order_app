@@ -12,16 +12,18 @@ class CustomerListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
+      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: material.AppBar(
-        elevation: 4,
-        shadowColor: Colors.black,
-        automaticallyImplyLeading: false,
         leading: material.BackButton(
-          onPressed: () {
+          onPressed: () async {
             context.go('/orders');
           },
         ),
         centerTitle: true,
+        shadowColor: FluentTheme.of(context).shadowColor,
+        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        elevation: 4,
         title: context.watch<CustomerProvider>().searchIsVisible
             ? Container(
                 height: 40,
@@ -49,26 +51,21 @@ class CustomerListScreen extends StatelessWidget {
               )
             : const Text('Customers'),
         actions: [
-          Container(
-            child: FilledButton(
-              style: ButtonStyle(
-                padding: ButtonState.all(EdgeInsets.all(0)),
-              ),
-              onPressed: () {
-                context.read<CustomerProvider>().setSearchIsVisible(
-                    !context.read<CustomerProvider>().searchIsVisible);
-              },
-              child: Container(
-                height: 40,
-                width: 40,
-                child: context.read<CustomerProvider>().searchIsVisible
-                    ? Icon(FluentIcons.clear)
-                    : Icon(FluentIcons.search),
-              ),
+          Button(
+            style: ButtonStyle(
+              padding: ButtonState.all(EdgeInsets.zero),
             ),
+            child: Container(
+              height: 40,
+              width: 40,
+              child: context.read<CustomerProvider>().searchIsVisible ? Icon(FluentIcons.clear) : Icon(FluentIcons.search),
+            ),
+            onPressed: () {
+              context.read<CustomerProvider>().setSearchIsVisible(!context.read<CustomerProvider>().searchIsVisible);
+            },
           ),
           SizedBox(
-            width: 8,
+            width: 10,
           ),
         ],
       ),
@@ -84,8 +81,7 @@ class CustomerListScreen extends StatelessWidget {
               List<CustomerModel>? customerList = snapshot.data;
               customerList = customerList?.where((element) {
                 String fullName = '${element.fName!} ${element.lName!}';
-                return fullName.toLowerCase().contains(
-                    context.watch<CustomerProvider>().searchText.toLowerCase());
+                return fullName.toLowerCase().contains(context.watch<CustomerProvider>().searchText.toLowerCase());
               }).toList();
               print('customerList');
               if (customerList?.isEmpty ?? true) {
@@ -243,8 +239,7 @@ class SearchBarDelegate extends SliverPersistentHeaderDelegate {
   SearchBarDelegate({required this.child});
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return child;
   }
 

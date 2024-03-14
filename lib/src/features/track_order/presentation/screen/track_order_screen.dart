@@ -75,46 +75,14 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
               if (DateTime.parse(payload.newRecord['date']) == widget.orderDate) {
                 setState(() {});
               }
-
-              /*initData();*/
-
-              /* if(payload.eventType == PostgresChangeEvent.insert) {
-            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
-              setState(() {});
-              ElegantNotification.info(title: Text('New Order'),
-                description: Text('Order #${payload.newRecord['id']} has been added'),
-                width: 360,
-                position: Alignment.topRight,
-                animation: AnimationType.fromRight,).show(context);
-            }
-          }else if(payload.eventType == PostgresChangeEvent.update) {
-            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
-              setState(() {});
-              ElegantNotification.info(title: Text('Order Updated'),
-                description: Text('Order #${payload.newRecord['id']} has been updated'),
-                width: 360,
-                position: Alignment.topRight,
-                animation: AnimationType.fromRight,).show(context);
-            }
-          }else if(payload.eventType == PostgresChangeEvent.delete) {
-            if (DateTime.parse(payload.newRecord['date']) == widget.selectedDate) {
-              setState(() {});
-              ElegantNotification.info(title: Text('Order Deleted'),
-                description: Text('Order #${payload.newRecord['id']} has been deleted'),
-                width: 360,
-                position: Alignment.topRight,
-                animation: AnimationType.fromRight,).show(context);
-            }
-          }*/
             })
         .subscribe();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-      padding: EdgeInsets.all(0),
-      header: Container(
+    return material.Scaffold(
+      /*  header: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -197,8 +165,65 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
             ),
           ],
         ),
+      ),*/
+      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+      appBar: material.AppBar(
+        leading: material.BackButton(
+          onPressed: () async {
+            context.go('/orders');
+          },
+        ),
+        centerTitle: true,
+        shadowColor: FluentTheme.of(context).shadowColor,
+        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        elevation: 4,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(FluentIcons.streaming, size: 24),
+            SizedBox(
+              width: 8,
+            ),
+            Text(
+              DateHelper.getFormattedDateWithoutTime(widget.orderDate, isShort: ResponsiveHelper.isMobile(context)),
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+        actions: [
+          Button(
+            style: ButtonStyle(
+              padding: ButtonState.all(EdgeInsets.zero),
+            ),
+            child: Container(
+              height: 40,
+              width: 40,
+              child: Icon(FluentIcons.event_date, size: 20),
+            ),
+            onPressed: () {
+              material
+                  .showDatePicker(
+                context: context,
+                currentDate: DateTime.now(),
+                initialDate: widget.orderDate,
+                firstDate: DateTime.now().subtract(Duration(days: 365)),
+                lastDate: DateTime.now().add(Duration(days: 365)),
+              )
+                  .then((value) {
+                if (value != null) {
+                  String orderDate = DateHelper.getFormattedDate(value);
+                  context.go('/track-order/$orderDate');
+                }
+              });
+            },
+          ),
+          SizedBox(
+            width: 10,
+          ),
+        ],
       ),
-      content: FutureBuilder(
+      body: FutureBuilder(
         future: context.read<OrderProvider>().getOrdersByDate(widget.orderDate),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

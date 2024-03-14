@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
@@ -28,9 +29,9 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldPage(
-        padding: EdgeInsets.all(0),
-        header: Container(
+    return material.Scaffold(
+
+        /*header: Container(
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
@@ -89,8 +90,34 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
               ),
             ],
           ),
+        ),*/
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        appBar: material.AppBar(
+          leading: material.BackButton(
+            onPressed: () async {
+              context.go('/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
+            },
+          ),
+          centerTitle: true,
+          shadowColor: FluentTheme.of(context).shadowColor,
+          surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+          backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+          elevation: 4,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(FluentIcons.streaming, size: 24),
+              SizedBox(
+                width: 8,
+              ),
+              Text(
+                '${DateHelper.getFormattedDate(widget.orderDate)} - #${widget.orderId}',
+                style: TextStyle(fontSize: 20),
+              ),
+            ],
+          ),
         ),
-        content: Container(
+        body: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.only(top: 10),
@@ -455,43 +482,18 @@ class ProductsItemListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int nbItems = order.cart.fold(0, (previousValue, element) => previousValue + element.quantity);
-    return Container(
-        margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20) : EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-        height: !ResponsiveHelper.isMobile(context) ? MediaQuery.of(context).size.height : null,
-        decoration: BoxDecoration(
-          color: FluentTheme.of(context).menuColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              alignment: Alignment.centerLeft,
-              height: 60,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-/*
-                    color: Theme.of(context).colorScheme.secondary,
-*/
-                    width: 1,
-                  ),
+    return ResponsiveHelper.isMobile(context)
+        ? Container(
+            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Expander(
+                initiallyExpanded: true,
+                header: Text(
+                  '${nbItems} items',
                 ),
-              ),
-              child: Text(
-                '${nbItems} items', /*style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 20)*/ /*AppTextStyle.boldTextStyle(fontSize: 20)*/
-              ),
-            ),
-            if (!ResponsiveHelper.isMobile(context))
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(10),
-                  shrinkWrap: true,
-                  itemCount: order!.cart.length,
-                  itemBuilder: (context, index) {
+                content: Column(
+                  children: List.generate(order.cart.length, (index) {
                     return Card(
-                        margin: EdgeInsets.symmetric(vertical: 5),
+                        margin: EdgeInsets.all(10),
                         child: ListTile(
                           leading: Container(
                             child: Image(
@@ -504,36 +506,88 @@ class ProductsItemListView extends StatelessWidget {
                             ),
                           ),
                           title: Text('${order!.cart[index].product.name}'),
-                          subtitle: Text('${PriceHelper.getFormattedPrice(order!.cart[index].product.price)}'),
+                          subtitle: Text('${order!.cart[index].product.price}'),
                           trailing: Text(order!.cart[index].quantity.toString()),
                         ));
-                  },
-                ),
-              )
-            else
-              Column(
-                children: List.generate(order.cart.length, (index) {
-                  return Card(
-                      margin: EdgeInsets.all(10),
-                      child: ListTile(
-                        leading: Container(
-                          child: Image(
-                            errorBuilder: (context, error, stackTrace) {
-                              return SizedBox();
-                            },
-                            image: NetworkImage(order!.cart[index].product.imageUrl),
-                            width: 50,
-                            height: 50,
+                  }),
+                )))
+        : Card(
+            margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20) : EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Container(
+                height: !ResponsiveHelper.isMobile(context) ? MediaQuery.of(context).size.height : null,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.centerLeft,
+                      height: 60,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: FluentTheme.of(context).scaffoldBackgroundColor,
+                        border: Border(
+                          bottom: BorderSide(
+                            width: 1,
                           ),
                         ),
-                        title: Text('${order!.cart[index].product.name}'),
-                        subtitle: Text('${order!.cart[index].product.price}'),
-                        trailing: Text(order!.cart[index].quantity.toString()),
-                      ));
-                }),
-              )
-          ],
-        ));
+                      ),
+                      child: Text(
+                        '${nbItems} items',
+                      ),
+                    ),
+                    if (!ResponsiveHelper.isMobile(context))
+                      Expanded(
+                        child: Container(
+                          color: FluentTheme.of(context).menuColor,
+                          child: ListView.builder(
+                            padding: EdgeInsets.all(10),
+                            shrinkWrap: true,
+                            itemCount: order!.cart.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  child: ListTile(
+                                    leading: Container(
+                                      child: Image(
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return SizedBox();
+                                        },
+                                        image: NetworkImage(order!.cart[index].product.imageUrl),
+                                        width: 50,
+                                        height: 50,
+                                      ),
+                                    ),
+                                    title: Text('${order!.cart[index].product.name}'),
+                                    subtitle: Text('${PriceHelper.getFormattedPrice(order!.cart[index].product.price)}'),
+                                    trailing: Text(order!.cart[index].quantity.toString()),
+                                  ));
+                            },
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: List.generate(order.cart.length, (index) {
+                          return Card(
+                              margin: EdgeInsets.all(10),
+                              child: ListTile(
+                                leading: Container(
+                                  child: Image(
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return SizedBox();
+                                    },
+                                    image: NetworkImage(order!.cart[index].product.imageUrl),
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                                title: Text('${order!.cart[index].product.name}'),
+                                subtitle: Text('${order!.cart[index].product.price}'),
+                                trailing: Text(order!.cart[index].quantity.toString()),
+                              ));
+                        }),
+                      )
+                  ],
+                )));
   }
 }
 
@@ -543,7 +597,7 @@ class CustomerHourWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Card(
       margin: !ResponsiveHelper.isMobile(context)
           ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20)
           : const EdgeInsets.only(
@@ -551,15 +605,16 @@ class CustomerHourWidget extends StatelessWidget {
               left: 10,
               right: 10,
             ),
-      decoration: BoxDecoration(
+      /*decoration: BoxDecoration(
         color: FluentTheme.of(context).menuColor,
         borderRadius: BorderRadius.circular(16),
-      ),
+      ),*/
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: Container(
                   child: Row(
                     children: [
@@ -585,6 +640,7 @@ class CustomerHourWidget extends StatelessWidget {
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: Container(
                   child: Row(
                     children: [
@@ -611,6 +667,7 @@ class CustomerHourWidget extends StatelessWidget {
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: Container(
                   child: Row(
                     children: [
@@ -635,9 +692,9 @@ class CustomerHourWidget extends StatelessWidget {
                                   children: [
                                     RichText(
                                         text: TextSpan(children: [
-                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold)),
-                                      TextSpan(text: ' / '),
-                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.totalAmount)}'),
+                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold, color: FluentTheme.of(context).typography.subtitle!.color)),
+                                      TextSpan(text: ' / ', style: TextStyle(color: FluentTheme.of(context).typography.subtitle!.color)),
+                                      TextSpan(text: '${PriceHelper.getFormattedPrice(order.totalAmount)}', style: TextStyle(color: FluentTheme.of(context).typography.subtitle!.color)),
                                     ])),
                                     SizedBox(
                                       width: 10,
@@ -659,11 +716,8 @@ class CustomerHourWidget extends StatelessWidget {
                                           '(${orderModel.paidAmount == orderModel.totalAmount ? 'Paid' : 'Unpaid: ${orderModel.totalAmount - orderModel.paidAmount} left'})'),*/
                                       RichText(
                                           text: TextSpan(children: [
-                                    TextSpan(
-                                      text: '(${order.paidAmount == order.totalAmount ? 'Paid' : 'Unpaid: '}',
-                                    ),
-                                    if (order.paidAmount != order.totalAmount) TextSpan(text: '${PriceHelper.getFormattedPrice(order.totalAmount - order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    TextSpan(text: ' left)'),
+                                    if (order.paidAmount != order.totalAmount) TextSpan(text: '(${PriceHelper.getFormattedPrice(order.totalAmount - order.paidAmount)}', style: TextStyle(fontWeight: FontWeight.bold, color: FluentTheme.of(context).typography.subtitle!.color)),
+                                    TextSpan(text: ' left)', style: TextStyle(color: FluentTheme.of(context).typography.subtitle!.color)),
                                   ])),
                                 ),
                               ],
@@ -676,6 +730,7 @@ class CustomerHourWidget extends StatelessWidget {
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: Container(
                   padding: const EdgeInsets.only(right: 20, bottom: 5),
                   height: 40,
@@ -698,19 +753,17 @@ class StatusWithButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
-      constraints: BoxConstraints(
-        maxHeight: order.status.step * 100 + 120,
-      ),
-      decoration: BoxDecoration(
-        color: FluentTheme.of(context).menuColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: StatusStepWidget(
-        order: order,
-      ),
-    );
+    return Card(
+        margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
+          constraints: BoxConstraints(
+            maxHeight: order.status.step * 100 + 120,
+          ),
+          child: StatusStepWidget(
+            order: order,
+          ),
+        ));
   }
 }

@@ -93,47 +93,113 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
+      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: material.AppBar(
+        centerTitle: true,
+        shadowColor: FluentTheme.of(context).shadowColor,
+        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        elevation: 4,
         leading: material.BackButton(
-          onPressed: () {
-            context.go('/customers');
+          onPressed: () async {
+            if (context.read<CustomerProvider>().isEditingCustomer) {
+              bool? isConfirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => ContentDialog(
+                  constraints: BoxConstraints(maxWidth: 350, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                  title: Row(children: [
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: const Text('Confirmation'),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                      icon: const Icon(FluentIcons.clear),
+                    ),
+                  ]),
+                  content: Container(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Icon(
+                          FluentIcons.warning,
+                          size: 80,
+                          color: Colors.red,
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        const Text('Are you sure you want to cancel?'),
+                        SizedBox(
+                          height: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    Button(
+                      child: const Text('No'),
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                    ),
+                    FilledButton(
+                      child: const Text('Yes'),
+                      onPressed: () {
+                        Navigator.pop(context, true);
+                      },
+                    ),
+                  ],
+                ),
+              );
+
+              if (isConfirmed != null && isConfirmed) {
+                context.go('/customers');
+              }
+            } else {
+              context.go('/customers');
+            }
           },
         ),
         actions: [
-          IconButton(
+          Button(
+            style: ButtonStyle(
+              padding: ButtonState.all(EdgeInsets.zero),
+            ),
+            child: Container(
+              height: 40,
+              width: 40,
+              child: context.watch<CustomerProvider>().isLoading
+                  ? ProgressRing()
+                  : context.watch<CustomerProvider>().isEditingCustomer
+                      ? Icon(FluentIcons.cancel, size: 20)
+                      : Icon(FluentIcons.edit, size: 20),
+            ),
             onPressed: () async {
               if (context.read<CustomerProvider>().isEditingCustomer) {
-                if (_formKey.currentState!.validate()) {
-                  String firstName = _firstNameController.text;
-                  String lastName = _lastNameController.text;
-                  String countryCode = '+${_countryCodeController.text}';
-                  String phoneNumber = _phoneNumberController.text;
-                  print('firstName: $firstName');
-                  print('lastName: $lastName');
-                  print('countryCode: $countryCode');
-                  print('phoneNumber: $phoneNumber');
-
-                  await context.read<CustomerProvider>().updateCustomer(widget.customerId, firstName, lastName, phoneNumber, countryCode, context).then((value) {
-                    if (value) {
-                      initData(context);
-                      context.read<CustomerProvider>().setIsEditingCustomer(false);
-                    }
-                  });
-                }
+                context.read<CustomerProvider>().setIsEditingCustomer(false);
               } else {
                 context.read<CustomerProvider>().setIsEditingCustomer(true);
               }
             },
-            icon: context.watch<CustomerProvider>().isLoading
-                ? ProgressRing()
-                : context.watch<CustomerProvider>().isEditingCustomer
-                    ? Icon(FluentIcons.save, size: 20)
-                    : Icon(FluentIcons.edit, size: 20),
+          ),
+          SizedBox(
+            width: 10,
           ),
         ],
         title: const Text('Customer Details'),
       ),
       body: Container(
+          padding: const EdgeInsets.all(20),
           child: customer == null || isLoading
               ? const Center(
                   child: ProgressRing(),
