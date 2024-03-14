@@ -132,7 +132,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: FluentThemeData.light(),
       darkTheme: FluentThemeData.dark(),
-      themeMode: ThemeMode.light,
+      themeMode: ThemeMode.system,
     );
   }
 }
