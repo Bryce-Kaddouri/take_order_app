@@ -1,8 +1,14 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/helper/date_helper.dart';
 
 class SuccessPage extends StatefulWidget {
   final Animation<double> animation;
-  const SuccessPage({super.key, required this.animation});
+  final bool isUpdate;
+  final int? orderId;
+  final DateTime? orderDate;
+  const SuccessPage({super.key, required this.animation, this.isUpdate = false, this.orderId, this.orderDate});
 
   @override
   State<SuccessPage> createState() => _SuccessPageState();
@@ -33,7 +39,7 @@ class _SuccessPageState extends State<SuccessPage> {
             },
           ),
           Text(
-            'Order has been placed successfully',
+            'Order has been ${widget.isUpdate ? 'updated' : 'added'} successfully',
             style: TextStyle(fontSize: 16),
           ),
           Container(
@@ -42,7 +48,12 @@ class _SuccessPageState extends State<SuccessPage> {
             child: FilledButton(
               onPressed: () {
                 /*context.go('/orders');*/
-                Navigator.pop(context);
+                if (widget.isUpdate) {
+                  String date = DateHelper.getFormattedDate(widget.orderDate!);
+                  context.go('/orders/$date/${widget.orderId!}');
+                } else {
+                  context.go('/orders');
+                }
               },
               child: Text('Go to Orders'),
             ),

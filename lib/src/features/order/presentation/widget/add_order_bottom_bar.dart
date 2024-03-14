@@ -28,8 +28,10 @@ class AddOrderBottomBar extends StatefulWidget {
   final OrderModel? orderModel;
   final int? orderId;
   final DateTime? orderDate;
+  final Function(UpdateOrderParam updateOrderParam)? onUpdateDate;
 
-  const AddOrderBottomBar({super.key, required this.currentStep, required this.pageController, required this.animationControllerProgressBar, required this.formKeyCustomer, required this.lstProducts, required this.formKeyPayment, required this.paymentAmount, required this.noteController, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers, required this.animationController, this.isUpdate = false, this.orderModel, this.orderId, this.orderDate});
+  const AddOrderBottomBar(
+      {super.key, required this.currentStep, required this.pageController, required this.animationControllerProgressBar, required this.formKeyCustomer, required this.lstProducts, required this.formKeyPayment, required this.paymentAmount, required this.noteController, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers, required this.animationController, this.isUpdate = false, this.orderModel, this.orderId, this.orderDate, this.onUpdateDate});
 
   @override
   State<AddOrderBottomBar> createState() => _AddOrderBottomBarState();
@@ -319,30 +321,7 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                       note: orderModelAsync.orderNote != newNote ? newNote : null,
                     );
 
-                    context.read<OrderProvider>().updateOrder(updateOrderParam).then((value) {
-                      if (value != null) {
-                        widget.animationControllerProgressBar.animateTo(11);
-                        widget.pageController.animateToPage(5, duration: Duration(milliseconds: 300), curve: Curves.easeIn).whenComplete(() {
-                          widget.animationController.forward();
-                          /*setState(() {
-    widget.orderDate = value.date;
-    widget.orderId = value.orderId!;
-    });*/
-                        });
-                      } else {
-                        displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
-                          return InfoBar(
-                            title: const Text('Error!'),
-                            content: const Text('Error updating order'),
-                            severity: InfoBarSeverity.error,
-                            action: IconButton(
-                              icon: const Icon(FluentIcons.clear),
-                              onPressed: close,
-                            ),
-                          );
-                        });
-                      }
-                    });
+                    widget.onUpdateDate!(updateOrderParam);
                   }
                 }
               }
