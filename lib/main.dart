@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 // import package to set path url startegy
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
@@ -130,6 +131,19 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return FluentApp.router(
+      locale: Locale('en'),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en'), // English
+        Locale('fr'), // French
+        Locale('de'), // German
+        Locale('es'), // Spanish
+        Locale('zh') // Chinese
+      ],
       theme: FluentThemeData.light(),
       darkTheme: FluentThemeData.dark(),
       themeMode: context.watch<ProfileProvider>().themeMode == 'system'
