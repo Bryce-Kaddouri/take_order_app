@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 
 import '../../data/model/customer_model.dart';
 import '../provider/customer_provider.dart';
@@ -16,7 +17,7 @@ class CustomerListScreen extends StatelessWidget {
       appBar: material.AppBar(
         leading: material.BackButton(
           onPressed: () async {
-            context.go('/orders');
+            context.go('/');
           },
         ),
         centerTitle: true,
@@ -69,49 +70,51 @@ class CustomerListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: FutureBuilder<List<CustomerModel>?>(
-          future: context.read<CustomerProvider>().getCustomers(),
-          builder: (context, snapshot) {
-            print(snapshot.connectionState);
-            print('data');
-            print(snapshot.data);
-            if (snapshot.hasData) {
-              List<CustomerModel>? customerList = snapshot.data;
-              customerList = customerList?.where((element) {
-                String fullName = '${element.fName!} ${element.lName!}';
-                return fullName.toLowerCase().contains(context.watch<CustomerProvider>().searchText.toLowerCase());
-              }).toList();
-              print('customerList');
-              if (customerList?.isEmpty ?? true) {
-                return const Center(child: Text('No Customers'));
-              }
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: customerList?.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    padding: EdgeInsets.all(8),
-                    margin: EdgeInsets.all(8),
-                    child: ListTile(
-                      onPressed: () {
-                        context.go('/customers/${snapshot.data![index].id}');
-                      },
-                      leading: CircleAvatar(
-                          /*  backgroundColor: Colors.blue,
+      body: DismissKeyboard(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: FutureBuilder<List<CustomerModel>?>(
+            future: context.read<CustomerProvider>().getCustomers(),
+            builder: (context, snapshot) {
+              print(snapshot.connectionState);
+              print('data');
+              print(snapshot.data);
+              if (snapshot.hasData) {
+                List<CustomerModel>? customerList = snapshot.data;
+                customerList = customerList?.where((element) {
+                  String fullName = '${element.fName!} ${element.lName!}';
+                  return fullName.toLowerCase().contains(context.watch<CustomerProvider>().searchText.toLowerCase());
+                }).toList();
+                print('customerList');
+                if (customerList?.isEmpty ?? true) {
+                  return const Center(child: Text('No Customers'));
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: customerList?.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      padding: EdgeInsets.all(8),
+                      margin: EdgeInsets.all(8),
+                      child: ListTile(
+                        onPressed: () {
+                          context.go('/customers/${snapshot.data![index].id}');
+                        },
+                        leading: CircleAvatar(
+                            /*  backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,*/
-                          child: Text(snapshot.data?[index].fName?[0] ?? '')),
-                      title: Text(snapshot.data?[index].fName ?? ''),
-                      subtitle: Text(snapshot.data?[index].lName ?? ''),
-                      trailing: Icon(FluentIcons.chevron_right),
-                    ),
-                  );
-                },
-              );
-            }
-            return const Center(child: ProgressRing());
-          },
+                            child: Text(snapshot.data?[index].fName?[0] ?? '')),
+                        title: Text(snapshot.data?[index].fName ?? ''),
+                        subtitle: Text(snapshot.data?[index].lName ?? ''),
+                        trailing: Icon(FluentIcons.chevron_right),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const Center(child: ProgressRing());
+            },
+          ),
         ),
       ),
     );

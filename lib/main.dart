@@ -38,6 +38,7 @@ import 'package:take_order_app/src/features/product/business/usecase/product_get
 import 'package:take_order_app/src/features/product/data/datasource/product_datasource.dart';
 import 'package:take_order_app/src/features/product/data/repository/product_repository_impl.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
+import 'package:take_order_app/src/features/profile/presentation/provider/profile_provider.dart';
 
 Future<void> main() async {
   // set path url
@@ -102,6 +103,9 @@ Future<void> main() async {
             orderUpdateToCollectedUseCase: OrderUpdateToCollectedUseCase(orderRepository: orderRepository),
           ),
         ),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (context) => ProfileProvider(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -116,11 +120,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProfileProvider>().getThemeMode();
+  }
   // This widget is the root of your application.
 
   @override
   Widget build(BuildContext context) {
     return FluentApp.router(
+      theme: FluentThemeData.light(),
+      darkTheme: FluentThemeData.dark(),
+      themeMode: context.watch<ProfileProvider>().themeMode == 'system'
+          ? ThemeMode.system
+          : context.watch<ProfileProvider>().themeMode == 'light'
+              ? ThemeMode.light
+              : ThemeMode.dark,
       // hide keyboard when tap outside
       debugShowCheckedModeBanner: false,
       /* routerDelegate: RouterHelper().getRouter(context).routerDelegate,
@@ -130,9 +146,6 @@ class _MyAppState extends State<MyApp> {
           RouterHelper().getRouter(context).routeInformationProvider,*/
       routerConfig: RouterHelper().getRouter(context),
       title: 'Flutter Demo',
-      theme: FluentThemeData.light(),
-      darkTheme: FluentThemeData.dark(),
-      themeMode: ThemeMode.system,
     );
   }
 }

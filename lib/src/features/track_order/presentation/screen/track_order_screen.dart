@@ -170,7 +170,7 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
       appBar: material.AppBar(
         leading: material.BackButton(
           onPressed: () async {
-            context.go('/orders');
+            context.go('/');
           },
         ),
         centerTitle: true,

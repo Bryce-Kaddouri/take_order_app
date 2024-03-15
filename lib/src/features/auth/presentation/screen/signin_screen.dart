@@ -30,20 +30,8 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: fluent.FluentTheme.of(context)
-          .navigationPaneTheme
-          .overlayBackgroundColor,
-      body: GestureDetector(
-        onLongPress: () {
-          print('long press');
-        },
-        onTap: () {
-          print('unfocus');
-          _emailFocusNode.unfocus();
-          _passwordFocusNode.unfocus();
-          /*print('unfocus');
-          FocusScope.of(context).unfocus();*/
-        },
+      backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.overlayBackgroundColor,
+      body: DismissKeyboard(
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: double.infinity,
@@ -123,7 +111,7 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                           if (value) {
                             print('logged in');
 
-                            context.go('/orders');
+                            context.go('/');
                           } else {
                             // show materiql banner
                             fluent.displayInfoBar(
@@ -131,8 +119,7 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                               builder: (context, close) {
                                 return fluent.InfoBar(
                                   title: const Text('Error!'),
-                                  content: const Text(
-                                      'Invalid email or password. Please try again.'),
+                                  content: const Text('Invalid email or password. Please try again.'),
 
                                   /*'The user has not been added because of an error. ${l.errorMessage}'*/
 
@@ -164,5 +151,34 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
         ),
       ),
     );
+  }
+}
+
+class DismissKeyboard extends StatelessWidget {
+  final Widget child;
+
+  const DismissKeyboard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
+        },
+        child: PopScope(
+          onPopInvoked: (val) async {
+            print('onPopInvoked');
+            print(val);
+            FocusScope.of(context).unfocus();
+            /*return false;*/
+          },
+          child: SafeArea(
+            child: child,
+          ),
+        ));
   }
 }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
+import '../../../auth/presentation/screen/signin_screen.dart';
 import '../../../customer/data/model/customer_model.dart';
 import '../../../product/data/model/product_model.dart';
 import '../widget/add_order_bottom_bar.dart';
@@ -185,7 +186,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                   );
 
                   if (isConfirmed != null && isConfirmed) {
-                    context.go('/orders');
+                    context.go('/');
                   }
                 },
               )
@@ -198,62 +199,64 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
         title: Text(getTitle(currentStep)),
       ),
       bottomNavigationBar: currentStep >= 5 ? null : AddOrderBottomBar(currentStep: currentStep, pageController: pageController, animationControllerProgressBar: _animationControllerProgressBar, formKeyCustomer: _formKeyCustomer, lstProducts: lstProducts, formKeyPayment: _formKeyPayment, paymentAmount: _paymentAmount, noteController: _noteController, selectedDate: selectedDate, selectedCustomerId: selectedCustomerId, lstCustomers: lstCustomers, animationController: _animationController),
-      body: Column(
-        children: [
-          CustomStepperWidget(
-            currentStep: currentStep,
-            controller: _animationControllerProgressBar,
-          ),
-          Expanded(
-            child: PageView(controller: pageController, children: [
-              // page for customer
-              SelectCustomerPage(
-                customerController: customerController,
-                formKeyCustomer: _formKeyCustomer,
-                lstCustomers: lstCustomers,
-                selectedCustomerId: selectedCustomerId,
-                onSelected: (int val) {
-                  setState(() {
-                    selectedCustomerId = val;
-                  });
-                },
-              ),
-              // page for date and time
-              SelectDateTimePage(
-                selectedDate: selectedDate,
-                onSelectedDate: (DateTime time) {
-                  setState(() {
-                    selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
-                  });
-                },
-                onSelectedTime: (DateTime time) {
-                  setState(() {
-                    selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
-                  });
-                },
-              ),
-
-              // page for fill order
-              FillOrderPage(),
-
-              // page for payment
-              PaymentDetailPage(
-                  fromKeyPayment: _formKeyPayment,
-                  paymentAmount: _paymentAmount,
-                  onChangedPaidAmount: (double val) {
+      body: DismissKeyboard(
+        child: Column(
+          children: [
+            CustomStepperWidget(
+              currentStep: currentStep,
+              controller: _animationControllerProgressBar,
+            ),
+            Expanded(
+              child: PageView(controller: pageController, children: [
+                // page for customer
+                SelectCustomerPage(
+                  customerController: customerController,
+                  formKeyCustomer: _formKeyCustomer,
+                  lstCustomers: lstCustomers,
+                  selectedCustomerId: selectedCustomerId,
+                  onSelected: (int val) {
                     setState(() {
-                      _paymentAmount = val;
+                      selectedCustomerId = val;
                     });
                   },
-                  noteController: _noteController),
-              // page for review
-              ReviewOrderPage(selectedDate: selectedDate, selectedCustomerId: selectedCustomerId, lstCustomers: lstCustomers),
+                ),
+                // page for date and time
+                SelectDateTimePage(
+                  selectedDate: selectedDate,
+                  onSelectedDate: (DateTime time) {
+                    setState(() {
+                      selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
+                    });
+                  },
+                  onSelectedTime: (DateTime time) {
+                    setState(() {
+                      selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
+                    });
+                  },
+                ),
 
-              // success page
-              SuccessPage(animation: _animation),
-            ]),
-          ),
-        ],
+                // page for fill order
+                FillOrderPage(),
+
+                // page for payment
+                PaymentDetailPage(
+                    fromKeyPayment: _formKeyPayment,
+                    paymentAmount: _paymentAmount,
+                    onChangedPaidAmount: (double val) {
+                      setState(() {
+                        _paymentAmount = val;
+                      });
+                    },
+                    noteController: _noteController),
+                // page for review
+                ReviewOrderPage(selectedDate: selectedDate, selectedCustomerId: selectedCustomerId, lstCustomers: lstCustomers),
+
+                // success page
+                SuccessPage(animation: _animation),
+              ]),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 
 import '../provider/customer_provider.dart';
 
@@ -99,125 +100,129 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             );
 
             if (isConfirmed != null && isConfirmed) {
-              context.go('/orders');
+              context.go('/');
             }
           },
         ),
         title: const Text('Add Customer'),
       ),
-      body: Container(
-        padding: EdgeInsets.all(20),
-        height: double.infinity,
-        width: double.infinity,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-              InfoLabel(
-                label: 'First Name',
-                child: TextFormBox(
-                  controller: _firstNameController,
-                  placeholder: 'Enter your first name',
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    // check if is text
-                  ]),
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              InfoLabel(
-                label: 'Last Name',
-                child: TextFormBox(
-                  controller: _lastNameController,
-                  placeholder: 'Enter your last name',
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    // check if is text
-                  ]),
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              InfoLabel(
-                label: 'Phone Number',
-                child: Container(
-                  alignment: Alignment.center,
-                  height: 100,
-                  constraints: BoxConstraints(maxWidth: 500, maxHeight: 100),
-                  child: material.Card(
-                    color: Colors.transparent,
-                    elevation: 0,
-                    child: IntlPhoneField(
+      body: DismissKeyboard(
+        child: Container(
+          padding: EdgeInsets.all(20),
+          height: double.infinity,
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50,
+                  ),
+                  InfoLabel(
+                    label: 'First Name',
+                    child: TextFormBox(
+                      controller: _firstNameController,
+                      placeholder: 'Enter your first name',
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
-
-                        FormBuilderValidators.minLength(9),
-                        FormBuilderValidators.maxLength(9),
                         // check if is text
                       ]),
-                      flagsButtonPadding: EdgeInsets.all(10),
-                      decoration: material.InputDecoration(
-                        filled: true,
-                        fillColor: FluentTheme.of(context).inactiveBackgroundColor,
-                        hintText: 'Phone Number',
-                      ),
-                      initialCountryCode: 'IE',
-                      controller: _phoneNumberController,
-                      onCountryChanged: (phone) {
-                        setState(() {
-                          print(phone.code);
-                          print(phone.dialCode);
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  InfoLabel(
+                    label: 'Last Name',
+                    child: TextFormBox(
+                      controller: _lastNameController,
+                      placeholder: 'Enter your last name',
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                        // check if is text
+                      ]),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  InfoLabel(
+                    label: 'Phone Number',
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 100,
+                      constraints: BoxConstraints(maxWidth: 500, maxHeight: 100),
+                      child: material.Card(
+                        color: Colors.transparent,
+                        elevation: 0,
+                        child: IntlPhoneField(
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
 
-                          _countryCodeController.text = phone.dialCode;
-                        });
-                      },
-                      pickerDialogStyle: PickerDialogStyle(
-                        backgroundColor: FluentTheme.of(context).inactiveBackgroundColor,
+                            FormBuilderValidators.minLength(9),
+                            FormBuilderValidators.maxLength(9),
+                            // check if is text
+                          ]),
+                          flagsButtonPadding: EdgeInsets.all(10),
+                          decoration: material.InputDecoration(
+                            filled: true,
+                            fillColor: FluentTheme.of(context).inactiveBackgroundColor,
+                            hintText: 'Phone Number',
+                          ),
+                          initialCountryCode: 'IE',
+                          controller: _phoneNumberController,
+                          onCountryChanged: (phone) {
+                            setState(() {
+                              print(phone.code);
+                              print(phone.dialCode);
+
+                              _countryCodeController.text = phone.dialCode;
+                            });
+                          },
+                          pickerDialogStyle: PickerDialogStyle(
+                            backgroundColor: FluentTheme.of(context).inactiveBackgroundColor,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              SizedBox(
-                height: 60,
-              ),
-              Container(
-                height: 50,
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      String firstName = _firstNameController.text;
-                      String lastName = _lastNameController.text;
-                      String countryCode = '+${_countryCodeController.text}';
-                      String phoneNumber = _phoneNumberController.text;
-                      print('firstName: $firstName');
-                      print('lastName: $lastName');
-                      print('countryCode: $countryCode');
-                      print('phoneNumber: $phoneNumber');
+                  SizedBox(
+                    height: 60,
+                  ),
+                  Container(
+                    height: 50,
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          String firstName = _firstNameController.text;
+                          String lastName = _lastNameController.text;
+                          String countryCode = '+${_countryCodeController.text}';
+                          String phoneNumber = _phoneNumberController.text;
+                          print('firstName: $firstName');
+                          print('lastName: $lastName');
+                          print('countryCode: $countryCode');
+                          print('phoneNumber: $phoneNumber');
 
-                      await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, countryCode, context).then((value) {
-                        if (value) {
-                          _formKey.currentState?.reset();
+                          await context.read<CustomerProvider>().addCustomer(firstName, lastName, phoneNumber, countryCode, context).then((value) {
+                            if (value) {
+                              _formKey.currentState?.reset();
+                            }
+                          });
                         }
-                      });
-                    }
-                  },
-                  child: context.watch<CustomerProvider>().isLoading
-                      ? const ProgressRing()
-                      : const Text(
-                          'Sign In',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                ),
+                      },
+                      child: context.watch<CustomerProvider>().isLoading
+                          ? const ProgressRing()
+                          : const Text(
+                              'Sign In',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

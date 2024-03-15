@@ -1,8 +1,8 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
-import 'package:take_order_app/src/features/order/presentation/widget/drawer_widget.dart';
 
 import '../../data/model/order_model.dart';
 import '../provider/order_provider.dart';
@@ -50,6 +50,11 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
         surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         elevation: 0,
+        leading: material.BackButton(
+          onPressed: () {
+            context.go('/');
+          },
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -82,9 +87,9 @@ class _OrderScreenState extends State<OrderScreen> with AutomaticKeepAliveClient
           ),
         ],
       ),
-      drawer: DrawerWidget(
+      /*drawer: DrawerWidget(
         orderDate: context.watch<OrderProvider>().selectedDate,
-      ),
+      ),*/
       body: CustomScrollView(controller: _mainScrollController, slivers: [
         material.SliverPersistentHeader(
           floating: true,

@@ -177,6 +177,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/add_customer_screen.dart';
 import 'package:take_order_app/src/features/customer/presentation/screen/customer_list_screen.dart';
+import 'package:take_order_app/src/features/home/presentation/screen/home_screen.dart';
 import 'package:take_order_app/src/features/order/presentation/screen/order_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_detail_screen.dart';
 import 'package:take_order_app/src/features/order_detail/screen/order_update_screen.dart';
@@ -186,6 +187,7 @@ import '../../features/auth/presentation/provider/auth_provider.dart';
 import '../../features/auth/presentation/screen/signin_screen.dart';
 import '../../features/customer/presentation/screen/customer_detail_screen.dart';
 import '../../features/order/presentation/screen/add_order_screen.dart';
+import '../../features/profile/presentation/screen/profile_screen.dart';
 import '../../features/track_order/presentation/screen/order_track_detail_screen.dart';
 
 class RouterHelper {
@@ -208,7 +210,7 @@ class RouterHelper {
           ),
         );
       },*/
-      initialLocation: context.read<AuthProvider>().checkIsLoggedIn() ? '/orders' : '/signin',
+      /*initialLocation: context.read<AuthProvider>().checkIsLoggedIn() ? '/' : '/signin',*/
       redirect: (context, state) {
         bool isLoggedIn = context.read<AuthProvider>().checkIsLoggedIn();
         print('is logged in: $isLoggedIn');
@@ -220,6 +222,18 @@ class RouterHelper {
         }
       },
       routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) {
+            return HomeScreen();
+          },
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) {
+            return ProfileScreen();
+          },
+        ),
         GoRoute(
           path: '/track-order/:date',
           builder: (context, state) {

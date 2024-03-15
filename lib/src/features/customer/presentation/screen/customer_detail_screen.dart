@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/order_item_view_by_status_widget.dart';
 
@@ -198,7 +199,8 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
         ],
         title: const Text('Customer Details'),
       ),
-      body: Container(
+      body: DismissKeyboard(
+        child: Container(
           padding: const EdgeInsets.all(20),
           child: customer == null || isLoading
               ? const Center(
@@ -312,7 +314,9 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                         ),
                     ],
                   ),
-                )),
+                ),
+        ),
+      ),
     );
   }
 }
