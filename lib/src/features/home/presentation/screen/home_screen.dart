@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/core/constant/app_color.dart';
 import 'package:take_order_app/src/core/helper/responsive_helper.dart';
 
@@ -16,14 +17,17 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+      backgroundColor:
+          fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: AppBar(
         centerTitle: true,
         shadowColor: fluent.FluentTheme.of(context).shadowColor,
-        surfaceTintColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
-        backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        surfaceTintColor:
+            fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor:
+            fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         elevation: 4,
-        title: const Text('Home'),
+        title: Text(TranslationHelper(context: context).getTranslation('home')),
         actions: [
           fluent.FlyoutTarget(
             controller: menuController,
@@ -43,7 +47,8 @@ class HomeScreen extends StatelessWidget {
 */
                     builder: (context) {
                       return fluent.FlyoutContent(
-                        constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
+                        constraints:
+                            BoxConstraints(maxWidth: 200, maxHeight: 200),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,24 +58,33 @@ class HomeScreen extends StatelessWidget {
                                 context.go('/profile');
                               },
                               leading: const Icon(fluent.FluentIcons.contact),
-                              title: const Text('Profile'),
+                              title: Text(TranslationHelper(context: context)
+                                  .getTranslation('profile')),
                             ),
                             fluent.ListTile(
-                              tileColor: fluent.ButtonState.all(AppColor.canceledForegroundColor),
+                              tileColor: fluent.ButtonState.all(
+                                  AppColor.canceledForegroundColor),
                               onPressed: () async {
                                 bool? isConfirmed = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => fluent.ContentDialog(
-                                    constraints: BoxConstraints(maxWidth: 350, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                                    constraints: BoxConstraints(
+                                        maxWidth: 350,
+                                        maxHeight:
+                                            MediaQuery.of(context).size.height *
+                                                0.8),
                                     title: Container(
                                       alignment: Alignment.center,
-                                      child: const Text('Logout'),
+                                      child: Text(
+                                          TranslationHelper(context: context)
+                                              .getTranslation('signOut')),
                                     ),
                                     content: Container(
                                       width: double.infinity,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           SizedBox(
                                             height: 10,
@@ -83,7 +97,11 @@ class HomeScreen extends StatelessWidget {
                                           SizedBox(
                                             height: 20,
                                           ),
-                                          const Text('Are you sure you want to logout?'),
+                                          Text(
+                                            TranslationHelper(context: context)
+                                                .getTranslation(
+                                                    'confirmSignOut'),
+                                          ),
                                           SizedBox(
                                             height: 20,
                                           ),
@@ -92,13 +110,17 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                     actions: [
                                       fluent.Button(
-                                        child: const Text('No'),
+                                        child: Text(
+                                            TranslationHelper(context: context)
+                                                .getTranslation('no')),
                                         onPressed: () {
                                           Navigator.pop(context, false);
                                         },
                                       ),
                                       fluent.FilledButton(
-                                        child: const Text('Yes'),
+                                        child: Text(
+                                            TranslationHelper(context: context)
+                                                .getTranslation('yes')),
                                         onPressed: () {
                                           Navigator.pop(context, true);
                                         },
@@ -108,11 +130,19 @@ class HomeScreen extends StatelessWidget {
                                 );
 
                                 if (isConfirmed != null && isConfirmed) {
-                                  context.read<AuthProvider>().logout().then((value) => context.go('/signin'));
+                                  context
+                                      .read<AuthProvider>()
+                                      .logout()
+                                      .then((value) => context.go('/signin'));
                                 }
                               },
-                              leading: const Icon(fluent.FluentIcons.sign_out, color: AppColor.canceledBackgroundColor),
-                              title: const Text('Sign Out', style: TextStyle(color: AppColor.canceledBackgroundColor)),
+                              leading: const Icon(fluent.FluentIcons.sign_out,
+                                  color: AppColor.canceledBackgroundColor),
+                              title: Text(
+                                  TranslationHelper(context: context)
+                                      .getTranslation('signOut'),
+                                  style: TextStyle(
+                                      color: AppColor.canceledBackgroundColor)),
                             ),
                           ],
                         ),
@@ -146,10 +176,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(fluent.FluentIcons.product_list, size: 50),
                   SizedBox(height: 10),
-                  Text('Order List', style: TextStyle(fontSize: 20)),
+                  Text(
+                    TranslationHelper(context: context)
+                        .getTranslation('orderList'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ],
               ),
             ),
@@ -161,10 +196,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(fluent.FluentIcons.product_release, size: 50),
                   SizedBox(height: 10),
-                  Text('Add Order', style: TextStyle(fontSize: 20)),
+                  Text(
+                    TranslationHelper(context: context)
+                        .getTranslation('addOrder'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ],
               ),
             ),
@@ -177,10 +217,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(fluent.FluentIcons.streaming, size: 50),
                   SizedBox(height: 10),
-                  Text('Track Order', style: TextStyle(fontSize: 20)),
+                  Text(
+                    TranslationHelper(context: context)
+                        .getTranslation('trackOrders'),
+                    style: TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
@@ -192,10 +237,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(fluent.FluentIcons.group, size: 50),
                   SizedBox(height: 10),
-                  Text('Client List', style: TextStyle(fontSize: 20)),
+                  Text(
+                    TranslationHelper(context: context)
+                        .getTranslation('customerList'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ],
               ),
             ),
@@ -207,10 +257,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(fluent.FluentIcons.add_group, size: 50),
                   SizedBox(height: 10),
-                  Text('Add Client', style: TextStyle(fontSize: 20)),
+                  Text(
+                    TranslationHelper(context: context)
+                        .getTranslation('addCustomer'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ],
               ),
             ),

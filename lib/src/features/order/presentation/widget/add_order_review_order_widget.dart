@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../main.dart';
 import '../../../../core/helper/date_helper.dart';
 import '../../../../core/helper/price_helper.dart';
 import '../../../customer/data/model/customer_model.dart';
@@ -11,7 +12,11 @@ class ReviewOrderPage extends StatefulWidget {
   final int selectedCustomerId;
   final List<CustomerModel> lstCustomers;
 
-  const ReviewOrderPage({super.key, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers});
+  const ReviewOrderPage(
+      {super.key,
+      required this.selectedDate,
+      required this.selectedCustomerId,
+      required this.lstCustomers});
 
   @override
   State<ReviewOrderPage> createState() => _ReviewOrderPageState();
@@ -42,7 +47,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 width: 10,
               ),
               Expanded(
-                child: Text('${DateHelper.getFormattedDateTime(widget.selectedDate)}'),
+                child: Text(
+                    '${DateHelper.getFormattedDateTime(widget.selectedDate)}'),
               ),
             ],
           ),
@@ -70,7 +76,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         width: 10,
                       ),
                       Expanded(
-                        child: Text('${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).fName} ${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).lName}'),
+                        child: Text(
+                            '${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).fName} ${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).lName}'),
                       ),
                     ],
                   ),
@@ -92,7 +99,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       SizedBox(
                         width: 10,
                       ),
-                      Text('${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).countryCode}${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).phoneNumber}'),
+                      Text(
+                          '${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).countryCode}${widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId).phoneNumber}'),
                     ],
                   ),
                 ),
@@ -117,14 +125,24 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         errorBuilder: (context, error, stackTrace) {
                           return SizedBox();
                         },
-                        image: NetworkImage(context.watch<OrderProvider>().cartList[index].product.imageUrl),
+                        image: NetworkImage(context
+                            .watch<OrderProvider>()
+                            .cartList[index]
+                            .product
+                            .imageUrl),
                         width: 50,
                         height: 50,
                       ),
                     ),
-                    title: Text('${context.watch<OrderProvider>().cartList[index].product.name}'),
-                    subtitle: Text('${context.watch<OrderProvider>().cartList[index].product.price}'),
-                    trailing: Text(context.watch<OrderProvider>().cartList[index].quantity.toString()),
+                    title: Text(
+                        '${context.watch<OrderProvider>().cartList[index].product.name}'),
+                    subtitle: Text(
+                        '${context.watch<OrderProvider>().cartList[index].product.price}'),
+                    trailing: Text(context
+                        .watch<OrderProvider>()
+                        .cartList[index]
+                        .quantity
+                        .toString()),
                   );
                 }),
           ),
@@ -132,8 +150,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total Amount'),
-                Text(PriceHelper.getFormattedPrice(context.watch<OrderProvider>().totalAmount)),
+                Text(TranslationHelper(context: context)
+                    .getTranslation('totalAmount')),
+                Text(PriceHelper.getFormattedPrice(
+                    context.watch<OrderProvider>().totalAmount)),
               ],
             ),
           ),

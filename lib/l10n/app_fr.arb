@@ -1,0 +1,241 @@
+{
+  "helloWorld": "Bonjour le Monde!",
+  "@helloWorld": {
+    "description": "The conventional newborn programmer greeting"
+  },
+  "email": "Email",
+    "@email": {
+        "description": "A label for an email input field"
+    },
+    "password": "Mot de passe",
+    "@password": {
+        "description": "A label for a password input field"
+    },
+    "invalidEmailOrPassword": "Email ou mot de passe invalide",
+    "@invalidEmailOrPassword": {
+        "description": "An error message for an invalid email or password"
+    },
+    "signIn": "Se connecter",
+    "@signIn": {
+        "description": "A button to sign in"
+    },
+    "signOut": "Se déconnecter",
+    "@signOut": {
+        "description": "A button to sign out"
+    },
+    "confirmSignOut": "Êtes-vous sûr de vouloir vous déconnecter?",
+    "@confirmSignOut": {
+        "description": "A confirmation message for signing out"
+    },
+    "yes": "Oui",
+    "@yes": {
+        "description": "A button to confirm an action"
+    },
+    "no": "Non",
+    "@no": {
+        "description": "A button to cancel an action"
+    },
+    "cancel": "Annuler",
+                        "@cancel": {
+                            "description": "A button to cancel an action"
+                        },
+     "confirmCancel": "Êtes-vous sûr de vouloir annuler?",
+                        "@confirmCancel": {
+                            "description": "A confirmation message for cancelling"
+                        },
+    "error": "Erreur",
+    "@error": {
+        "description": "A label for an error message"
+    },
+    "home": "Accueil",
+    "@home": {
+        "description": "A label for the home page"
+    },
+    "orderList": "Liste de commandes",
+    "@orderList": {
+        "description": "A label for the order list page"
+    },
+    "addOrder": "Ajouter une commande",
+    "@addOrder": {
+        "description": "A button to add an order"
+    },
+    "trackOrders": "Suivre les commandes",
+    "@trackOrders": {
+        "description": "A label for the track orders page"
+    },
+    "customerList": "Liste de clients",
+    "@customerList": {
+        "description": "A label for the customer list page"
+    },
+    "addCustomer": "Ajouter un client",
+    "@addCustomer": {
+        "description": "A button to add a customer"
+    },
+    "profile": "Profil",
+    "@profile": {
+        "description": "A label for the profile page"
+    },
+    "settings": "Paramètres",
+    "@settings": {
+        "description": "A label for the settings page"
+    },
+    "orders": "Commandes",
+                "@orders": {
+                    "description": "A label for the orders page"
+                },
+                "totalAmount": "Total Amount",
+                            "@totalAmount": {
+                                "description": "A label for the total amount"
+                            },
+           "totalAmount": "Montant total",
+                       "@totalAmount": {
+                           "description": "A label for the total amount"
+                       },                 
+    "pending": "En attente",
+    "@pending": {
+        "description": "A label for a pending status"
+    },
+    "inProgress": "En cours",
+    "@inProgress": {
+        "description": "A label for an in progress status"
+    },
+    "completed": "Terminé",
+    "@completed": {
+        "description": "A label for a completed status"
+    },
+    "collected": "Collecté",
+    "@collected": {
+        "description": "A label for a collected status"
+    },
+    "previous": "Précédent",
+    "@previous": {
+        "description": "A label for a previous page"
+    },
+                    "next": "Suivant",
+                    "@next": {
+                        "description": "A label for a next page"
+                    },
+                  "customerDetails": "Détails du client",
+                    "@customerDetails": {
+                        "description": "A label for the customer details page"
+                    },
+                    "selectCustomer": "Sélectionner un client",
+                    "@selectCustomer": {
+                        "description": "A label for a select customer input field"
+                    },
+                    "dateAndTime": "Date & heure",
+                    "@dateAndTime": {
+                        "description": "A label for a date and time input field"
+                    },
+                    "pickDate" : "Sélectionner une date",
+                    "@pickDate": {
+                        "description": "A label for a pick date input field"
+                    },
+                    "pickTime" : "Sélectionner une heure",
+                    "@pickTime": {
+                        "description": "A label for a pick time input field"
+                    },
+                    "fillOrder" : "Remplir la commande",
+                    "@fillOrder": {
+                        "description": "A button to fill an order"
+                    },
+                     "quantity" : "Quantité",
+                                    "@quantity": {
+                                        "description": "A label for a quantity input field"
+                                    },
+                                    "editQuantity" : "Modifier la quantité",
+                                    "@editQuantity": {
+                                        "description": "A button to edit quantity"
+                                    },
+                    "noItemAdded" : "Aucun article ajouté",
+                    "@noItemAdded": {
+                        "description": "A label for no item added"
+                    },
+                    "pleaseAddItemFirst" : "Veuillez d'abord ajouter un article",
+                    "@pleaseAddItemFirst": {
+                        "description": "A label for please add item first"
+                    },
+                    "addItemCart" : "Ajouter au panier",
+                    "@addItemCart": {
+                        "description": "A button to add item to cart"
+                    },
+                    "confirm" : "Confirmer",
+                    "@confirm": {
+                        "description": "A button to confirm an action"
+                    },
+                    "paymentDetails" : "Détails de paiement",
+                    "@paymentDetails": {
+                        "description": "A label for the payment details page"
+                    },
+                    "paymentAmount" : "Montant du paiement",
+                    "@paymentAmount": {
+                        "description": "A label for the payment amount"
+                    },
+                    "note" : "Note",
+                    "@note": {
+                        "description": "A label for a note input field"
+                    },
+                    "reviewOrder" : "Réviser la commande",
+                    "@reviewOrder": {
+                        "description": "A label for the review order page"
+                    },
+                    "success" : "Succès",
+                    "@success": {
+                        "description": "A label for a success message"
+                    },
+                     "orderAdded" : "Commande ajoutée avec succès",
+                    "@orderAdded": {
+                        "description": "A label for order added successfully"
+                    },
+                     "orderUpdated" : "Commande mise à jour avec succès",
+                    "@orderUpdated": {
+                        "description": "A label for order updated successfully"
+                    },
+                                   
+                    "goToHome" : "Aller à la page d'accueil",
+                    "@goToHome": {
+                        "description": "A button to go to home"
+                    },
+  "hello": "Bonjour {userName}",
+  "@hello": {
+    "description": "A message with a single parameter",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "nWombats": "{count, plural, =0{no wombats} =1{1 wombat} other{{count} wombats}}",
+  "@nWombats": {
+    "description": "A plural message",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "pronoun": "{gender, select, male{il} female{elle} other{ils}}",
+  "@pronoun": {
+    "description": "A gendered message",
+    "placeholders": {
+      "gender": {
+        "type": "String"
+      }
+    }
+  },
+  "numberOfDataPoints": "Number of data points: {value}",
+  "@numberOfDataPoints": {
+    "description": "A message with a formatted int parameter",
+    "placeholders": {
+      "value": {
+        "type": "int",
+        "format": "compactCurrency",
+        "optionalParameters": {
+          "decimalDigits": 2
+        }
+      }
+    }
+  }
+}

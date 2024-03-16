@@ -1,11 +1,16 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:take_order_app/main.dart';
 
 class SelectDateTimePage extends StatefulWidget {
   final DateTime selectedDate;
   final Function(DateTime) onSelectedDate;
   final Function(DateTime) onSelectedTime;
 
-  SelectDateTimePage({super.key, required this.selectedDate, required this.onSelectedDate, required this.onSelectedTime});
+  SelectDateTimePage(
+      {super.key,
+      required this.selectedDate,
+      required this.onSelectedDate,
+      required this.onSelectedTime});
 
   @override
   State<SelectDateTimePage> createState() => _SelectDateTimePageState();
@@ -22,7 +27,8 @@ class _SelectDateTimePageState extends State<SelectDateTimePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           DatePicker(
-            header: 'Pick a date',
+            header:
+                TranslationHelper(context: context).getTranslation('pickDate'),
             selected: widget.selectedDate,
             onChanged: (time) {
               widget.onSelectedDate(time);
@@ -35,7 +41,8 @@ class _SelectDateTimePageState extends State<SelectDateTimePage> {
             height: 20,
           ),
           TimePicker(
-            header: 'Pick a time',
+            header:
+                TranslationHelper(context: context).getTranslation('pickTime'),
             selected: widget.selectedDate,
             onChanged: (DateTime time) {
               widget.onSelectedTime(time);

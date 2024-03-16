@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../main.dart';
 import '../../../../core/helper/price_helper.dart';
 import '../provider/order_provider.dart';
 
@@ -12,7 +13,12 @@ class PaymentDetailPage extends StatefulWidget {
   final Function(double) onChangedPaidAmount;
   final TextEditingController noteController;
 
-  const PaymentDetailPage({super.key, required this.fromKeyPayment, required this.paymentAmount, required this.onChangedPaidAmount, required this.noteController});
+  const PaymentDetailPage(
+      {super.key,
+      required this.fromKeyPayment,
+      required this.paymentAmount,
+      required this.onChangedPaidAmount,
+      required this.noteController});
 
   @override
   State<PaymentDetailPage> createState() => _PaymentDetailPageState();
@@ -29,7 +35,8 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
         child: Column(
           children: [
             InfoLabel(
-              label: 'Payment Amount:',
+              label: TranslationHelper(context: context)
+                  .getTranslation('paymentAmount'),
               child: NumberFormBox<double>(
                 onChanged: (value) {
                   widget.onChangedPaidAmount(value!);
@@ -38,14 +45,16 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
                   });*/
                 },
                 value: widget.paymentAmount,
-                placeholder: 'Payment Amount',
+                placeholder: TranslationHelper(context: context)
+                    .getTranslation('paymentAmount'),
                 min: 0,
                 max: context.watch<OrderProvider>().totalAmount,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.numeric(),
-                  FormBuilderValidators.min(0, errorText: 'Payment amount must be greater than 0'),
+                  FormBuilderValidators.min(0,
+                      errorText: 'Payment amount must be greater than 0'),
                 ]),
               ),
             ),
@@ -56,14 +65,16 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
               child: Column(
                 children: [
                   InfoLabel(
-                    label: 'Note:',
+                    label:
+                        '${TranslationHelper(context: context).getTranslation('note')}:',
                     child: TextFormBox(
                       onChanged: (value) {
                         setState(() {});
                       },
                       maxLength: 200,
                       controller: widget.noteController,
-                      placeholder: 'Note ...',
+                      placeholder:
+                          '${TranslationHelper(context: context).getTranslation('note')} ...',
                       minLines: 3,
                       maxLines: 6,
                     ),
@@ -73,7 +84,9 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
                       text: TextSpan(
                         text: widget.noteController.text.length.toString(),
                         style: TextStyle(
-                          color: widget.noteController.text.length > 200 ? Colors.red : Colors.black,
+                          color: widget.noteController.text.length > 200
+                              ? Colors.red
+                              : Colors.black,
                         ),
                         children: [
                           TextSpan(
@@ -93,8 +106,10 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total Amount'),
-                  Text(PriceHelper.getFormattedPrice(context.watch<OrderProvider>().totalAmount)),
+                  Text(TranslationHelper(context: context)
+                      .getTranslation('totalAmount')),
+                  Text(PriceHelper.getFormattedPrice(
+                      context.watch<OrderProvider>().totalAmount)),
                 ],
               ),
             ),

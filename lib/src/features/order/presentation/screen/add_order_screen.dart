@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/features/customer/presentation/provider/customer_provider.dart';
 import 'package:take_order_app/src/features/product/presentation/provider/product_provider.dart';
 
@@ -22,7 +23,8 @@ class AddOrderScreen extends StatefulWidget {
   State<AddOrderScreen> createState() => _AddOrderScreenState();
 }
 
-class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStateMixin {
+class _AddOrderScreenState extends State<AddOrderScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
   late AnimationController _animationControllerProgressBar;
@@ -87,7 +89,11 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
       curve: Curves.easeIn,
     );
 
-    _animationControllerProgressBar = AnimationController(vsync: this, duration: Duration(milliseconds: 3300), lowerBound: 0, upperBound: 11);
+    _animationControllerProgressBar = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 3300),
+        lowerBound: 0,
+        upperBound: 11);
     _animationControllerProgressBar.animateTo(1.5);
   }
 
@@ -96,17 +102,22 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
   String getTitle(int index) {
     switch (index) {
       case 0:
-        return 'Customer Details';
+        return /*'Customer Details'*/ TranslationHelper(context: context)
+            .getTranslation('customerDetails');
       case 1:
-        return 'Date & Time';
+        return /*'Date & Time'*/ TranslationHelper(context: context)
+            .getTranslation('dateAndTime');
       case 2:
-        return 'Fill Order';
+        return /*'Fill Order'*/ TranslationHelper(context: context)
+            .getTranslation('fillOrder');
       case 3:
-        return 'Payment Detail';
+        return /*'Payment Detail'*/ TranslationHelper(context: context)
+            .getTranslation('paymentDetails');
       case 4:
-        return 'Review Order';
+        return /* 'Review Order'*/ TranslationHelper(context: context)
+            .getTranslation('reviewOrder');
       case 5:
-        return 'Order Placed Successfully';
+        return TranslationHelper(context: context).getTranslation('success');
       default:
         return '';
     }
@@ -121,7 +132,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
-      backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+      backgroundColor:
+          FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: material.AppBar(
         leading: currentStep == 0
             ? material.BackButton(
@@ -129,7 +141,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                   bool? isConfirmed = await showDialog<bool>(
                     context: context,
                     builder: (context) => ContentDialog(
-                      constraints: BoxConstraints(maxWidth: 350, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                      constraints: BoxConstraints(
+                          maxWidth: 350,
+                          maxHeight: MediaQuery.of(context).size.height * 0.8),
                       title: Row(children: [
                         Expanded(
                           child: Container(
@@ -161,7 +175,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                             SizedBox(
                               height: 20,
                             ),
-                            const Text('Are you sure you want to cancel?'),
+                            Text(TranslationHelper(context: context)
+                                .getTranslation('confirmCancel')),
                             SizedBox(
                               height: 20,
                             ),
@@ -170,13 +185,15 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                       ),
                       actions: [
                         Button(
-                          child: const Text('No'),
+                          child: Text(TranslationHelper(context: context)
+                              .getTranslation('no')),
                           onPressed: () {
                             Navigator.pop(context, false);
                           },
                         ),
                         FilledButton(
-                          child: const Text('Yes'),
+                          child: Text(TranslationHelper(context: context)
+                              .getTranslation('yes')),
                           onPressed: () {
                             Navigator.pop(context, true);
                           },
@@ -193,12 +210,28 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
             : null,
         centerTitle: true,
         shadowColor: FluentTheme.of(context).shadowColor,
-        surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
-        backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        surfaceTintColor:
+            FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor:
+            FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         elevation: 4,
         title: Text(getTitle(currentStep)),
       ),
-      bottomNavigationBar: currentStep >= 5 ? null : AddOrderBottomBar(currentStep: currentStep, pageController: pageController, animationControllerProgressBar: _animationControllerProgressBar, formKeyCustomer: _formKeyCustomer, lstProducts: lstProducts, formKeyPayment: _formKeyPayment, paymentAmount: _paymentAmount, noteController: _noteController, selectedDate: selectedDate, selectedCustomerId: selectedCustomerId, lstCustomers: lstCustomers, animationController: _animationController),
+      bottomNavigationBar: currentStep >= 5
+          ? null
+          : AddOrderBottomBar(
+              currentStep: currentStep,
+              pageController: pageController,
+              animationControllerProgressBar: _animationControllerProgressBar,
+              formKeyCustomer: _formKeyCustomer,
+              lstProducts: lstProducts,
+              formKeyPayment: _formKeyPayment,
+              paymentAmount: _paymentAmount,
+              noteController: _noteController,
+              selectedDate: selectedDate,
+              selectedCustomerId: selectedCustomerId,
+              lstCustomers: lstCustomers,
+              animationController: _animationController),
       body: DismissKeyboard(
         child: Column(
           children: [
@@ -225,12 +258,14 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                   selectedDate: selectedDate,
                   onSelectedDate: (DateTime time) {
                     setState(() {
-                      selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
+                      selectedDate = selectedDate.copyWith(
+                          year: time.year, month: time.month, day: time.day);
                     });
                   },
                   onSelectedTime: (DateTime time) {
                     setState(() {
-                      selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
+                      selectedDate = selectedDate.copyWith(
+                          hour: time.hour, minute: time.minute);
                     });
                   },
                 ),
@@ -249,7 +284,10 @@ class _AddOrderScreenState extends State<AddOrderScreen> with TickerProviderStat
                     },
                     noteController: _noteController),
                 // page for review
-                ReviewOrderPage(selectedDate: selectedDate, selectedCustomerId: selectedCustomerId, lstCustomers: lstCustomers),
+                ReviewOrderPage(
+                    selectedDate: selectedDate,
+                    selectedCustomerId: selectedCustomerId,
+                    lstCustomers: lstCustomers),
 
                 // success page
                 SuccessPage(animation: _animation),

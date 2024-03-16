@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 
 import '../../../auth/presentation/provider/auth_provider.dart';
 import '../../../cart/data/model/cart_model.dart';
@@ -31,7 +32,24 @@ class AddOrderBottomBar extends StatefulWidget {
   final Function(UpdateOrderParam updateOrderParam)? onUpdateDate;
 
   const AddOrderBottomBar(
-      {super.key, required this.currentStep, required this.pageController, required this.animationControllerProgressBar, required this.formKeyCustomer, required this.lstProducts, required this.formKeyPayment, required this.paymentAmount, required this.noteController, required this.selectedDate, required this.selectedCustomerId, required this.lstCustomers, required this.animationController, this.isUpdate = false, this.orderModel, this.orderId, this.orderDate, this.onUpdateDate});
+      {super.key,
+      required this.currentStep,
+      required this.pageController,
+      required this.animationControllerProgressBar,
+      required this.formKeyCustomer,
+      required this.lstProducts,
+      required this.formKeyPayment,
+      required this.paymentAmount,
+      required this.noteController,
+      required this.selectedDate,
+      required this.selectedCustomerId,
+      required this.lstCustomers,
+      required this.animationController,
+      this.isUpdate = false,
+      this.orderModel,
+      this.orderId,
+      this.orderDate,
+      this.onUpdateDate});
 
   @override
   State<AddOrderBottomBar> createState() => _AddOrderBottomBarState();
@@ -54,7 +72,8 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                     SizedBox(
                       width: 10,
                     ),
-                    Text('Back')
+                    Text(TranslationHelper(context: context)
+                        .getTranslation('previous')),
                   ],
                 ),
               ),
@@ -62,7 +81,10 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                   ? null
                   : () {
                       if (widget.currentStep > 0) {
-                        widget.pageController.animateToPage(widget.currentStep - 1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                        widget.pageController.animateToPage(
+                            widget.currentStep - 1,
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.easeIn);
                         if (widget.currentStep == 1) {
                           widget.animationControllerProgressBar.animateTo(1.5);
                         } else if (widget.currentStep == 2) {
@@ -77,15 +99,25 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
           if (widget.currentStep == 2)
             FilledButton(
               onPressed: () async {
-                List<ProductModel> filteredProducts = widget.lstProducts.where((element) => !context.read<OrderProvider>().cartList.map((e) => e.product.id).contains(element.id)).toList();
+                List<ProductModel> filteredProducts = widget.lstProducts
+                    .where((element) => !context
+                        .read<OrderProvider>()
+                        .cartList
+                        .map((e) => e.product.id)
+                        .contains(element.id))
+                    .toList();
 
                 await showDialog<bool>(
                   context: context,
                   builder: (context) => ContentDialog(
-                    constraints: BoxConstraints(maxWidth: 400, maxHeight: MediaQuery.of(context).size.height * 0.8),
+                    constraints: BoxConstraints(
+                        maxWidth: 400,
+                        maxHeight: MediaQuery.of(context).size.height * 0.8),
                     title: Row(children: [
                       Expanded(
-                        child: const Text('Add Item to cart'),
+                        child: Text(/*'Add Item to cart'),*/ TranslationHelper(
+                                context: context)
+                            .getTranslation('addItemCart')),
                       ),
                       IconButton(
                         onPressed: () {
@@ -102,22 +134,30 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                           itemCount: filteredProducts.length,
                           itemBuilder: (context, index) {
                             return ListTile.selectable(
-                              selected: context.watch<OrderProvider>().selectedProductAddId == filteredProducts[index].id,
+                              selected: context
+                                      .watch<OrderProvider>()
+                                      .selectedProductAddId ==
+                                  filteredProducts[index].id,
                               leading: Container(
                                 child: Image(
                                   errorBuilder: (context, error, stackTrace) {
                                     return SizedBox();
                                   },
-                                  image: NetworkImage(filteredProducts[index].imageUrl),
+                                  image: NetworkImage(
+                                      filteredProducts[index].imageUrl),
                                   width: 50,
                                   height: 50,
                                 ),
                               ),
                               title: Text(filteredProducts[index].name),
-                              subtitle: Text(filteredProducts[index].price.toString()),
+                              subtitle: Text(
+                                  filteredProducts[index].price.toString()),
                               onPressed: () {
                                 setState(() {
-                                  context.read<OrderProvider>().setSelectedProductAddId(filteredProducts[index].id);
+                                  context
+                                      .read<OrderProvider>()
+                                      .setSelectedProductAddId(
+                                          filteredProducts[index].id);
                                 });
                               },
                             );
@@ -132,14 +172,19 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                             Button(
                               child: const Icon(FluentIcons.add),
                               onPressed: () {
-                                context.read<OrderProvider>().incrementOrderQty();
+                                context
+                                    .read<OrderProvider>()
+                                    .incrementOrderQty();
                               },
                             ),
                             SizedBox(
                               width: 10,
                             ),
                             Text(
-                              context.watch<OrderProvider>().orderQty.toString(),
+                              context
+                                  .watch<OrderProvider>()
+                                  .orderQty
+                                  .toString(),
                               style: const TextStyle(
                                 fontSize: 20,
                               ),
@@ -150,23 +195,34 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                             Button(
                               child: const Icon(FluentIcons.remove),
                               onPressed: () {
-                                context.read<OrderProvider>().decrementOrderQty();
+                                context
+                                    .read<OrderProvider>()
+                                    .decrementOrderQty();
                               },
                             ),
                           ],
                         ),
                       ),
                       FilledButton(
-                        child: const Text('Confirm'),
+                        child: Text(TranslationHelper(context: context)
+                            .getTranslation('confirm')),
                         onPressed: () {
                           context.read<OrderProvider>().addCartList(
                                 CartModel(
                                   isDone: false,
-                                  product: widget.lstProducts.firstWhere((element) => element.id == context.read<OrderProvider>().selectedProductAddId),
-                                  quantity: context.read<OrderProvider>().orderQty,
+                                  product: widget.lstProducts.firstWhere(
+                                      (element) =>
+                                          element.id ==
+                                          context
+                                              .read<OrderProvider>()
+                                              .selectedProductAddId),
+                                  quantity:
+                                      context.read<OrderProvider>().orderQty,
                                 ),
                               );
-                          context.read<OrderProvider>().setSelectedProductAddId(null);
+                          context
+                              .read<OrderProvider>()
+                              .setSelectedProductAddId(null);
                           Navigator.pop(context, true);
                         },
                       ),
@@ -194,7 +250,11 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                   SizedBox(
                     width: 10,
                   ),
-                  Text(widget.currentStep == 4 ? 'Place Order' : 'Next')
+                  Text(widget.currentStep == 4
+                      ? TranslationHelper(context: context)
+                          .getTranslation('confirm')
+                      : TranslationHelper(context: context)
+                          .getTranslation('next')),
                 ],
               ),
             ),
@@ -204,21 +264,30 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                   /* setState(() {
                         currentStep += 1;
                       });*/
-                  widget.pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.pageController.animateToPage(1,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn);
                   widget.animationControllerProgressBar.animateTo(3.5);
                 }
               } else if (widget.currentStep == 1) {
-                widget.pageController.animateToPage(2, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                widget.pageController.animateToPage(2,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeIn);
                 widget.animationControllerProgressBar.animateTo(5.5);
               } else if (widget.currentStep == 2) {
                 if (context.read<OrderProvider>().cartList.isNotEmpty) {
-                  widget.pageController.animateToPage(3, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.pageController.animateToPage(3,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn);
                   widget.animationControllerProgressBar.animateTo(7.5);
                 } else {
-                  displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+                  displayInfoBar(alignment: Alignment.topRight, context,
+                      builder: (context, close) {
                     return InfoBar(
-                      title: const Text('Error!'),
-                      content: const Text('Please add item first'),
+                      title: Text(TranslationHelper(context: context)
+                          .getTranslation('error')),
+                      content: Text(TranslationHelper(context: context)
+                          .getTranslation('pleaseAddItemFirst')),
                       severity: InfoBarSeverity.error,
                       action: IconButton(
                         icon: const Icon(FluentIcons.clear),
@@ -229,13 +298,17 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                 }
               } else if (widget.currentStep == 3) {
                 if (widget.formKeyPayment.currentState!.validate()) {
-                  widget.pageController.animateToPage(4, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                  widget.pageController.animateToPage(4,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn);
                   widget.animationControllerProgressBar.animateTo(9.5);
                 }
               } else if (widget.currentStep == 4) {
                 if (widget.isUpdate == false) {
-                  List<CartModel> cartList = context.read<OrderProvider>().cartList;
-                  CustomerModel customer = widget.lstCustomers.firstWhere((element) => element.id == widget.selectedCustomerId);
+                  List<CartModel> cartList =
+                      context.read<OrderProvider>().cartList;
+                  CustomerModel customer = widget.lstCustomers.firstWhere(
+                      (element) => element.id == widget.selectedCustomerId);
                   double paymentAmount = widget.paymentAmount;
                   DateTime orderDate = widget.selectedDate;
                   String note = widget.noteController.text;
@@ -246,17 +319,29 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                     paymentAmount: paymentAmount,
                     orderDate: orderDate,
                     note: note.isEmpty ? null : note,
-                    orderTime: material.TimeOfDay(hour: widget.selectedDate.hour, minute: widget.selectedDate.minute),
+                    orderTime: material.TimeOfDay(
+                        hour: widget.selectedDate.hour,
+                        minute: widget.selectedDate.minute),
                   );
 
-                  context.read<OrderProvider>().placeOrder(placeOrderModel).then((value) {
+                  context
+                      .read<OrderProvider>()
+                      .placeOrder(placeOrderModel)
+                      .then((value) {
                     if (value) {
                       widget.animationControllerProgressBar.animateTo(11);
-                      widget.pageController.animateToPage(5, duration: Duration(milliseconds: 300), curve: Curves.easeIn).whenComplete(() => widget.animationController.forward());
+                      widget.pageController
+                          .animateToPage(5,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeIn)
+                          .whenComplete(
+                              () => widget.animationController.forward());
                     } else {
-                      displayInfoBar(alignment: Alignment.topRight, context, builder: (context, close) {
+                      displayInfoBar(alignment: Alignment.topRight, context,
+                          builder: (context, close) {
                         return InfoBar(
-                          title: const Text('Error!'),
+                          title: Text(TranslationHelper(context: context)
+                              .getTranslation('error')),
                           content: const Text('Error placing order'),
                           severity: InfoBarSeverity.error,
                           action: IconButton(
@@ -268,7 +353,9 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                     }
                   });
                 } else {
-                  OrderModel? orderModelAsync = await context.read<OrderProvider>().getOrderDetail(widget.orderId!, widget.orderDate!);
+                  OrderModel? orderModelAsync = await context
+                      .read<OrderProvider>()
+                      .getOrderDetail(widget.orderId!, widget.orderDate!);
                   if (widget.orderModel != null) {
                     print('oldCartList.length');
                     print(orderModelAsync!.cart.length);
@@ -276,18 +363,36 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                     print(context.read<OrderProvider>().cartList.length);
 
                     // new data
-                    List<CartModel> allCartList = context.read<OrderProvider>().cartList;
+                    List<CartModel> allCartList =
+                        context.read<OrderProvider>().cartList;
 
                     List<CartModel> oldCartList = orderModelAsync.cart;
 
-                    List<CartModel> addedCartList = allCartList.where((element) => !oldCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+                    List<CartModel> addedCartList = allCartList
+                        .where((element) => !oldCartList
+                            .map((e) => e.product.id)
+                            .contains(element.product.id))
+                        .toList();
 
-                    List<CartModel> removedCartList = oldCartList.where((element) => !allCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+                    List<CartModel> removedCartList = oldCartList
+                        .where((element) => !allCartList
+                            .map((e) => e.product.id)
+                            .contains(element.product.id))
+                        .toList();
 
-                    List<CartModel> updatedCartList = allCartList.where((element) => oldCartList.map((e) => e.product.id).contains(element.product.id)).toList();
+                    List<CartModel> updatedCartList = allCartList
+                        .where((element) => oldCartList
+                            .map((e) => e.product.id)
+                            .contains(element.product.id))
+                        .toList();
 
                     // remove where old qty = new qty
-                    updatedCartList.removeWhere((element) => oldCartList.firstWhere((e) => e.product.id == element.product.id).quantity == element.quantity);
+                    updatedCartList.removeWhere((element) =>
+                        oldCartList
+                            .firstWhere(
+                                (e) => e.product.id == element.product.id)
+                            .quantity ==
+                        element.quantity);
                     print('addedCartList');
                     print(addedCartList);
 
@@ -302,7 +407,8 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                       updatedCart: updatedCartList,
                     );
 
-                    String newUserId = context.read<AuthProvider>().getUser()!.id;
+                    String newUserId =
+                        context.read<AuthProvider>().getUser()!.id;
 
                     int newCustomerId = widget.selectedCustomerId;
                     DateTime newDate = widget.selectedDate;
@@ -312,13 +418,27 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                     UpdateOrderParam updateOrderParam = UpdateOrderParam(
                       orderId: orderModelAsync.id!,
                       orderDate: orderModelAsync.date,
-                      userId: orderModelAsync.user.uid != newUserId ? newUserId : null,
-                      customerId: orderModelAsync.customer.id != newCustomerId ? newCustomerId : null,
-                      date: orderModelAsync.date.copyWith(hour: 0, minute: 0) != newDate.copyWith(hour: 0, minute: 0) ? newDate.copyWith(hour: 0, minute: 0) : null,
-                      time: orderModelAsync.time.hour != newDate.hour || orderModelAsync.time.minute != newDate.minute ? material.TimeOfDay(hour: newDate.hour, minute: newDate.minute) : null,
+                      userId: orderModelAsync.user.uid != newUserId
+                          ? newUserId
+                          : null,
+                      customerId: orderModelAsync.customer.id != newCustomerId
+                          ? newCustomerId
+                          : null,
+                      date: orderModelAsync.date.copyWith(hour: 0, minute: 0) !=
+                              newDate.copyWith(hour: 0, minute: 0)
+                          ? newDate.copyWith(hour: 0, minute: 0)
+                          : null,
+                      time: orderModelAsync.time.hour != newDate.hour ||
+                              orderModelAsync.time.minute != newDate.minute
+                          ? material.TimeOfDay(
+                              hour: newDate.hour, minute: newDate.minute)
+                          : null,
                       actionMap: actionMap,
-                      paidAmount: orderModelAsync.paidAmount != newPaidAmount ? newPaidAmount : null,
-                      note: orderModelAsync.orderNote != newNote ? newNote : null,
+                      paidAmount: orderModelAsync.paidAmount != newPaidAmount
+                          ? newPaidAmount
+                          : null,
+                      note:
+                          orderModelAsync.orderNote != newNote ? newNote : null,
                     );
 
                     widget.onUpdateDate!(updateOrderParam);

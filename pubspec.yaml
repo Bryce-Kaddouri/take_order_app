@@ -50,9 +50,8 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   flutter_localizations:
     sdk: flutter
-  l10n_flutter: ^1.0.7
-  flutter_gen: ^5.4.0
-  intl: any
+  intl: any # Use the pinned version from flutter_localizations
+
 
 
 dev_dependencies:

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 
 import '../provider/auth_provider.dart';
 
@@ -30,7 +31,14 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.overlayBackgroundColor,
+      appBar: AppBar(
+        title: Text(
+          TranslationHelper(context: context).getTranslation('helloWorld'),
+        ),
+      ),
+      backgroundColor: fluent.FluentTheme.of(context)
+          .navigationPaneTheme
+          .overlayBackgroundColor,
       body: DismissKeyboard(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -45,14 +53,16 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                 Container(
                   child: Column(children: [
                     fluent.InfoLabel(
-                      label: 'Email:',
+                      label: /*'Email:',*/
+                          '${TranslationHelper(context: context).getTranslation('email')}:',
                       child: fluent.TextFormBox(
                         keyboardType: TextInputType.emailAddress,
                         onTapOutside: (event) {
                           print('onTapOutside');
                           _emailFocusNode.unfocus();
                         },
-                        placeholder: 'Email',
+                        placeholder: TranslationHelper(context: context)
+                            .getTranslation('email'),
                         focusNode: _emailFocusNode,
                         controller: _emailController,
                         prefix: Container(
@@ -67,7 +77,8 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                     ),
                     const SizedBox(height: 10),
                     fluent.InfoLabel(
-                      label: 'Password:',
+                      label:
+                          '${TranslationHelper(context: context).getTranslation('password')}:',
                       child: fluent.PasswordFormBox(
                         onEditingComplete: () {
                           print('onEditingComplete');
@@ -79,7 +90,8 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                         },
                         focusNode: _passwordFocusNode,
                         controller: _passwordController,
-                        placeholder: 'Password',
+                        placeholder: TranslationHelper(context: context)
+                            .getTranslation('password'),
                         leadingIcon: Container(
                           padding: const EdgeInsets.all(10),
                           child: const Icon(fluent.FluentIcons.lock),
@@ -118,8 +130,14 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                               context,
                               builder: (context, close) {
                                 return fluent.InfoBar(
-                                  title: const Text('Error!'),
-                                  content: const Text('Invalid email or password. Please try again.'),
+                                  title: Text(
+                                    TranslationHelper(context: context)
+                                        .getTranslation('error'),
+                                  ),
+                                  content: Text(
+                                      TranslationHelper(context: context)
+                                          .getTranslation(
+                                              'invalidEmailOrPassword')),
 
                                   /*'The user has not been added because of an error. ${l.errorMessage}'*/
 
@@ -139,8 +157,9 @@ class _SignInScreenState extends fluent.State<SignInScreen> {
                     },
                     child: context.watch<AuthProvider>().isLoading
                         ? const fluent.ProgressRing()
-                        : const Text(
-                            'Sign In',
+                        : Text(
+                            TranslationHelper(context: context)
+                                .getTranslation('signIn'),
                             style: TextStyle(color: Colors.white),
                           ),
                   ),
@@ -165,7 +184,8 @@ class DismissKeyboard extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+          if (!currentFocus.hasPrimaryFocus &&
+              currentFocus.focusedChild != null) {
             FocusManager.instance.primaryFocus?.unfocus();
           }
         },

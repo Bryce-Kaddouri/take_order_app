@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../main.dart';
 import '../../../../core/helper/date_helper.dart';
 
 class SuccessPage extends StatefulWidget {
@@ -8,7 +9,12 @@ class SuccessPage extends StatefulWidget {
   final bool isUpdate;
   final int? orderId;
   final DateTime? orderDate;
-  const SuccessPage({super.key, required this.animation, this.isUpdate = false, this.orderId, this.orderDate});
+  const SuccessPage(
+      {super.key,
+      required this.animation,
+      this.isUpdate = false,
+      this.orderId,
+      this.orderDate});
 
   @override
   State<SuccessPage> createState() => _SuccessPageState();
@@ -39,7 +45,11 @@ class _SuccessPageState extends State<SuccessPage> {
             },
           ),
           Text(
-            'Order has been ${widget.isUpdate ? 'updated' : 'added'} successfully',
+            widget.isUpdate
+                ? TranslationHelper(context: context)
+                    .getTranslation('orderAdded')
+                : TranslationHelper(context: context)
+                    .getTranslation('orderAdded'),
             style: TextStyle(fontSize: 16),
           ),
           Container(
@@ -55,7 +65,8 @@ class _SuccessPageState extends State<SuccessPage> {
                   context.go('/orders');
                 }
               },
-              child: Text('Go to Orders'),
+              child: Text(TranslationHelper(context: context)
+                  .getTranslation('goToHome')),
             ),
           ),
         ],

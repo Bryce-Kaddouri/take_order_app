@@ -1,5 +1,6 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 
 import '../../../../core/constant/app_color.dart';
@@ -11,15 +12,15 @@ class StatusWidget extends StatelessWidget {
 
   Color getBgColor() {
     switch (status) {
-      case 'Cancelled':
+      case 'cancelled':
         return AppColor.canceledBackgroundColor;
-      case 'Pending':
+      case 'pending':
         return AppColor.pendingBackgroundColor;
-      case 'Cooking':
+      case 'inProgress':
         return AppColor.cookingBackgroundColor;
-      case 'Completed':
+      case 'completed':
         return AppColor.completedBackgroundColor;
-      case 'Collected':
+      case 'collected':
         return AppColor.completedForegroundColor;
       default:
         return Colors.grey;
@@ -28,15 +29,15 @@ class StatusWidget extends StatelessWidget {
 
   Color getFgColor() {
     switch (status) {
-      case 'Cancelled':
+      case 'cancelled':
         return AppColor.canceledForegroundColor;
-      case 'Pending':
+      case 'pending':
         return AppColor.pendingForegroundColor;
-      case 'Cooking':
+      case 'inProgress':
         return AppColor.cookingForegroundColor;
-      case 'Completed':
+      case 'completed':
         return AppColor.completedForegroundColor;
-      case 'Collected':
+      case 'collected':
         return Colors.white;
       default:
         return Colors.grey;
@@ -52,7 +53,7 @@ class StatusWidget extends StatelessWidget {
         color: getBgColor(),
       ),
       child: Text(
-        status,
+        TranslationHelper(context: context).getTranslation(status),
         style: TextStyle(
           color: getFgColor(),
           fontWeight: FontWeight.bold,
@@ -66,7 +67,11 @@ class OrdersItemViewByStatus extends StatelessWidget {
   final String status;
   final OrderModel order;
   final bool isTrackOrder;
-  const OrdersItemViewByStatus({super.key, required this.status, required this.order, this.isTrackOrder = false});
+  const OrdersItemViewByStatus(
+      {super.key,
+      required this.status,
+      required this.order,
+      this.isTrackOrder = false});
 
   double getTotal(int index) {
     double total = 0;
@@ -116,7 +121,8 @@ class OrdersItemViewByStatus extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Text('${order.customer.lName} ${order.customer.fName}'),
+                      child: Text(
+                          '${order.customer.lName} ${order.customer.fName}'),
                     ),
                   ),
                   Expanded(
