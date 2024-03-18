@@ -244,7 +244,22 @@
   "@language": {
     "description": "A field for language"
   },
-                
+  "noPendingOrders" : "No pending orders",
+  "@noPendingOrders": {
+    "description": "A field for no pending order"
+  },
+  "noInProgressOrders" : "No orders in progress",
+  "@noInProgressOrders": {
+    "description": "A field for no in progress order"
+  },
+  "noCompletedOrders" : "No completed orders",
+  "@noCompletedOrders": {
+    "description": "A field for no in completed order"
+  },
+  "noCollectedOrders" : "No collected orders",
+  "@noCollectedOrders": {
+    "description": "A field for no completed order"
+  },
                 
               
   "hello": "Hello {userName}",

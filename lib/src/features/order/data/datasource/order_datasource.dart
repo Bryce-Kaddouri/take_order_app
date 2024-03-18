@@ -291,21 +291,29 @@ class OrderDataSource {
 
   Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(
       GetOrderByIdParam param) async {
+    print('update status');
     try {
       var status = await _client.from('status').select().eq('step', 4).single();
+      print(status);
       int statusId = status['id'];
+      print('status id = $statusId');
+      print(param.orderId);
+      print(param.date);
 
-      await _client
+      var res = await _client
           .from('orders')
           .update({
             'status_id': statusId,
             'updated_at': DateTime.now().toIso8601String(),
             'collected_date': DateTime.now().toIso8601String(),
           })
+
           .eq('id', param.orderId)
           .eq('date', param.date.toIso8601String())
-          .select()
-          .single();
+          .select();
+      print('res $res');
+
+         /* .single()*/
       print('response from updateToCollectedOrder');
 
       return const Right(true);

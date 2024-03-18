@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/core/helper/responsive_helper.dart';
 import 'package:take_order_app/src/features/order/presentation/provider/order_provider.dart';
@@ -236,10 +237,17 @@ class _TrackOrderScreenState extends State<TrackOrderScreen> with TickerProvider
             );
           } else {
             final orders = snapshot.data as List<OrderModel>;
-            List<OrderModel> pendingOrders = orders.where((element) => element.status.name == 'Pending').toList();
-            List<OrderModel> cookingOrders = orders.where((element) => element.status.name == 'Cooking').toList();
-            List<OrderModel> readyOrders = orders.where((element) => element.status.name == 'Completed').toList();
-            List<OrderModel> collectedOrders = orders.where((element) => element.status.name == 'Collected').toList();
+            print(orders);
+            List<OrderModel> pendingOrders = orders.where((element) => element.status.step == 1).toList();
+            print(pendingOrders.length);
+            List<OrderModel> cookingOrders = orders.where((element) => element.status.step == 2).toList();
+            print(cookingOrders.length);
+            List<OrderModel> readyOrders = orders.where((element) => element.status.step == 3).toList();
+            print(readyOrders.length);
+            List<OrderModel> collectedOrders = orders.where((element) => element.status.step == 4).toList();
+            print(collectedOrders.length);
+
+
             return !ResponsiveHelper.isMobile(context)
                 ? LayoutBuilder(
                     builder: (context, constraints) {
@@ -395,7 +403,7 @@ class _PendingListViewWidgetState extends State<PendingListViewWidget> {
         child: Row(
           children: [
             Text(
-              'Pending',
+              TranslationHelper(context: context).getTranslation('pending'),
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -432,14 +440,14 @@ class _PendingListViewWidgetState extends State<PendingListViewWidget> {
               ),
         child: widget.pendingOrders.isEmpty
             ? Center(
-                child: Text('No Pending Orders'),
+                child: Text(TranslationHelper(context: context).getTranslation('noPendingOrders')),
               )
             : ListView.builder(
                 shrinkWrap: true,
                 physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
                 itemCount: widget.pendingOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Pending', order: widget.pendingOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'pending', order: widget.pendingOrders[index]);
                 },
               ),
       ),
@@ -488,7 +496,7 @@ class _CookingListViewWidgetState extends State<CookingListViewWidget> {
         child: Row(
           children: [
             Text(
-              'Cooking',
+              TranslationHelper(context: context).getTranslation('inProgress'),
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -525,14 +533,14 @@ class _CookingListViewWidgetState extends State<CookingListViewWidget> {
               ),
         child: widget.cookingOrders.isEmpty
             ? Center(
-                child: Text('No Cooking Orders'),
+                child: Text(TranslationHelper(context: context).getTranslation('noInProgressOrders')),
               )
             : ListView.builder(
                 shrinkWrap: true,
                 physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
                 itemCount: widget.cookingOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Cooking', order: widget.cookingOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'inProgress', order: widget.cookingOrders[index]);
                 },
               ),
       ),
@@ -581,7 +589,7 @@ class _ReadyListViewWidgetState extends State<ReadyListViewWidget> {
         child: Row(
           children: [
             Text(
-              'Completed',
+              TranslationHelper(context: context).getTranslation('completed'),
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -618,14 +626,14 @@ class _ReadyListViewWidgetState extends State<ReadyListViewWidget> {
               ),
         child: widget.readyOrders.isEmpty
             ? Center(
-                child: Text('No Ready Orders'),
+                child: Text(TranslationHelper(context: context).getTranslation('noCompletedOrders'),),
               )
             : ListView.builder(
                 shrinkWrap: true,
                 physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
                 itemCount: widget.readyOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: widget.readyOrders[index].status.name, order: widget.readyOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'completed', order: widget.readyOrders[index]);
                 },
               ),
       ),
@@ -676,7 +684,7 @@ class _CollectedListViewWidgetState extends State<CollectedListViewWidget> {
         child: Row(
           children: [
             Text(
-              'Collected',
+            TranslationHelper(context: context).getTranslation('collected'),
               style: TextStyle(fontSize: 20),
             ),
             Container(
@@ -713,14 +721,14 @@ class _CollectedListViewWidgetState extends State<CollectedListViewWidget> {
               ),
         child: widget.collectedOrders.isEmpty
             ? Center(
-                child: Text('No Collected Orders'),
+                child: Text(TranslationHelper(context: context).getTranslation('noCollectedOrders'),),
               )
             : ListView.builder(
                 shrinkWrap: true,
                 physics: widget.isMobile ? NeverScrollableScrollPhysics() : AlwaysScrollableScrollPhysics(),
                 itemCount: widget.collectedOrders.length,
                 itemBuilder: (context, index) {
-                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'Collected', order: widget.collectedOrders[index]);
+                  return OrdersItemViewByStatus(isTrackOrder: true, status: 'collected', order: widget.collectedOrders[index]);
                 },
               ),
       ),

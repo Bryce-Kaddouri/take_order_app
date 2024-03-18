@@ -31,66 +31,7 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
   Widget build(BuildContext context) {
     return material.Scaffold(
 
-        /*header: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 1,
-                blurRadius: 3,
-                offset: Offset(0, 1), // changes position of shadow
-              ),
-            ],
-          ),
-          height: 60,
-          child: Row(
-            children: [
-              Container(
-                height: 60,
-                width: 44,
-                margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: FilledButton(
-                  style: ButtonStyle(
-                    padding: ButtonState.all(EdgeInsets.all(0)),
-                  ),
-                  onPressed: () {
-                    context.go('/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    child: Icon(FluentIcons.back),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.only(
-                    right: 60,
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(FluentIcons.streaming, size: 24),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        '${DateHelper.getFormattedDate(widget.orderDate)} - #${widget.orderId}',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 8,
-              ),
-            ],
-          ),
-        ),*/
+
         backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         appBar: material.AppBar(
           leading: material.BackButton(
@@ -177,13 +118,21 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                         ),
                       ),
                       Expanded(
-                        child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                           CustomerHourWidget(
                             order: order,
                           ),
-                          Spacer(),
-                          StatusWithButtonWidget(
+                          /*StatusWithButtonWidget(
                             order: order,
+                          ),*/
+                          Expanded(child:
+                          Container(
+                            width: double.infinity,
+                            child:  StatusWithButtonWidget(
+                                order: order,
+                              ),
+
+                          ),
                           ),
                         ]),
                       ),
@@ -206,17 +155,34 @@ class StatusStepWidget extends StatefulWidget {
 }
 
 class _StatusStepWidgetState extends State<StatusStepWidget> {
+
+  late  ScrollController scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    scrollController =  ScrollController(
+      initialScrollOffset: widget.order.status.step  * 100
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-          child: Container(
-        alignment: Alignment.centerLeft,
-        child: Column(
+          child:
+              Container(child:
+                  SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    controller: scrollController,
+                    child:
+          Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              child: Column(
+              child:
+
+              Column(
                 children: [
                   Container(
                       child: Row(
@@ -240,7 +206,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                         ),
                       SizedBox(width: 10),
                       StatusWidget(
-                        status: 'Pending',
+                        status: 'pending',
                       ),
                     ],
                   )),
@@ -297,7 +263,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                         ),
                       SizedBox(width: 10),
                       StatusWidget(
-                        status: 'Cooking',
+                        status: 'inProgress',
                       ),
                     ],
                   )),
@@ -353,7 +319,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                           ),
                         SizedBox(width: 10),
                         StatusWidget(
-                          status: 'Completed',
+                          status: 'completed',
                         ),
                       ],
                     )),
@@ -399,7 +365,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                           ),
                         SizedBox(width: 10),
                         StatusWidget(
-                          status: 'Collected',
+                          status: 'collected',
                         ),
                       ],
                     )),
@@ -420,8 +386,9 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
                 ),
               ),
           ],
-        ),
-      )),
+        ),),
+              ),
+      ),
       if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context))
         StatusButton(
           order: widget.order,
@@ -756,14 +723,16 @@ class StatusWithButtonWidget extends StatelessWidget {
     return Card(
         margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
         child: Container(
-          padding: const EdgeInsets.all(20),
-          margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
-          constraints: BoxConstraints(
-            maxHeight: order.status.step * 100 + 120,
-          ),
-          child: StatusStepWidget(
+          margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 0, bottom: 0) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
+          /*constraints: BoxConstraints(
+            maxHeight: order.status.step * 100 + 100,
+          ),*/
+/*
+          height: order.status.step * 100 + 100,
+*/
+          child:  StatusStepWidget(
             order: order,
-          ),
+        ),
         ));
   }
 }

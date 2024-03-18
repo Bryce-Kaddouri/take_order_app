@@ -456,6 +456,11 @@ class TranslationHelper {
       'addCustomer': AppLocalizations.of(context)!.addCustomer,
       'darkMode': AppLocalizations.of(context)!.darkMode,
       'language': AppLocalizations.of(context)!.language,
+      'noPendingOrders': AppLocalizations.of(context)!.noPendingOrders,
+      'noInProgressOrders': AppLocalizations.of(context)!.noInProgressOrders,
+      'noCompletedOrders': AppLocalizations.of(context)!.noCompletedOrders,
+      'noCollectedOrders': AppLocalizations.of(context)!.noCollectedOrders,
+
 
 
     };

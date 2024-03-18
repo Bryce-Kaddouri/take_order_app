@@ -248,6 +248,22 @@
   "@language": {
     "description": "A field for language"
   },
+  "noPendingOrders" : "Aucune commande en attente",
+  "@noPendingOrders": {
+    "description": "A field for no pending order"
+  },
+  "noInProgressOrders" : "Aucune commande en cours",
+  "@noInProgressOrders": {
+    "description": "A field for no in progress order"
+  },
+  "noCompletedOrders" : "Aucune commande terminée",
+  "@noCompletedOrders": {
+    "description": "A field for no in completed order"
+  },
+  "noCollectedOrders" : "Aucune commande collectée",
+  "@noCollectedOrders": {
+    "description": "A field for no completed order"
+  },
   "hello": "Bonjour {userName}",
   "@hello": {
     "description": "A message with a single parameter",
