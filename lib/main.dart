@@ -355,6 +355,11 @@ class _MyAppState extends State<MyApp> {
     // #docregion MaterialApp
     return FluentApp.router(
       title: 'Localizations Sample App',
+      locale: context.watch<ProfileProvider>().languageCode == 'en'
+          ? const Locale('en')
+          : context.watch<ProfileProvider>().languageCode == 'es'
+              ? const Locale('es')
+              : const Locale('fr'),
       localizationsDelegates: [
         AppLocalizations.delegate, // Add this line
         GlobalMaterialLocalizations.delegate,
@@ -439,6 +444,20 @@ class TranslationHelper {
       'orderUpdated': AppLocalizations.of(context)!.orderUpdated,
       'success': AppLocalizations.of(context)!.success,
       'goToHome': AppLocalizations.of(context)!.goToHome,
+      'customerList': AppLocalizations.of(context)!.customerList,
+      'searchCustomer': AppLocalizations.of(context)!.searchCustomer,
+      'customerDetails': AppLocalizations.of(context)!.customerDetails,
+      'firstName': AppLocalizations.of(context)!.firstName,
+      'firstNamePlaceHolder': AppLocalizations.of(context)!.firstNamePLaceHolder,
+      'lastName': AppLocalizations.of(context)!.lastName,
+      'lastNamePlaceHolder': AppLocalizations.of(context)!.lastNamePLaceHolder,
+      'phoneNumber': AppLocalizations.of(context)!.phoneNumber,
+      'editCustomer': AppLocalizations.of(context)!.editCustomer,
+      'addCustomer': AppLocalizations.of(context)!.addCustomer,
+      'darkMode': AppLocalizations.of(context)!.darkMode,
+      'language': AppLocalizations.of(context)!.language,
+
+
     };
     return translations[key]!;
   }

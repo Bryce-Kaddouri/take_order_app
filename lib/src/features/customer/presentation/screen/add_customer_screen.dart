@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 
 import '../provider/customer_provider.dart';
@@ -75,7 +76,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       SizedBox(
                         height: 20,
                       ),
-                      const Text('Are you sure you want to cancel?'),
+                      Text(TranslationHelper(context: context).getTranslation('confirmCancel')),
                       SizedBox(
                         height: 20,
                       ),
@@ -84,13 +85,13 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                 ),
                 actions: [
                   Button(
-                    child: const Text('No'),
+                    child: Text(TranslationHelper(context: context).getTranslation('no')),
                     onPressed: () {
                       Navigator.pop(context, false);
                     },
                   ),
                   FilledButton(
-                    child: const Text('Yes'),
+                    child: Text(TranslationHelper(context: context).getTranslation('yes')),
                     onPressed: () {
                       Navigator.pop(context, true);
                     },
@@ -104,7 +105,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
             }
           },
         ),
-        title: const Text('Add Customer'),
+        title: Text(TranslationHelper(context: context).getTranslation('addCustomer')),
       ),
       body: DismissKeyboard(
         child: Container(
@@ -120,10 +121,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     height: 50,
                   ),
                   InfoLabel(
-                    label: 'First Name',
+                    label: TranslationHelper(context: context).getTranslation('firstName'),
                     child: TextFormBox(
                       controller: _firstNameController,
-                      placeholder: 'Enter your first name',
+                      placeholder: TranslationHelper(context: context).getTranslation('firstNamePlaceHolder'),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
                         // check if is text
@@ -134,10 +135,10 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     height: 30,
                   ),
                   InfoLabel(
-                    label: 'Last Name',
+                    label: TranslationHelper(context: context).getTranslation('lastName'),
                     child: TextFormBox(
                       controller: _lastNameController,
-                      placeholder: 'Enter your last name',
+                      placeholder: TranslationHelper(context: context).getTranslation('lastNamePlaceHolder'),
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
                         // check if is text
@@ -148,7 +149,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                     height: 30,
                   ),
                   InfoLabel(
-                    label: 'Phone Number',
+                    label: TranslationHelper(context: context).getTranslation('phoneNumber'),
                     child: Container(
                       alignment: Alignment.center,
                       height: 100,
@@ -168,7 +169,7 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                           decoration: material.InputDecoration(
                             filled: true,
                             fillColor: FluentTheme.of(context).inactiveBackgroundColor,
-                            hintText: 'Phone Number',
+                            hintText: TranslationHelper(context: context).getTranslation('phoneNumber'),
                           ),
                           initialCountryCode: 'IE',
                           controller: _phoneNumberController,
@@ -214,8 +215,8 @@ class _AddCustomerScreenState extends State<AddCustomerScreen> {
                       },
                       child: context.watch<CustomerProvider>().isLoading
                           ? const ProgressRing()
-                          : const Text(
-                              'Sign In',
+                          : Text(
+                        TranslationHelper(context: context).getTranslation('addCustomer'),
                               style: TextStyle(color: Colors.white),
                             ),
                     ),

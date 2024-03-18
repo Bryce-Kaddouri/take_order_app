@@ -8,6 +8,8 @@ import 'package:take_order_app/src/features/auth/data/model/user_model.dart';
 import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
 import 'package:take_order_app/src/features/profile/presentation/provider/profile_provider.dart';
 
+import '../../../../../main.dart';
+
 class ProfileScreen extends fluent.StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -31,7 +33,8 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+      backgroundColor:
+          fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
       appBar: AppBar(
         leading: BackButton(
           onPressed: () async {
@@ -40,10 +43,12 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
         ),
         centerTitle: true,
         shadowColor: fluent.FluentTheme.of(context).shadowColor,
-        surfaceTintColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
-        backgroundColor: fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        surfaceTintColor:
+            fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
+        backgroundColor:
+            fluent.FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         elevation: 4,
-        title: const Text('Profile'),
+        title: Text(TranslationHelper(context: context).getTranslation('profile')),
       ),
       body: Container(
         padding: const EdgeInsets.all(20),
@@ -83,14 +88,20 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
             ),
             // lsitile swith to change theme
             fluent.ListTile(
-              contentPadding: const EdgeInsets.only(top: 20, bottom: 20, right: 20),
-              tileColor: fluent.ButtonState.all(FluentTheme.of(context).menuColor),
-              title: const Text('Dark Mode'),
+              contentPadding:
+                  const EdgeInsets.only(top: 20, bottom: 20, right: 20),
+              tileColor:
+                  fluent.ButtonState.all(FluentTheme.of(context).menuColor),
+              title: Text(TranslationHelper(context: context).getTranslation('darkMode')),
               leading: const Icon(fluent.FluentIcons.clear_night),
               trailing: fluent.ToggleSwitch(
-                checked: context.watch<ProfileProvider>().themeMode == 'dark' ? true : false,
+                checked: context.watch<ProfileProvider>().themeMode == 'dark'
+                    ? true
+                    : false,
                 onChanged: (value) {
-                  context.read<ProfileProvider>().setThemeMode(value ? 'dark' : 'light');
+                  context
+                      .read<ProfileProvider>()
+                      .setThemeMode(value ? 'dark' : 'light');
                 },
               ),
             ),
@@ -98,9 +109,12 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
               height: 10,
             ),
             fluent.ListTile(
-              contentPadding: const EdgeInsets.only(top: 20, bottom: 20, right: 20),
-              tileColor: fluent.ButtonState.all(FluentTheme.of(context).menuColor),
-              title: const Text('Language'),
+              onPressed: () {},
+              contentPadding:
+                  const EdgeInsets.only(top: 20, bottom: 20, right: 20),
+              tileColor:
+                  fluent.ButtonState.all(FluentTheme.of(context).menuColor),
+              title: Text(TranslationHelper(context: context).getTranslation('language')),
               leading: const Icon(fluent.FluentIcons.globe),
               trailing: SplitButton(
                 key: splitButtonKey,
@@ -127,6 +141,7 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
                         title: const Text('English'),
                         onPressed: () {
                           /*splitButtonKey.currentState!.close();*/
+                          context.read<ProfileProvider>().setLanguageCode('en');
                         },
                       ),
                       fluent.ListTile.selectable(
@@ -134,6 +149,7 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
                         title: const Text('French'),
                         onPressed: () {
                           /*splitButtonKey.currentState!.close();*/
+                          context.read<ProfileProvider>().setLanguageCode('fr');
                         },
                       ),
                       fluent.ListTile.selectable(
@@ -148,6 +164,7 @@ class _ProfileScreenState extends fluent.State<ProfileScreen> {
                         title: const Text('Chinese'),
                         onPressed: () {
                           /*splitButtonKey.currentState!.close();*/
+                          context.read<ProfileProvider>().setLanguageCode('zh');
                         },
                       ),
                     ],

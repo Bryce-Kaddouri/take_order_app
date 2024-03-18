@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 import 'package:take_order_app/src/features/order/data/model/order_model.dart';
 import 'package:take_order_app/src/features/order/presentation/widget/order_item_view_by_status_widget.dart';
@@ -79,7 +80,9 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
   @override
   void initState() {
     super.initState();
-    initData(context);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      initData(context);
+    });
   }
 
   @override
@@ -139,7 +142,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                         SizedBox(
                           height: 20,
                         ),
-                        const Text('Are you sure you want to cancel?'),
+                        Text(TranslationHelper(context: context).getTranslation('confirmCancel')),
                         SizedBox(
                           height: 20,
                         ),
@@ -148,13 +151,13 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   ),
                   actions: [
                     Button(
-                      child: const Text('No'),
+                      child: Text(TranslationHelper(context: context).getTranslation('no')),
                       onPressed: () {
                         Navigator.pop(context, false);
                       },
                     ),
                     FilledButton(
-                      child: const Text('Yes'),
+                      child: Text(TranslationHelper(context: context).getTranslation('yes')),
                       onPressed: () {
                         Navigator.pop(context, true);
                       },
@@ -197,10 +200,12 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
             width: 10,
           ),
         ],
-        title: const Text('Customer Details'),
+        title: Text( TranslationHelper(context: context).getTranslation(!context.watch<CustomerProvider>().isEditingCustomer ?'customerDetails' : 'editCustomer')),
       ),
       body: DismissKeyboard(
-        child: Container(
+        child:
+        SingleChildScrollView(child:
+        Container(
           padding: const EdgeInsets.all(20),
           child: customer == null || isLoading
               ? const Center(
@@ -211,11 +216,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                   child: Column(
                     children: [
                       InfoLabel(
-                        label: 'First Name:',
+                        label: '${TranslationHelper(context: context).getTranslation('firstName')}:',
                         child: TextFormBox(
                           readOnly: !context.watch<CustomerProvider>().isEditingCustomer,
                           controller: _firstNameController,
-                          placeholder: 'Enter your first name',
+                          placeholder: TranslationHelper(context: context).getTranslation('firstNamePlaceHolder'),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                             // check if is text
@@ -223,11 +228,11 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                         ),
                       ),
                       InfoLabel(
-                        label: 'Last Name:',
+                        label: '${TranslationHelper(context: context).getTranslation('lastName')}:',
                         child: TextFormBox(
                           readOnly: !context.watch<CustomerProvider>().isEditingCustomer,
                           controller: _lastNameController,
-                          placeholder: 'Enter your last name',
+                          placeholder: TranslationHelper(context: context).getTranslation('lastNamePlaceHolder'),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                             // check if is text
@@ -235,7 +240,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                         ),
                       ),
                       InfoLabel(
-                        label: 'Phone Number:',
+                        label: '${TranslationHelper(context: context).getTranslation('phoneNumber')}:',
                         child: Container(
                           alignment: Alignment.center,
                           height: 100,
@@ -256,7 +261,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                               decoration: material.InputDecoration(
                                 filled: true,
                                 fillColor: FluentTheme.of(context).inactiveBackgroundColor,
-                                hintText: 'Phone Number',
+                                hintText: TranslationHelper(context: context).getTranslation('phoneNumber'),
                               ),
                               initialCountryCode: 'IE',
                               controller: _phoneNumberController,
@@ -277,8 +282,12 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                       ),
                       if (!context.watch<CustomerProvider>().isEditingCustomer)
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Order List'),
+                            SizedBox(height: 20,),
+                            Text(TranslationHelper(context: context).getTranslation('orderList'), style: FluentTheme.of(context).typography.bodyLarge!.copyWith(fontSize: 24)),
+                            SizedBox(height: 20,),
+
                             Column(
                               children: List.generate(
                                 distinctOrders.length,
@@ -315,6 +324,7 @@ class _CustomerDetailScreenState extends State<CustomerDetailScreen> {
                     ],
                   ),
                 ),
+        ),
         ),
       ),
     );

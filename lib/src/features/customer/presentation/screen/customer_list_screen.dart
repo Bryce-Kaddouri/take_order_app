@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/features/auth/presentation/screen/signin_screen.dart';
 
 import '../../data/model/customer_model.dart';
@@ -30,7 +31,7 @@ class CustomerListScreen extends StatelessWidget {
                 height: 40,
                 child: TextBox(
                   controller: context.read<CustomerProvider>().searchController,
-                  placeholder: 'Search Customer ...',
+                  placeholder:TranslationHelper(context: context).getTranslation('searchCustomer'),
                   prefix: Container(
                     padding: EdgeInsets.all(8),
                     child: Icon(FluentIcons.search),
@@ -50,7 +51,7 @@ class CustomerListScreen extends StatelessWidget {
                   },
                 ),
               )
-            : const Text('Customers'),
+            : Text(TranslationHelper(context: context).getTranslation('customerList')),
         actions: [
           Button(
             style: ButtonStyle(

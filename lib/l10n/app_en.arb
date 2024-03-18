@@ -192,6 +192,58 @@
                 "@goToHome": {
                     "description": "A button to go to home"
                 },
+                "customerList" : "Customer list",
+                 "@customerList": {
+                                    "description": "A field for customer list"
+                                },
+  "searchCustomer" : "Search Customer ...",
+  "@searchCustomer": {
+    "description": "A field for search customer"
+  },
+  "customerDetails" : "Customer's Details",
+  "@customerDetails": {
+    "description": "A field for customer details"
+  },
+  "editCustomer" : "Edit Customer",
+  "@editCustomer": {
+    "description": "A field for edit customer"
+  },
+  "firstName" : "First Name",
+  "@firstName": {
+    "description": "A field for First Name"
+  },
+  "firstNamePLaceHolder" : "Enter First Name",
+  "@firstNamePLaceHolder": {
+    "description": "A field for First Name place holder"
+  },
+  "lastName" : "Last Name",
+  "@lastName": {
+    "description": "A field for Last Name"
+  },
+  "lastNamePLaceHolder" : "Enter Last Name",
+  "@lastNamePLaceHolder": {
+    "description": "A field for Last place holder"
+  },
+  "phoneNumber" : "Phone Number",
+  "@phoneNumber": {
+    "description": "A field for Phone Number"
+  },
+  "addCustomer" : "Add Customer",
+  "@addCustomer": {
+    "description": "A field for Add customer"
+  },
+  "profile" : "Profile",
+  "@addCustomer": {
+    "description": "A field for profile"
+  },
+  "darkMode" : "Dark Mode",
+  "@darkMode": {
+    "description": "A field for dark mode"
+  },
+  "language" : "Language",
+  "@language": {
+    "description": "A field for language"
+  },
                 
                 
               

@@ -196,6 +196,58 @@
                     "@goToHome": {
                         "description": "A button to go to home"
                     },
+  "customerList" : "Liste des clients",
+  "@customerList": {
+    "description": "A field for customer list"
+  },
+  "searchCustomer" : "Rechercher un client ...",
+  "@searchCustomer": {
+    "description": "A field for search customer"
+  },
+  "customerDetails" : "Details du client",
+  "@customerDetails": {
+    "description": "A field for customer details"
+  },
+  "editCustomer" : "Modification du client",
+  "@editCustomer": {
+    "description": "A field for edit customer"
+  },
+  "firstName" : "Prénom",
+  "@firstName": {
+    "description": "A field for First Name"
+  },
+  "firstNamePLaceHolder" : "Saisir vore prénom",
+  "@firstNamePLaceHolder": {
+    "description": "A field for First Name place holder"
+  },
+  "lastName" : "Nom de famille",
+  "@lastName": {
+    "description": "A field for Last Name"
+  },
+  "lastNamePLaceHolder" : "Saisir votre nom de famille",
+  "@lastNamePLaceHolder": {
+    "description": "A field for Last place holder"
+  },
+  "phoneNumber" : "Numéro de téléphone",
+  "@phoneNumber": {
+    "description": "A field for Phone Number"
+  },
+  "addCustomer" : "Ajouter un client",
+  "@addCustomer": {
+    "description": "A field for Add customer"
+  },
+  "profile" : "Profil",
+  "@addCustomer": {
+    "description": "A field for profile"
+  },
+  "darkMode" : "Mode Sombre",
+  "@darkMode": {
+    "description": "A field for dark mode"
+  },
+  "language" : "Langage",
+  "@language": {
+    "description": "A field for language"
+  },
   "hello": "Bonjour {userName}",
   "@hello": {
     "description": "A message with a single parameter",

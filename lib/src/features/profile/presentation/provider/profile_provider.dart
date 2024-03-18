@@ -20,4 +20,21 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  String _languageCode = 'en';
+  String get languageCode => _languageCode;
+
+  void setLanguageCode(String value) {
+    _languageCode = value;
+    _secureStorage.write(key: 'languageCode', value: value);
+    notifyListeners();
+  }
+
+  void getLanguageCode() async {
+    final languageCode = await _secureStorage.read(key: 'languageCode');
+    if (languageCode != null) {
+      _languageCode = languageCode;
+      notifyListeners();
+    }
+  }
 }
