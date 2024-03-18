@@ -7,7 +7,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:take_order_app/src/features/auth/data/model/user_model.dart';
 import 'package:take_order_app/src/features/auth/presentation/provider/auth_provider.dart';
 import 'package:take_order_app/src/features/profile/presentation/provider/profile_provider.dart';
-
 import '../../../../../main.dart';
 
 class ProfileScreen extends fluent.StatefulWidget {
