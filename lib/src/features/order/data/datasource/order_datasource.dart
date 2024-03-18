@@ -303,14 +303,24 @@ class OrderDataSource {
       var res = await _client
           .from('orders')
           .update({
-            'status_id': statusId,
-            'updated_at': DateTime.now().toIso8601String(),
-            'collected_date': DateTime.now().toIso8601String(),
+        'status_id' : 6
+      })
+          .eq('id', 3)
+          .eq('date', param.date.toIso8601String())
+          .select()
+          .single();
+
+     /* await _client
+          .from('orders')
+          .update({
+            'status_id': 6,
+           *//* 'updated_at': DateTime.now().toIso8601String(),
+            'collected_date': DateTime.now().toIso8601String(),*//*
           })
 
-          .eq('id', param.orderId)
-          .eq('date', param.date.toIso8601String())
-          .select();
+          .eq('id', 3)
+          .eq('date', '2024-03-17')
+          .select();*/
       print('res $res');
 
          /* .single()*/

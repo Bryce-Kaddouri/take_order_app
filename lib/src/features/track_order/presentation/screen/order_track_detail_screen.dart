@@ -164,6 +164,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
     scrollController =  ScrollController(
       initialScrollOffset: widget.order.status.step  * 100
     );
+    print('orderDate : ${widget.order.date}');
   }
 
   @override
@@ -416,7 +417,8 @@ class _StatusButtonState extends State<StatusButton> {
         child: Text('Collected'),
       ),
       onPressed: () {
-        GetOrderByIdParam param = GetOrderByIdParam(orderId: widget.order.id!, date: widget.order.createdAt);
+        GetOrderByIdParam param = GetOrderByIdParam(orderId: widget.order.id!, date: widget.order.date);
+
         context.read<OrderProvider>().updateToCollectedOrder(param).then((value) async {
           if (value) {
             await displayInfoBar(
@@ -434,7 +436,7 @@ class _StatusButtonState extends State<StatusButton> {
               },
               alignment: Alignment.topRight,
             );
-            context.go('/track-order/${DateHelper.getFormattedDate(widget.order.createdAt)}');
+            context.go('/track-order/${DateHelper.getFormattedDate(widget.order.date)}');
           }
         });
       },
