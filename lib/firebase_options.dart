@@ -47,29 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAWsNvqUENtuNMqIoo38pAYIOvkPBLZlqY',
-    appId: '1:519233427923:web:bcaddbade1c2000a1c7726',
-    messagingSenderId: '519233427923',
-    projectId: 'take-order-app',
-    authDomain: 'take-order-app.firebaseapp.com',
-    storageBucket: 'take-order-app.appspot.com',
-    measurementId: 'G-MG6L0JP370',
+    apiKey: 'AIzaSyDgxdU-5HEM-DfJ3ON6yclgsLPJI22cXz4',
+    appId: '1:537682313523:web:8396d90546411c0e8ebe46',
+    messagingSenderId: '537682313523',
+    projectId: 'take-order-app-2024',
+    authDomain: 'take-order-app-2024.firebaseapp.com',
+    storageBucket: 'take-order-app-2024.appspot.com',
+    measurementId: 'G-XVB0RVSGV8',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCY_9mlFqy7xPQDMUlCq4Md4r1_n-OKHa4',
-    appId: '1:519233427923:android:cf958eec54cb6e551c7726',
-    messagingSenderId: '519233427923',
-    projectId: 'take-order-app',
-    storageBucket: 'take-order-app.appspot.com',
+    apiKey: 'AIzaSyD0tFDyzZNDbHaj1wGPN-FEWkYUw9ARqzY',
+    appId: '1:537682313523:android:ccadd3301bf97ea18ebe46',
+    messagingSenderId: '537682313523',
+    projectId: 'take-order-app-2024',
+    storageBucket: 'take-order-app-2024.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDg6QvytJ1hiWTbos2MpnexRClw4TvWvPQ',
-    appId: '1:519233427923:ios:a23f9767bd13a2991c7726',
-    messagingSenderId: '519233427923',
-    projectId: 'take-order-app',
-    storageBucket: 'take-order-app.appspot.com',
+    apiKey: 'AIzaSyCFoR7s4tDOS69MvSRFjvMI44paIIOv0bU',
+    appId: '1:537682313523:ios:db01f2eafc88a2328ebe46',
+    messagingSenderId: '537682313523',
+    projectId: 'take-order-app-2024',
+    storageBucket: 'take-order-app-2024.appspot.com',
     iosBundleId: 'com.example.takeOrderApp',
   );
 }
