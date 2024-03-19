@@ -264,6 +264,10 @@
   "@noCollectedOrders": {
     "description": "A field for no completed order"
   },
+  "confirmCollected": "Etes-vous sûr de vouloir marquer cette commande comme collectée?",
+  "@confirmCollected": {
+    "description": "A field for confirm collected"
+  },
   "hello": "Bonjour {userName}",
   "@hello": {
     "description": "A message with a single parameter",

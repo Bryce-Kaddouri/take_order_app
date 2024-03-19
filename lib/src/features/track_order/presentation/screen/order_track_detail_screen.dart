@@ -2,6 +2,7 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:take_order_app/main.dart';
 import 'package:take_order_app/src/core/helper/date_helper.dart';
 import 'package:take_order_app/src/core/helper/price_helper.dart';
 import 'package:take_order_app/src/features/order/business/param/get_order_by_id_param.dart';
@@ -30,10 +31,9 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return material.Scaffold(
-
-
         backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
         appBar: material.AppBar(
+          leadingWidth: 60,
           leading: material.BackButton(
             onPressed: () async {
               context.go('/track-order/${DateHelper.getFormattedDate(widget.orderDate)}');
@@ -44,18 +44,23 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
           surfaceTintColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
           backgroundColor: FluentTheme.of(context).navigationPaneTheme.backgroundColor,
           elevation: 4,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(FluentIcons.streaming, size: 24),
-              SizedBox(
-                width: 8,
-              ),
-              Text(
-                '${DateHelper.getFormattedDate(widget.orderDate)} - #${widget.orderId}',
-                style: TextStyle(fontSize: 20),
-              ),
-            ],
+          title: Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(FluentIcons.streaming, size: 24),
+                SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  '${DateHelper.getFormattedDate(widget.orderDate)} - #${widget.orderId}',
+                  style: TextStyle(fontSize: 20),
+                ),
+                SizedBox(
+                  width: 60,
+                ),
+              ],
+            ),
           ),
         ),
         body: Container(
@@ -125,14 +130,13 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                           /*StatusWithButtonWidget(
                             order: order,
                           ),*/
-                          Expanded(child:
-                          Container(
-                            width: double.infinity,
-                            child:  StatusWithButtonWidget(
+                          Expanded(
+                            child: Container(
+                              width: double.infinity,
+                              child: StatusWithButtonWidget(
                                 order: order,
                               ),
-
-                          ),
+                            ),
                           ),
                         ]),
                       ),
@@ -155,15 +159,12 @@ class StatusStepWidget extends StatefulWidget {
 }
 
 class _StatusStepWidgetState extends State<StatusStepWidget> {
-
-  late  ScrollController scrollController;
+  late ScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
-    scrollController =  ScrollController(
-      initialScrollOffset: widget.order.status.step  * 100
-    );
+    scrollController = ScrollController(initialScrollOffset: widget.order.status.step * 100);
     print('orderDate : ${widget.order.date}');
   }
 
@@ -171,224 +172,228 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-          child:
-              Container(child:
-                  SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    controller: scrollController,
-                    child:
-          Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              child:
-
-              Column(
-                children: [
-                  Container(
-                      child: Row(
+        child: Container(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            controller: scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Column(
                     children: [
-                      if (widget.order.status.step > 1)
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
-                        )
-                      else
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: CircleAvatar(
-                            backgroundColor: AppColor.pendingForegroundColor,
-                            child: Text(
-                              '1', /*style: FluentTheme.of(context)..bodyLarge!.copyWith(fontSize: 20, color: widget.order.status.step >= 1 ? Theme.of(context).colorScheme.secondary : AppColor.lightGreyTextColor)*/
+                      Container(
+                          child: Row(
+                        children: [
+                          if (widget.order.status.step > 1)
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
+                            )
+                          else
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: CircleAvatar(
+                                backgroundColor: AppColor.pendingForegroundColor,
+                                child: Text(
+                                  '1', /*style: FluentTheme.of(context)..bodyLarge!.copyWith(fontSize: 20, color: widget.order.status.step >= 1 ? Theme.of(context).colorScheme.secondary : AppColor.lightGreyTextColor)*/
+                                ),
+                              ),
                             ),
+                          SizedBox(width: 10),
+                          StatusWidget(
+                            status: 'pending',
                           ),
+                        ],
+                      )),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              width: 40,
+                              height: 40,
+                              child: // return 90 deg a divider
+                                  Container(
+                                width: 2,
+                                height: 30,
+                                color: widget.order.status.step > 1 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '${DateHelper.getFormattedDateTime(widget.order.createdAt)}',
+                              /* style: */ /*AppTextStyle.lightTextStyle(fontSize: 16),*/ /*
+                                Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 16)*/
+                            ),
+                          ],
                         ),
-                      SizedBox(width: 10),
-                      StatusWidget(
-                        status: 'pending',
                       ),
                     ],
-                  )),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    child: Row(
-                      children: [
+                  ),
+                ),
+                Container(
+                  child: Column(
+                    children: [
+                      Container(
+                          child: Row(
+                        children: [
+                          if (widget.order.status.step > 2)
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
+                            )
+                          else
+                            Container(
+                              height: 40,
+                              width: 40,
+                              child: CircleAvatar(
+                                backgroundColor: widget.order.status.step >= 2 ? AppColor.cookingForegroundColor : AppColor.lightCardColor,
+                                child: Text(
+                                  '2',
+                                  /*style: AppTextStyle.boldTextStyle(fontSize: 20, color: widget.order.status.step >= 2 ? Theme.of(context).primaryColor : AppColor.lightGreyTextColor),*/
+                                ),
+                              ),
+                            ),
+                          SizedBox(width: 10),
+                          StatusWidget(
+                            status: 'inProgress',
+                          ),
+                        ],
+                      )),
+                      if (widget.order.status.step >= 2)
                         Container(
-                          alignment: Alignment.center,
-                          width: 40,
-                          height: 40,
-                          child: // return 90 deg a divider
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          child: Row(
+                            children: [
                               Container(
-                            width: 2,
-                            height: 30,
-                            color: widget.order.status.step > 1 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                                alignment: Alignment.center,
+                                width: 40,
+                                height: 40,
+                                child: // return 90 deg a divider
+                                    Container(
+                                  width: 2,
+                                  height: 30,
+                                  color: widget.order.status.step > 2 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                '${widget.order.cookingAt != null ? DateHelper.getFormattedDateTime(widget.order.cookingAt!) : ''}',
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          '${DateHelper.getFormattedDateTime(widget.order.createdAt)}',
-                          /* style: */ /*AppTextStyle.lightTextStyle(fontSize: 16),*/ /*
-                                Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 16)*/
-                        ),
+                    ],
+                  ),
+                ),
+                if (widget.order.status.step >= 2)
+                  Container(
+                    child: Column(
+                      children: [
+                        Container(
+                            child: Row(
+                          children: [
+                            if (widget.order.status.step >= 3)
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
+                              )
+                            else
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: CircleAvatar(
+                                  backgroundColor: widget.order.status.step >= 3 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                                  child: Text(
+                                    '3',
+                                  ),
+                                ),
+                              ),
+                            SizedBox(width: 10),
+                            StatusWidget(
+                              status: 'completed',
+                            ),
+                          ],
+                        )),
+                        if (widget.order.status.step >= 3)
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            child: Row(
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  width: 40,
+                                  height: 40,
+                                  child: // return 90 deg a divider
+                                      Container(
+                                    width: 2,
+                                    height: 30,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Text('${DateHelper.getFormattedDateTime(widget.order.readyAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            Container(
-              child: Column(
-                children: [
+                if (widget.order.status.step >= 3)
                   Container(
-                      child: Row(
-                    children: [
-                      if (widget.order.status.step > 2)
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
-                        )
-                      else
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: CircleAvatar(
-                            backgroundColor: widget.order.status.step >= 2 ? AppColor.cookingForegroundColor : AppColor.lightCardColor,
-                            child: Text(
-                              '2',
-                              /*style: AppTextStyle.boldTextStyle(fontSize: 20, color: widget.order.status.step >= 2 ? Theme.of(context).primaryColor : AppColor.lightGreyTextColor),*/
-                            ),
-                          ),
-                        ),
-                      SizedBox(width: 10),
-                      StatusWidget(
-                        status: 'inProgress',
-                      ),
-                    ],
-                  )),
-                  if (widget.order.status.step >= 2)
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      child: Row(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: 40,
-                            height: 40,
-                            child: // return 90 deg a divider
-                                Container(
-                              width: 2,
-                              height: 30,
-                              color: widget.order.status.step > 2 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '${widget.order.cookingAt != null ? DateHelper.getFormattedDateTime(widget.order.cookingAt!) : ''}',
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (widget.order.status.step >= 2)
-              Container(
-                child: Column(
-                  children: [
-                    Container(
-                        child: Row(
+                    child: Column(
                       children: [
-                        if (widget.order.status.step >= 3)
-                          Container(
-                            height: 40,
-                            width: 40,
-                            child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
-                          )
-                        else
-                          Container(
-                            height: 40,
-                            width: 40,
-                            child: CircleAvatar(
-                              backgroundColor: widget.order.status.step >= 3 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
-                              child: Text(
-                                '3',
-                              ),
-                            ),
-                          ),
-                        SizedBox(width: 10),
-                        StatusWidget(
-                          status: 'completed',
-                        ),
-                      ],
-                    )),
-                    if (widget.order.status.step >= 3)
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
+                        Container(
+                            child: Row(
                           children: [
-                            Container(
-                              width: 40,
-                            ),
+                            if (widget.order.status.step >= 4)
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
+                              )
+                            else
+                              Container(
+                                height: 40,
+                                width: 40,
+                                child: CircleAvatar(
+                                  backgroundColor: widget.order.status.step >= 4 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
+                                  child: Text(
+                                    '3',
+                                  ),
+                                ),
+                              ),
                             SizedBox(width: 10),
-                            Text('${DateHelper.getFormattedDateTime(widget.order.readyAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                            StatusWidget(
+                              status: 'collected',
+                            ),
                           ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            if (widget.order.status.step >= 3)
-              Container(
-                child: Column(
-                  children: [
-                    Container(
-                        child: Row(
-                      children: [
+                        )),
                         if (widget.order.status.step >= 4)
                           Container(
-                            height: 40,
-                            width: 40,
-                            child: Icon(FluentIcons.check_mark, color: AppColor.completedForegroundColor, size: 40),
-                          )
-                        else
-                          Container(
-                            height: 40,
-                            width: 40,
-                            child: CircleAvatar(
-                              backgroundColor: widget.order.status.step >= 4 ? AppColor.completedForegroundColor : AppColor.lightCardColor,
-                              child: Text(
-                                '3',
-                              ),
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                ),
+                                SizedBox(width: 10),
+                                Text('${DateHelper.getFormattedDateTime(widget.order.collectedAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
+                              ],
                             ),
                           ),
-                        SizedBox(width: 10),
-                        StatusWidget(
-                          status: 'collected',
-                        ),
                       ],
-                    )),
-                    if (widget.order.status.step >= 4)
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                            ),
-                            SizedBox(width: 10),
-                            Text('${DateHelper.getFormattedDateTime(widget.order.collectedAt!)}' /*AppTextStyle.lightTextStyle(fontSize: 16)*/),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-          ],
-        ),),
-              ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
       if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context))
         StatusButton(
@@ -416,29 +421,57 @@ class _StatusButtonState extends State<StatusButton> {
         alignment: Alignment.center,
         child: Text('Collected'),
       ),
-      onPressed: () {
+      onPressed: () async {
         GetOrderByIdParam param = GetOrderByIdParam(orderId: widget.order.id!, date: widget.order.date);
+        bool? res = await showDialog<bool>(
+          context: context,
+          builder: (context) => ContentDialog(
+            title: Container(
+              alignment: Alignment.center,
+              child: const Text('Comfirmation'),
+            ),
+            content: Text(
+              TranslationHelper(context: context).getTranslation('confirmCollected'),
+              textAlign: TextAlign.center,
+            ),
+            actions: [
+              Button(
+                child: Text(TranslationHelper(context: context).getTranslation('yes')),
+                onPressed: () {
+                  Navigator.pop(context, true);
+                  // Delete file here
+                },
+              ),
+              FilledButton(
+                child: Text(TranslationHelper(context: context).getTranslation('no')),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+            ],
+          ),
+        );
 
-        context.read<OrderProvider>().updateToCollectedOrder(param).then((value) async {
-          if (value) {
-            await displayInfoBar(
-              context,
-              builder: (context, close) {
-                return InfoBar(
-                  title: const Text('Order Collected'),
-                  content: const Text('The order has been successfully collected by the customer.'),
-                  action: IconButton(
-                    icon: const Icon(FluentIcons.clear),
-                    onPressed: close,
-                  ),
-                  severity: InfoBarSeverity.success,
-                );
-              },
-              alignment: Alignment.topRight,
-            );
-            context.go('/track-order/${DateHelper.getFormattedDate(widget.order.date)}');
-          }
-        });
+        if (res == true) {
+          context.read<OrderProvider>().updateToCollectedOrder(param).then((value) async {
+            if (value) {
+              await displayInfoBar(
+                context,
+                builder: (context, close) {
+                  return InfoBar(
+                    title: const Text('Order Collected'),
+                    content: const Text('The order has been successfully collected by the customer.'),
+                    action: IconButton(
+                      icon: const Icon(FluentIcons.clear),
+                      onPressed: close,
+                    ),
+                    severity: InfoBarSeverity.success,
+                  );
+                },
+                alignment: Alignment.topRight,
+              );
+              context.go('/track-order/${DateHelper.getFormattedDate(widget.order.date)}');
+            }
+          });
+        }
       },
     );
   }
@@ -726,15 +759,17 @@ class StatusWithButtonWidget extends StatelessWidget {
         margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 20, bottom: 20) : const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 20),
         child: Container(
           margin: !ResponsiveHelper.isMobile(context) ? const EdgeInsets.only(left: 10, right: 20, top: 0, bottom: 0) : EdgeInsets.only(left: 10, right: 10, bottom: 20),
-          /*constraints: BoxConstraints(
-            maxHeight: order.status.step * 100 + 100,
-          ),*/
+          constraints: ResponsiveHelper.isMobile(context)
+              ? BoxConstraints(
+                  maxHeight: order.status.step * 100 + 60,
+                )
+              : null,
 /*
           height: order.status.step * 100 + 100,
 */
-          child:  StatusStepWidget(
+          child: StatusStepWidget(
             order: order,
-        ),
+          ),
         ));
   }
 }
