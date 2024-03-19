@@ -12,8 +12,7 @@ import '../model/order_model.dart';
 class OrderDataSource {
   final _client = Supabase.instance.client;
 
-  Future<Either<DatabaseFailure, bool>> placeOrder(
-      PlaceOrderModel order) async {
+  Future<Either<DatabaseFailure, bool>> placeOrder(PlaceOrderModel order) async {
     print('create order');
     try {
       DateTime now = DateTime.now();
@@ -28,8 +27,7 @@ class OrderDataSource {
         'amount_paid': order.paymentAmount,
         'note': order.note,
       };
-      List<Map<String, dynamic>> response =
-          await _client.from('orders').insert(orderInfo).select();
+      List<Map<String, dynamic>> response = await _client.from('orders').insert(orderInfo).select();
       print(response);
       if (response.isNotEmpty) {
         List<CartModel> cartDatas = order.cartList;
@@ -41,8 +39,7 @@ class OrderDataSource {
             'quantity': cartDatas[i].quantity,
             'is_done': cartDatas[i].isDone,
           };
-          List<Map<String, dynamic>> cartResponse =
-              await _client.from('cart').insert(cartInfo).select();
+          List<Map<String, dynamic>> cartResponse = await _client.from('cart').insert(cartInfo).select();
           print(cartResponse);
         }
 
@@ -66,20 +63,14 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(
-      DateTime date) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByDate(DateTime date) async {
     try {
-      var response = await _client
-          .from('all_orders_view')
-          .select()
-          .eq('order_date', date.toIso8601String())
-          .order('order_time', ascending: true);
+      var response = await _client.from('all_orders_view').select().eq('order_date', date.toIso8601String()).order('order_time', ascending: true);
       print('response from getOrders');
       print(response);
 
       if (response.isNotEmpty) {
-        List<OrderModel> orderList =
-            response.map((e) => OrderModel.fromJson(e)).toList();
+        List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
         print('order list');
         print(orderList);
         return Right(orderList);
@@ -98,20 +89,14 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(
-      int customerId) async {
+  Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(int customerId) async {
     print('getOrdersBySupplierId');
     try {
-      List<Map<String, dynamic>> response = await _client
-          .from('all_orders_view')
-          .select()
-          .eq('customer ->> customer_id', customerId)
-          .order('order_time', ascending: true);
+      List<Map<String, dynamic>> response = await _client.from('all_orders_view').select().eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
 /*
           response = response.where((element) => element['customer']['customer_id'] == supplierId).toList();
 */
-      List<OrderModel> orderList =
-          response.map((e) => OrderModel.fromJson(e)).toList();
+      List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
 
       return Right(orderList);
       /*.from('all_orders_view')
@@ -132,14 +117,9 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, OrderModel>> getOrderById(
-      int orderId, DateTime date) async {
+  Future<Either<DatabaseFailure, OrderModel>> getOrderById(int orderId, DateTime date) async {
     try {
-      var response = await _client
-          .from('all_orders_view')
-          .select()
-          .eq('order_id', orderId)
-          .eq('order_date', date.toIso8601String());
+      var response = await _client.from('all_orders_view').select().eq('order_id', orderId).eq('order_date', date.toIso8601String());
       print('response from getOrderById');
       print(response);
 
@@ -163,8 +143,7 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(
-      UpdateOrderParam updateOrderParam) async {
+  Future<Either<DatabaseFailure, GetOrderByIdParam>> updateOrder(UpdateOrderParam updateOrderParam) async {
     print('update order');
     int orderId = updateOrderParam.orderId;
     String orderDate = DateHelper.getFormattedDate(updateOrderParam.orderDate);
@@ -179,8 +158,7 @@ class OrderDataSource {
       'updated_at': DateTime.now().toIso8601String(),
     };
     if (updateOrderParam.time != null) {
-      orderInfo['time'] =
-          '${updateOrderParam.time?.hour}:${updateOrderParam.time?.minute}:00';
+      orderInfo['time'] = '${updateOrderParam.time?.hour}:${updateOrderParam.time?.minute}:00';
     }
     if (updateOrderParam.date != null) {
       orderInfo['date'] = updateOrderParam.date!.toIso8601String();
@@ -215,13 +193,7 @@ class OrderDataSource {
     print('orderInfo');
     print(orderInfo);
     try {
-      var response = await _client
-          .from('orders')
-          .update(orderInfo)
-          .eq('id', orderId)
-          .eq('date', updateOrderParam.orderDate.toIso8601String())
-          .select()
-          .single();
+      var response = await _client.from('orders').update(orderInfo).eq('id', orderId).eq('date', updateOrderParam.orderDate.toIso8601String()).select().single();
 
       print('response from updateOrder');
       print(response);
@@ -229,8 +201,7 @@ class OrderDataSource {
       DateTime date = DateTime.parse(response['date']);
       int id = response['id'];
       print('newDate : $date');
-      GetOrderByIdParam getOrderByIdParam =
-          GetOrderByIdParam(orderId: id, date: date);
+      GetOrderByIdParam getOrderByIdParam = GetOrderByIdParam(orderId: id, date: date);
 
       if (addedCart.isNotEmpty) {
         for (int i = 0; i < addedCart.length; i++) {
@@ -241,20 +212,13 @@ class OrderDataSource {
             'quantity': addedCart[i].quantity,
             'is_done': addedCart[i].isDone,
           };
-          List<Map<String, dynamic>> cartResponse =
-              await _client.from('cart').insert(cartInfo).select();
+          List<Map<String, dynamic>> cartResponse = await _client.from('cart').insert(cartInfo).select();
           print(cartResponse);
         }
       }
       if (removedCart.isNotEmpty) {
         for (int i = 0; i < removedCart.length; i++) {
-          List<Map<String, dynamic>> cartResponse = await _client
-              .from('cart')
-              .delete()
-              .eq('id', id)
-              .eq('date', date.toIso8601String())
-              .eq('product_id', removedCart[i].product.id)
-              .select();
+          List<Map<String, dynamic>> cartResponse = await _client.from('cart').delete().eq('id', id).eq('date', date.toIso8601String()).eq('product_id', removedCart[i].product.id).select();
           print(cartResponse);
         }
       }
@@ -289,8 +253,7 @@ class OrderDataSource {
     }
   }
 
-  Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(
-      GetOrderByIdParam param) async {
+  Future<Either<DatabaseFailure, bool>> updateToCollectedOrder(GetOrderByIdParam param) async {
     print('update status');
     try {
       var status = await _client.from('status').select().eq('step', 4).single();
@@ -299,7 +262,7 @@ class OrderDataSource {
       print('status id = $statusId');
       print(param.orderId);
       print(param.date);
-
+/*
       var res = await _client
           .from('orders')
           .update({
@@ -308,22 +271,22 @@ class OrderDataSource {
           .eq('id', 3)
           .eq('date', param.date.toIso8601String())
           .select()
-          .single();
+          .single();*/
 
-     /* await _client
+      var res = await _client
           .from('orders')
           .update({
-            'status_id': 6,
-           *//* 'updated_at': DateTime.now().toIso8601String(),
-            'collected_date': DateTime.now().toIso8601String(),*//*
+            'status_id': statusId,
+            'updated_at': DateTime.now().toIso8601String(),
+            'collected_date': DateTime.now().toIso8601String(),
           })
-
-          .eq('id', 3)
-          .eq('date', '2024-03-17')
-          .select();*/
+          .eq('id', param.orderId)
+          .eq('date', param.date.toIso8601String())
+          .select()
+          .single();
       print('res $res');
 
-         /* .single()*/
+      /* .single()*/
       print('response from updateToCollectedOrder');
 
       return const Right(true);

@@ -264,68 +264,46 @@ Future<void> main() async {
     url: supabaseUrl,
     anonKey: supabaseAnnonKey,
   );
-  AuthRepository authRepository =
-      AuthRepositoryImpl(dataSource: AuthDataSource());
-  CustomerRepository customerRepository =
-      CustomerRepositoryImpl(dataSource: CustomerDataSource());
-  ProductRepository productRepository =
-      ProductRepositoryImpl(dataSource: ProductDataSource());
-  OrderRepository orderRepository =
-      OrderRepositoryImpl(orderDataSource: OrderDataSource());
+  AuthRepository authRepository = AuthRepositoryImpl(dataSource: AuthDataSource());
+  CustomerRepository customerRepository = CustomerRepositoryImpl(dataSource: CustomerDataSource());
+  ProductRepository productRepository = ProductRepositoryImpl(dataSource: ProductDataSource());
+  OrderRepository orderRepository = OrderRepositoryImpl(orderDataSource: OrderDataSource());
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<ProductProvider>(
           create: (context) => ProductProvider(
-            productGetProductsUseCase:
-                ProductGetProductsUseCase(productRepository: productRepository),
-            productGetProductByIdUseCase: ProductGetProductByIdUseCase(
-                productRepository: productRepository),
-            productGetSignedUrlUseCase: ProductGetSignedUrlUseCase(
-                productRepository: productRepository),
+            productGetProductsUseCase: ProductGetProductsUseCase(productRepository: productRepository),
+            productGetProductByIdUseCase: ProductGetProductByIdUseCase(productRepository: productRepository),
+            productGetSignedUrlUseCase: ProductGetSignedUrlUseCase(productRepository: productRepository),
           ),
         ),
         ChangeNotifierProvider<AuthProvider>(
           create: (context) => AuthProvider(
             authLoginUseCase: AuthLoginUseCase(authRepository: authRepository),
-            authLogoutUseCase:
-                AuthLogoutUseCase(authRepository: authRepository),
-            authGetUserUseCase:
-                AuthGetUserUseCase(authRepository: authRepository),
-            authIsLoggedInUseCase:
-                AuthIsLoggedInUseCase(authRepository: authRepository),
-            authOnAuthChangeUseCase:
-                AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
+            authLogoutUseCase: AuthLogoutUseCase(authRepository: authRepository),
+            authGetUserUseCase: AuthGetUserUseCase(authRepository: authRepository),
+            authIsLoggedInUseCase: AuthIsLoggedInUseCase(authRepository: authRepository),
+            authOnAuthChangeUseCase: AuthOnAuthOnAuthChangeUseCase(authRepository: authRepository),
           ),
         ),
         ChangeNotifierProvider<CustomerProvider>(
           create: (context) => CustomerProvider(
-            customerGetCustomersUseCase: CustomerGetCustomersUseCase(
-                customerRepository: customerRepository),
-            customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(
-                customerRepository: customerRepository),
-            customerAddCustomerUseCase: CustomerAddCustomerUseCase(
-                customerRepository: customerRepository),
-            customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(
-                customerRepository: customerRepository),
+            customerGetCustomersUseCase: CustomerGetCustomersUseCase(customerRepository: customerRepository),
+            customerGetCustomersByIdUseCase: CustomerGetCustomerByIdUseCase(customerRepository: customerRepository),
+            customerAddCustomerUseCase: CustomerAddCustomerUseCase(customerRepository: customerRepository),
+            customerUpdateCustomerUseCase: CustomerUpdateCustomerUseCase(customerRepository: customerRepository),
           ),
         ),
         ChangeNotifierProvider<OrderProvider>(
           create: (context) => OrderProvider(
-            orderGetOrdersByDateUseCase:
-                OrderGetOrdersByDateUseCase(orderRepository: orderRepository),
-            orderGetOrdersByCustomerIdUseCase:
-                OrderGetOrdersByCustomerIdUseCase(
-                    orderRepository: orderRepository),
-            orderPlaceOrderUseCase:
-                OrderPlaceOrderUseCase(orderRepository: orderRepository),
-            orderGetOrdersByIdUseCase:
-                OrderGetOrdersByIdUseCase(orderRepository: orderRepository),
-            orderUpdateOrderUseCase:
-                OrderUpdateOrderUseCase(orderRepository: orderRepository),
-            orderUpdateToCollectedUseCase:
-                OrderUpdateToCollectedUseCase(orderRepository: orderRepository),
+            orderGetOrdersByDateUseCase: OrderGetOrdersByDateUseCase(orderRepository: orderRepository),
+            orderGetOrdersByCustomerIdUseCase: OrderGetOrdersByCustomerIdUseCase(orderRepository: orderRepository),
+            orderPlaceOrderUseCase: OrderPlaceOrderUseCase(orderRepository: orderRepository),
+            orderGetOrdersByIdUseCase: OrderGetOrdersByIdUseCase(orderRepository: orderRepository),
+            orderUpdateOrderUseCase: OrderUpdateOrderUseCase(orderRepository: orderRepository),
+            orderUpdateToCollectedUseCase: OrderUpdateToCollectedUseCase(orderRepository: orderRepository),
           ),
         ),
         ChangeNotifierProvider<ProfileProvider>(
@@ -398,8 +376,7 @@ class TranslationHelper {
       'helloWorld': AppLocalizations.of(context)!.helloWorld,
       'email': AppLocalizations.of(context)!.email,
       'password': AppLocalizations.of(context)!.password,
-      'invalidEmailOrPassword':
-          AppLocalizations.of(context)!.invalidEmailOrPassword,
+      'invalidEmailOrPassword': AppLocalizations.of(context)!.invalidEmailOrPassword,
       'signIn': AppLocalizations.of(context)!.signIn,
       'signOut': AppLocalizations.of(context)!.signOut,
       'confirmSignOut': AppLocalizations.of(context)!.confirmSignOut,
@@ -460,9 +437,7 @@ class TranslationHelper {
       'noInProgressOrders': AppLocalizations.of(context)!.noInProgressOrders,
       'noCompletedOrders': AppLocalizations.of(context)!.noCompletedOrders,
       'noCollectedOrders': AppLocalizations.of(context)!.noCollectedOrders,
-
-
-
+      'confirmCollected': AppLocalizations.of(context)!.confirmCollected,
     };
     return translations[key]!;
   }

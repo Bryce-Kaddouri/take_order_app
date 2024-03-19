@@ -260,6 +260,10 @@
   "@noCollectedOrders": {
     "description": "A field for no completed order"
   },
+  "confirmCollected": "Are you sure you want to mark this order as collected?",
+    "@confirmCollected": {
+        "description": "A field for confirm collected"
+    },
                 
               
   "hello": "Hello {userName}",
