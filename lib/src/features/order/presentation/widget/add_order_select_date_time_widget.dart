@@ -27,11 +27,35 @@ class _SelectDateTimePageState extends State<SelectDateTimePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           DatePicker(
+            startDate: DateTime.now(),
             header:
                 TranslationHelper(context: context).getTranslation('pickDate'),
             selected: widget.selectedDate,
             onChanged: (time) {
-              widget.onSelectedDate(time);
+              DateTime finalTime =
+                  DateTime(time.year, time.month, time.day, 0, 0);
+              if (finalTime.isBefore(DateTime.now().copyWith(
+                  hour: 0,
+                  minute: 0,
+                  second: 0,
+                  millisecond: 0,
+                  microsecond: 0))) {
+                displayInfoBar(
+                  alignment: Alignment.topRight,
+                  context,
+                  builder: (context, close) => InfoBar(
+                    title: Text('Invalid Date'),
+                    content: Text('Please select a date in the future'),
+                    action: IconButton(
+                      icon: const Icon(FluentIcons.clear),
+                      onPressed: close,
+                    ),
+                    severity: InfoBarSeverity.error,
+                  ),
+                );
+              } else {
+                widget.onSelectedDate(time);
+              }
               /*setState(() {
                 selectedDate = selectedDate.copyWith(year: time.year, month: time.month, day: time.day);
               });*/
@@ -41,11 +65,34 @@ class _SelectDateTimePageState extends State<SelectDateTimePage> {
             height: 20,
           ),
           TimePicker(
+            minuteIncrement: 15,
             header:
                 TranslationHelper(context: context).getTranslation('pickTime'),
             selected: widget.selectedDate,
             onChanged: (DateTime time) {
-              widget.onSelectedTime(time);
+              DateTime finalTime = DateTime(
+                  widget.selectedDate.year,
+                  widget.selectedDate.month,
+                  widget.selectedDate.day,
+                  time.hour,
+                  time.minute);
+              if (finalTime.isBefore(DateTime.now())) {
+                displayInfoBar(
+                  alignment: Alignment.topRight,
+                  context,
+                  builder: (context, close) => InfoBar(
+                    title: Text('Invalid Time'),
+                    content: Text('Please select a time in the future'),
+                    action: IconButton(
+                      icon: const Icon(FluentIcons.clear),
+                      onPressed: close,
+                    ),
+                    severity: InfoBarSeverity.error,
+                  ),
+                );
+              } else {
+                widget.onSelectedTime(time);
+              }
               /* setState(() {
                 selectedDate = selectedDate.copyWith(hour: time.hour, minute: time.minute);
               });*/

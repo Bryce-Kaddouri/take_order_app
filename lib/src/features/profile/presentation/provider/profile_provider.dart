@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class ProfileProvider with ChangeNotifier {
   final _secureStorage = const FlutterSecureStorage();
 
-  String _themeMode = 'system';
+  String _themeMode = 'light';
   String get themeMode => _themeMode;
 
   void setThemeMode(String value) {

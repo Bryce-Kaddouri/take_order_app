@@ -16,7 +16,7 @@ class PaymentDetailPage extends StatefulWidget {
   const PaymentDetailPage(
       {super.key,
       required this.fromKeyPayment,
-      required this.paymentAmount,
+      this.paymentAmount = 0.0,
       required this.onChangedPaidAmount,
       required this.noteController});
 
@@ -38,12 +38,14 @@ class _PaymentDetailPageState extends State<PaymentDetailPage> {
               label: TranslationHelper(context: context)
                   .getTranslation('paymentAmount'),
               child: NumberFormBox<double>(
+                autovalidateMode: AutovalidateMode.always,
                 onChanged: (value) {
                   widget.onChangedPaidAmount(value!);
                   /*setState(() {
                     _paymentAmount = value!;
                   });*/
                 },
+                initialValue: widget.paymentAmount.toString(),
                 value: widget.paymentAmount,
                 placeholder: TranslationHelper(context: context)
                     .getTranslation('paymentAmount'),

@@ -23,6 +23,37 @@ class SelectCustomerPage extends StatefulWidget {
 }
 
 class _SelectCustomerPageState extends State<SelectCustomerPage> {
+  final customerKey = GlobalKey<AutoSuggestBoxState>(
+    debugLabel: 'Manually controlled AutoSuggestBox',
+  );
+
+  // focus node to knoz if the widget is focused
+  FocusNode focusNode = FocusNode(
+    debugLabel: 'Manually controlled AutoSuggestBox',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.requestFocus();
+    // add listener to focusNode
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        Future.delayed(Duration(milliseconds: 500),
+            () => customerKey.currentState?.showOverlay());
+      }
+    });
+/*
+    customerKey.currentState?.showOverlay();
+*/
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,9 +64,37 @@ class _SelectCustomerPageState extends State<SelectCustomerPage> {
         child: Column(
           children: [
             AutoSuggestBox.form(
+              key: customerKey,
+              focusNode: focusNode,
+
+              noResultsFoundBuilder: (context) {
+                return Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    'No results found',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                );
+              },
+              // Listen to the overlay visibility changes
+              onOverlayVisibilityChanged: (visible) {
+                if (visible) {
+                  // The overlay is visible
+                } else {
+                  // The overlay is not visible
+                }
+              },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: widget.customerController,
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
+                // check if selectedCustomerId is in lstCustomers
+                (value) {
+                  if (widget.selectedCustomerId == -1) {
+                    return 'Please select a customer';
+                  }
+                  return null;
+                }
               ]),
               onSelected: (value) {
                 widget.onSelected(value.value!);

@@ -270,10 +270,27 @@ class _AddOrderBottomBarState extends State<AddOrderBottomBar> {
                   widget.animationControllerProgressBar.animateTo(3.5);
                 }
               } else if (widget.currentStep == 1) {
-                widget.pageController.animateToPage(2,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeIn);
-                widget.animationControllerProgressBar.animateTo(5.5);
+                final finalDateTime = widget.selectedDate;
+                if (finalDateTime.isBefore(DateTime.now())) {
+                  displayInfoBar(
+                    alignment: Alignment.topRight,
+                    context,
+                    builder: (context, close) => InfoBar(
+                      title: Text('Invalid Date'),
+                      content: Text('Please select a date in the future'),
+                      action: IconButton(
+                        icon: const Icon(FluentIcons.clear),
+                        onPressed: close,
+                      ),
+                      severity: InfoBarSeverity.error,
+                    ),
+                  );
+                } else {
+                  widget.pageController.animateToPage(2,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn);
+                  widget.animationControllerProgressBar.animateTo(5.5);
+                }
               } else if (widget.currentStep == 2) {
                 if (context.read<OrderProvider>().cartList.isNotEmpty) {
                   widget.pageController.animateToPage(3,
