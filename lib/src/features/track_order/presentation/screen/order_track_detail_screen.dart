@@ -102,7 +102,7 @@ class _OrderTrackDetailScreenState extends State<OrderTrackDetailScreen> {
                           ),
                         ),
                       ),
-                      if (order.status.step == 3)
+                      if (order.status.step == 3 && !order.date.isBefore(DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)))
                         Card(
                           padding: EdgeInsets.all(8),
                           child: Container(
@@ -395,7 +395,7 @@ class _StatusStepWidgetState extends State<StatusStepWidget> {
           ),
         ),
       ),
-      if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context))
+      if ((widget.order.status.step == 3) && !ResponsiveHelper.isMobile(context) && !widget.order.date.isBefore(DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)))
         StatusButton(
           order: widget.order,
         ),

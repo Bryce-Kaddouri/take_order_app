@@ -67,11 +67,7 @@ class OrdersItemViewByStatus extends StatelessWidget {
   final String status;
   final OrderModel order;
   final bool isTrackOrder;
-  const OrdersItemViewByStatus(
-      {super.key,
-      required this.status,
-      required this.order,
-      this.isTrackOrder = false});
+  const OrdersItemViewByStatus({super.key, required this.status, required this.order, this.isTrackOrder = false});
 
   double getTotal(int index) {
     double total = 0;
@@ -85,7 +81,9 @@ class OrdersItemViewByStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 5),
+/*
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+*/
       child: GestureDetector(
         onTap: () {
           int orderId = order.id!;
@@ -96,7 +94,7 @@ class OrdersItemViewByStatus extends StatelessWidget {
           if (isTrackOrder) {
             context.go('/track-order/$date/$orderId');
           } else {
-            context.go('/orders/$date/$orderId');
+            context.push('/orders/$date/$orderId');
           }
         },
         child: Row(
@@ -121,8 +119,7 @@ class OrdersItemViewByStatus extends StatelessWidget {
                     flex: 2,
                     child: Container(
                       alignment: Alignment.center,
-                      child: Text(
-                          '${order.customer.lName} ${order.customer.fName}'),
+                      child: Text('${order.customer.lName} ${order.customer.fName}'),
                     ),
                   ),
                   Expanded(

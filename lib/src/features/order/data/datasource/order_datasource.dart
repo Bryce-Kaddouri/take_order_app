@@ -92,11 +92,27 @@ class OrderDataSource {
   Future<Either<DatabaseFailure, List<OrderModel>>> getOrdersByCustomerId(int customerId) async {
     print('getOrdersBySupplierId');
     try {
-      List<Map<String, dynamic>> response = await _client.from('all_orders_view').select().eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
-/*
+      // where order_date >= current_date
+
+      List<Map<String, dynamic>> responseFuture = await _client.from('all_orders_view').select().gte('order_date', DateTime.now().toIso8601String()).eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
+      print('responseFuture');
+      print(responseFuture);
+
+      List<Map<String, dynamic>> responseOld = await _client.from('order_history').select().lt('order_date', DateTime.now().toIso8601String()).eq('customer ->> customer_id', customerId).order('order_time', ascending: true);
+      print('responseOld');
+      print(responseOld);
+      /*
           response = response.where((element) => element['customer']['customer_id'] == supplierId).toList();
 */
-      List<OrderModel> orderList = response.map((e) => OrderModel.fromJson(e)).toList();
+      List<OrderModel> orderList = [];
+
+      if (responseFuture.isNotEmpty) {
+        orderList = responseFuture.map((e) => OrderModel.fromJson(e)).toList();
+      }
+
+      if (responseOld.isNotEmpty) {
+        orderList.addAll(responseOld.map((e) => OrderModel.fromJson(e)).toList());
+      }
 
       return Right(orderList);
       /*.from('all_orders_view')
@@ -119,7 +135,12 @@ class OrderDataSource {
 
   Future<Either<DatabaseFailure, OrderModel>> getOrderById(int orderId, DateTime date) async {
     try {
-      var response = await _client.from('all_orders_view').select().eq('order_id', orderId).eq('order_date', date.toIso8601String());
+      List<Map<String, dynamic>> response = [];
+      if (date.isBefore(DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0))) {
+        response = await _client.from('order_history').select().eq('order_id', orderId).eq('order_date', date.toIso8601String());
+      } else {
+        response = await _client.from('all_orders_view').select().eq('order_id', orderId).eq('order_date', date.toIso8601String());
+      }
       print('response from getOrderById');
       print(response);
 
